@@ -1,14 +1,11 @@
 // index.js
 const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
+const router = require("./router/auth-router")
 
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
-app.get('/about', (req, res) => {
-  res.send('This is the about page.');
-});
+app.use("/api/auth",router);
+
 
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
