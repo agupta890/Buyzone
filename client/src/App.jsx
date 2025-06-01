@@ -3,10 +3,13 @@ import { Routes, Route } from "react-router-dom";
 import {Navbar} from './components/Navbar'
 import {Footer} from './components/Footer'
 import { HomePage } from "./pages/HomePage";
-import { AllProduct } from "./pages/AllProduct";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
-
+import { Men } from "./pages/Prouducts-Pages/Men";
+import { Women } from "./pages/Prouducts-Pages/Women";
+import {Kids} from "./pages/Prouducts-Pages/Kids"
+import { Cart } from "./pages/Cart";
+import {Wishlist} from "./pages/Wishlist"
 const App = () => {
   return (
     <>
@@ -14,8 +17,12 @@ const App = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/products" element={<AllProduct />} />
+        <Route path="/signup" element={<Register />} />
+        <Route path="/men" element={<Men />} />
+        <Route path="/women" element={<Women/>}/>
+        <Route path="/kids" element={<Kids/>}/>
+        <Route path="/cart" element={<Cart/>}/>
+        <Route path="/wishlist" element={<Wishlist/>}/>
       </Routes>
       <Footer/>
     </>
