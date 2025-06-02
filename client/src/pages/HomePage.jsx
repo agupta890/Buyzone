@@ -9,7 +9,7 @@ import img4 from "../assets/slide4.jpg";
 import img5 from "../assets/slide5.jpg";
 
 // Import your feature image
-import featureImg from "../assets/feature-img.jpg";
+import featureImg from "../assets/summer-season.jpg";
 import HomeCardGrid from "./HomeCards";
 
 const images = [img1, img2, img3, img4, img5];
@@ -81,31 +81,32 @@ export const HomePage = () => {
       </div>
 
       {/* Feature Image with Text Overlay */}
-      <div className="relative w-full my-8 px-4 h-[400px] overflow-hidden">
-        <img
-          src={featureImg}
-          alt="Features"
-          className="w-full h-full object-contain"
-        />
-        <div className="absolute inset-0 bg-opacity-30 flex items-center">
-          <div className="ml-10 text-black max-w-xl">
-            <h3 className="text-lg font-semibold">Trade-in-fair</h3>
-            <h1 className="text-4xl font-bold leading-tight my-2">
-              Super value deals <br />
-              <span className="text-teal-300">On all Products</span>
-            </h1>
-            <p className="text-sm mb-4">
-              Save more with coupons and up to 70% off!
-            </p>
-            <button className="bg-orange-300 hover:bg-orange-400 text-black font-medium px-6 py-2 rounded-md shadow-md">
-              Shop Now
-            </button>
-          </div>
-        </div>
-      </div>
+      <div className="relative w-full my-8 px-4 h-[400px] overflow-hidden rounded-lg">
+  <img
+    src={featureImg}
+    alt="Features"
+    className="w-full h-full object-cover rounded-lg opacity-70"
+  />
+  <div className="absolute inset-0 flex items-center justify-center  px-4 sm:px-8">
+    <div className="text-black max-w-xl text-center sm:text-left space-y-2">
+      <h3 className="text-lg font-semibold">Trade-in-fair</h3>
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight">
+        Super value deals <br />
+        <span className="text-yellow-500">On all Products</span>
+      </h1>
+      <p className="text-sm sm:text-base">
+        Save more with coupons and up to 70% off!
+      </p>
+      <button className="bg-orange-300 hover:bg-orange-400 text-black font-medium px-6 py-2 rounded-md shadow-md">
+        Shop Now
+      </button>
+    </div>
+  </div>
+</div>
+
 
       {/* Cards Section */}
-      <div className="px-4 py-6">
+      <div>
         <HomeCardGrid/>
       </div>
     </div>
