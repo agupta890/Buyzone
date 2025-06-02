@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 
 // Import your slider images
@@ -110,3 +111,4 @@ export const HomePage = () => {
     </div>
   );
 };
+
