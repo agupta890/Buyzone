@@ -17,7 +17,7 @@ export const Login = () => {
   };
 
   return (
-    <div className=" flex items-center justify-center bg-gray-50 px-4 py-4 sm:py-8 ">
+    <div className=" min-h-screen flex items-center justify-center bg-gray-50 px-4 py-4 sm:py-8 ">
       <div className="max-w-md w-full bg-white p-4 sm:p-6 rounded-xl shadow-md">
         <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-4 sm:mb-5">Welcome Back</h2>
 
@@ -31,7 +31,7 @@ export const Login = () => {
               onChange={handleChange}
               required
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              placeholder="Enter your email"
+              placeholder="Enter your buyzone email"
             />
           </div>
 
@@ -44,7 +44,7 @@ export const Login = () => {
               onChange={handleChange}
               required
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              placeholder="Enter your password"
+              placeholder="Enter your buyzone password"
             />
           </div>
 

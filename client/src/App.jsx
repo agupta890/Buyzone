@@ -10,6 +10,8 @@ import { Women } from "./pages/Prouducts-Pages/Women";
 import {Kids} from "./pages/Prouducts-Pages/Kids"
 import { Cart } from "./pages/Cart";
 import {Wishlist} from "./pages/Wishlist"
+import { MyOrders } from "./pages/Myorders";
+
 const App = () => {
   return (
     <>
@@ -23,6 +25,7 @@ const App = () => {
         <Route path="/kids" element={<Kids/>}/>
         <Route path="/cart" element={<Cart/>}/>
         <Route path="/wishlist" element={<Wishlist/>}/>
+        <Route path="/orders" element={<MyOrders/>}/>
       </Routes>
       <Footer/>
     </>

@@ -26,7 +26,7 @@ export const Register = () => {
   };
 
   return (
-    <div className="flex items-center justify-center bg-gray-50 px-4 py-6 sm:py-12">
+    <div className=" min-h-screen  flex items-center justify-center bg-gray-50 px-4 py-6 sm:py-12">
       <div className="max-w-md w-full bg-white p-6 sm:p-8 rounded-xl shadow-md">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Create Your Account</h2>
 
@@ -40,7 +40,7 @@ export const Register = () => {
               onChange={handleChange}
               required
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              placeholder="Enter your name"
+              placeholder="Enter your full name"
             />
           </div>
 
@@ -66,7 +66,7 @@ export const Register = () => {
               onChange={handleChange}
               required
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              placeholder="Enter your password"
+              placeholder="Create your buyzone account password"
             />
           </div>
 
@@ -79,7 +79,7 @@ export const Register = () => {
               onChange={handleChange}
               required
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              placeholder="Confirm your password"
+              placeholder="Confirm your buyzone account password"
             />
           </div>
 
