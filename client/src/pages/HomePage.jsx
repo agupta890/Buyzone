@@ -9,6 +9,7 @@ import img5 from "../assets/slide5.jpg";
 
 // Import your feature image
 import featureImg from "../assets/feature-img.jpg";
+import HomeCardGrid from "./HomeCards";
 
 const images = [img1, img2, img3, img4, img5];
 
@@ -32,7 +33,7 @@ export const HomePage = () => {
   };
 
   return (
-    <div className="bg-black">
+    <div>
       {/* Slide Bar */}
       <div className="px-4 sm:px-6 lg:px-2 max-w-screen-xl mx-auto">
         <div className="relative w-full h-40 sm:h-52 md:h-64 lg:h-72 xl:h-80 overflow-hidden rounded-r-3l">
@@ -79,14 +80,14 @@ export const HomePage = () => {
       </div>
 
       {/* Feature Image with Text Overlay */}
-      <div className="relative w-full my-8 px-4 h-[400px] overflow-hidden shadow-md">
+      <div className="relative w-full my-8 px-4 h-[400px] overflow-hidden">
         <img
           src={featureImg}
           alt="Features"
-          className="w-full h-full object-center"
+          className="w-full h-full object-contain"
         />
         <div className="absolute inset-0 bg-opacity-30 flex items-center">
-          <div className="ml-10 text-white max-w-xl">
+          <div className="ml-10 text-black max-w-xl">
             <h3 className="text-lg font-semibold">Trade-in-fair</h3>
             <h1 className="text-4xl font-bold leading-tight my-2">
               Super value deals <br />
@@ -104,17 +105,7 @@ export const HomePage = () => {
 
       {/* Cards Section */}
       <div className="px-4 py-6">
-        <h2 className="text-2xl font-bold mb-4">Featured Cards</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {Array.from({ length: 10 }).map((_, idx) => (
-            <div
-              key={idx}
-              className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition duration-300 text-center"
-            >
-              <p className="text-gray-700 font-medium">Card {idx + 1}</p>
-            </div>
-          ))}
-        </div>
+        <HomeCardGrid/>
       </div>
     </div>
   );
