@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const Register = () => {
   const [formData, setFormData] = useState({
@@ -7,22 +8,75 @@ export const Register = () => {
     password: '',
     confirmPassword: ''
   });
+  
+   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.name) newErrors.name = "Name is required";
+    else if (formData.name.length < 3) newErrors.name = "Name must be at least 3 characters";
+    if (!formData.email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email address is invalid";
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
+    if (formData.confirmPassword !== formData.password)
+      newErrors.confirmPassword = "Passwords do not match";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   console.log(formData);
+  //   setFormData(
+  //     {
+  //       name: '',
+  //   email: '',
+  //   password: '',
+  //   confirmPassword: ''
+  //     }
+  //   )
+  // };
+const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    setFormData(
-      {
-        name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    if (!validate()) return;
+
+    const payload = {
+      email: formData.email,
+      password: formData.password,
+    };
+
+    try {
+      const response = await fetch("http://localhost:3000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+
+        const userData = await userRes.json();
+        if (userRes.ok) {
+          console.log("User data after signup:", userData);
+          setTimeout(() => {
+            navigate("/login"); // Redirect to login page
+          }, 1500);
+        } else {
+          throw new Error("Failed to verify token after signup");
+        }
+      } else {
+        console.error(data.message || "Signup failed", { position: "top-center" });
       }
-    )
+    } catch (error) {
+      console.error("Signup error:", error);}
+  };
+
+const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (

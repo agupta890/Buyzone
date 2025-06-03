@@ -81,7 +81,7 @@ export const HomePage = () => {
       </div>
 
       {/* Feature Image with Text Overlay */}
-      <div className="relative w-full my-8 px-4 h-[400px] overflow-hidden rounded-lg">
+      <div className="relative w-full my-8 px-6 h-[400px] overflow-hidden rounded-lg">
   <img
     src={featureImg}
     alt="Features"

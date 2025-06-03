@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -7,14 +7,14 @@ export const Navbar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('userInfo'));
+    const storedUser = JSON.parse(localStorage.getItem("userInfo"));
     setUser(storedUser);
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('userInfo');
+    localStorage.removeItem("userInfo");
     setUser(null);
-    navigate('/');
+    navigate("/");
   };
 
   const handleNavClick = (path) => {
@@ -26,20 +26,46 @@ export const Navbar = () => {
     <nav className="w-full bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-
           {/* Logo and categories section */}
           <div className="flex items-center space-x-10">
             <NavLink to="/" className="text-2xl font-bold">
               Buy<span className="text-yellow-500">Zone</span>
             </NavLink>
             <div className="hidden md:flex space-x-4">
-              <NavLink to="/men" className="text-sm font-medium hover:text-yellow-500">
+              <NavLink
+                to="/men"
+                className={({ isActive }) =>
+                  `text-sm font-medium transition ${
+                    isActive
+                      ? "text-yellow-500 font-semibold"
+                      : "text-black hover:text-yellow-500"
+                  }`
+                }
+              >
                 MEN
               </NavLink>
-              <NavLink to="/women" className="text-sm font-medium hover:text-yellow-500">
+              <NavLink
+                to="/women"
+                className={({ isActive }) =>
+                  `text-sm font-medium transition ${
+                    isActive
+                      ? "text-yellow-500 font-semibold"
+                      : "text-black hover:text-yellow-500"
+                  }`
+                }
+              >
                 WOMEN
               </NavLink>
-              <NavLink to="/kids" className="text-sm font-medium hover:text-yellow-500">
+              <NavLink
+                to="/kids"
+                className={({ isActive }) =>
+                  `text-sm font-medium transition ${
+                    isActive
+                      ? "text-yellow-500 font-semibold"
+                      : "text-black hover:text-yellow-500"
+                  }`
+                }
+              >
                 KIDS
               </NavLink>
             </div>
@@ -72,8 +98,22 @@ export const Navbar = () => {
           {/* Icons and mobile menu button */}
           <div className="flex items-center space-x-3">
             {/* Wishlist icon */}
-            <NavLink to="/wishlist" className="hover:text-yellow-500 cursor-pointer">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <NavLink
+              to="/wishlist"
+              className={({ isActive }) =>
+                `text-sm font-medium transition ${
+                  isActive
+                    ? "text-yellow-500 font-semibold"
+                    : "text-black hover:text-yellow-500"
+                }`
+              }
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -84,8 +124,22 @@ export const Navbar = () => {
             </NavLink>
 
             {/* Cart icon */}
-            <NavLink to="/cart" className="hover:text-yellow-500 cursor-pointer">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <NavLink
+              to="/cart"
+              className={({ isActive }) =>
+                `text-sm font-medium transition ${
+                  isActive
+                    ? "text-yellow-500 font-semibold"
+                    : "text-black hover:text-yellow-500"
+                }`
+              }
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -98,22 +152,55 @@ export const Navbar = () => {
             {/* Auth buttons (desktop) */}
             {user ? (
               <>
-                <NavLink to="/orders" className="text-sm font-medium hover:text-yellow-500 hidden md:block">
+                <NavLink
+                  to="/orders"
+                  className={({ isActive }) =>
+                    `text-sm font-medium transition ${
+                      isActive
+                        ? "text-yellow-500 font-semibold"
+                        : "text-black hover:text-yellow-500"
+                    }`
+                  }
+                >
                   MY ORDERS
                 </NavLink>
                 <button
                   onClick={handleLogout}
-                  className="text-sm font-medium hover:text-yellow-500 hidden md:block"
+                  className={({ isActive }) =>
+                    `text-sm font-medium transition ${
+                      isActive
+                        ? "text-yellow-500 font-semibold"
+                        : "text-black hover:text-yellow-500"
+                    }`
+                  }
                 >
                   LOGOUT
                 </button>
               </>
             ) : (
               <>
-                <NavLink to="/login" className="text-sm font-medium hover:text-yellow-500 hidden md:block">
+                <NavLink
+                  to="/login"
+                  className={({ isActive }) =>
+                    `text-sm font-medium transition ${
+                      isActive
+                        ? "text-yellow-500 font-semibold"
+                        : "text-black hover:text-yellow-500"
+                    }`
+                  }
+                >
                   LOGIN
                 </NavLink>
-                <NavLink to="/signup" className="text-sm font-medium hover:text-yellow-500 hidden md:block">
+                <NavLink
+                  to="/signup"
+                  className={({ isActive }) =>
+                    `text-sm font-medium transition ${
+                      isActive
+                        ? "text-yellow-500 font-semibold"
+                        : "text-black hover:text-yellow-500"
+                    }`
+                  }
+                >
                   SIGNUP
                 </NavLink>
               </>
@@ -125,8 +212,18 @@ export const Navbar = () => {
               className="md:hidden focus:outline-none"
               aria-label="Toggle menu"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
           </div>
@@ -136,20 +233,65 @@ export const Navbar = () => {
       {/* Mobile dropdown menu */}
       {menuOpen && (
         <div className="md:hidden px-4 pt-2 pb-4 space-y-2 bg-white shadow-md">
-          <button onClick={() => handleNavClick('/men')} className="block text-left w-full text-sm font-medium hover:text-yellow-500">MEN</button>
-          <button onClick={() => handleNavClick('/women')} className="block text-left w-full text-sm font-medium hover:text-yellow-500">WOMEN</button>
-          <button onClick={() => handleNavClick('/kids')} className="block text-left w-full text-sm font-medium hover:text-yellow-500">KIDS</button>
-          <button onClick={() => handleNavClick('/wishlist')} className="block text-left w-full text-sm font-medium hover:text-yellow-500">WISHLIST</button>
-          <button onClick={() => handleNavClick('/cart')} className="block text-left w-full text-sm font-medium hover:text-yellow-500">CART</button>
+          <button
+            onClick={() => handleNavClick("/men")}
+            className="block text-left w-full text-sm font-medium hover:text-yellow-500"
+          >
+            MEN
+          </button>
+          <button
+            onClick={() => handleNavClick("/women")}
+            className="block text-left w-full text-sm font-medium hover:text-yellow-500"
+          >
+            WOMEN
+          </button>
+          <button
+            onClick={() => handleNavClick("/kids")}
+            className="block text-left w-full text-sm font-medium hover:text-yellow-500"
+          >
+            KIDS
+          </button>
+          <button
+            onClick={() => handleNavClick("/wishlist")}
+            className="block text-left w-full text-sm font-medium hover:text-yellow-500"
+          >
+            WISHLIST
+          </button>
+          <button
+            onClick={() => handleNavClick("/cart")}
+            className="block text-left w-full text-sm font-medium hover:text-yellow-500"
+          >
+            CART
+          </button>
           {user ? (
             <>
-              <button onClick={() => handleNavClick('/orders')} className="block text-left w-full text-sm font-medium hover:text-yellow-500">MY ORDERS</button>
-              <button onClick={handleLogout} className="block text-left w-full text-sm font-medium hover:text-yellow-500">LOGOUT</button>
+              <button
+                onClick={() => handleNavClick("/orders")}
+                className="block text-left w-full text-sm font-medium hover:text-yellow-500"
+              >
+                MY ORDERS
+              </button>
+              <button
+                onClick={handleLogout}
+                className="block text-left w-full text-sm font-medium hover:text-yellow-500"
+              >
+                LOGOUT
+              </button>
             </>
           ) : (
             <>
-              <button onClick={() => handleNavClick('/login')} className="block text-left w-full text-sm font-medium hover:text-yellow-500">LOGIN</button>
-              <button onClick={() => handleNavClick('/signup')} className="block text-left w-full text-sm font-medium hover:text-yellow-500">SIGNUP</button>
+              <button
+                onClick={() => handleNavClick("/login")}
+                className="block text-left w-full text-sm font-medium hover:text-yellow-500"
+              >
+                LOGIN
+              </button>
+              <button
+                onClick={() => handleNavClick("/signup")}
+                className="block text-left w-full text-sm font-medium hover:text-yellow-500"
+              >
+                SIGNUP
+              </button>
             </>
           )}
         </div>

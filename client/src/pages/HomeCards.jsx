@@ -7,14 +7,14 @@ const cardData = [
   { id: 1, title: "Mens Fashion", image: cardImg1 },
   { id: 2, title: "Women Fashion", image: cardImg2 },
   { id: 3, title: "Kids Fashion", image: cardImg3 },
-  { id: 3, title: "Kids Fashion", image: cardImg3 },
+  { id: 4, title: "Kids Fashion", image: cardImg3 },
 ];
 
 
 const HomeCardGrid = () => {
   return (
    <section className="py-10 px-6">
-  <h2 className="text-4xl font-bold text-center mb-8">Featured Homes</h2>
+  <h2 className="text-2xl lg:tetx-4xl font-bold text-center mb-8">Featured Homes</h2>
 
   <div className="flex justify-center">
     <div className="grid grid-cols-3 lg:grid-cols-4  lg:w-full w-4xl min-h-max gap-6">
