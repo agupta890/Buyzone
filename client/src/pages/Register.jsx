@@ -8,79 +8,46 @@ export const Register = () => {
     password: '',
     confirmPassword: ''
   });
-  
-   const [errors, setErrors] = useState({});
+
   const navigate = useNavigate();
 
-  const validate = () => {
-    const newErrors = {};
-    if (!formData.name) newErrors.name = "Name is required";
-    else if (formData.name.length < 3) newErrors.name = "Name must be at least 3 characters";
-    if (!formData.email) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email address is invalid";
-    if (!formData.password) newErrors.password = "Password is required";
-    else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
-    if (formData.confirmPassword !== formData.password)
-      newErrors.confirmPassword = "Passwords do not match";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   console.log(formData);
-  //   setFormData(
-  //     {
-  //       name: '',
-  //   email: '',
-  //   password: '',
-  //   confirmPassword: ''
-  //     }
-  //   )
-  // };
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
-
-    const payload = {
-      email: formData.email,
-      password: formData.password,
-    };
-
-    try {
-      const response = await fetch("http://localhost:3000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-
-        const userData = await userRes.json();
-        if (userRes.ok) {
-          console.log("User data after signup:", userData);
-          setTimeout(() => {
-            navigate("/login"); // Redirect to login page
-          }, 1500);
-        } else {
-          throw new Error("Failed to verify token after signup");
-        }
-      } else {
-        console.error(data.message || "Signup failed", { position: "top-center" });
-      }
-    } catch (error) {
-      console.error("Signup error:", error);}
-  };
-
-const handleChange = (e) => {
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Registration successful!");
+        navigate('/login');
+      } else {
+        alert(data.message || "Registration failed!");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Something went wrong!");
+    }
+  };
+
   return (
-    <div className=" min-h-screen  flex items-center justify-center bg-gray-50 px-4 py-6 sm:py-12">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-6 sm:py-12">
       <div className="max-w-md w-full bg-white p-6 sm:p-8 rounded-xl shadow-md">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Create Your Account</h2>
 
@@ -120,7 +87,7 @@ const handleChange = (e) => {
               onChange={handleChange}
               required
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              placeholder="Create your buyzone account password"
+              placeholder="Create your password"
             />
           </div>
 
@@ -133,7 +100,7 @@ const handleChange = (e) => {
               onChange={handleChange}
               required
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              placeholder="Confirm your buyzone account password"
+              placeholder="Confirm your password"
             />
           </div>
 
@@ -153,5 +120,3 @@ const handleChange = (e) => {
     </div>
   );
 };
-
-
