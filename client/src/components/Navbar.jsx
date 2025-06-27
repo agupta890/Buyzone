@@ -192,7 +192,7 @@ export const Navbar = () => {
                   LOGIN
                 </NavLink>
                 <NavLink
-                  to="/signup"
+                  to="/register"
                   className={({ isActive }) =>
                     `text-sm font-medium transition ${
                       isActive

@@ -8,7 +8,8 @@ const authRouter = require('./router/auth-router');
 
 connectDB(); // Connect to MongoDB
 
-app.use(cors());
+// Enable CORS
+app.use(cors({ origin:'http://localhost:5173',credentials: true }));
 app.use(express.json());
 
 // Use the router

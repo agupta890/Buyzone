@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const Register = () => {
   const [formData, setFormData] = useState({
@@ -114,7 +114,7 @@ export const Register = () => {
 
         <p className="text-center text-sm text-gray-600 mt-4">
           Already have an account?
-          <a href="/login" className="text-yellow-500 hover:underline ml-1">Login</a>
+          <Link to ="/login" className="text-yellow-500 hover:underline ml-1">Login</Link>
         </p>
       </div>
     </div>

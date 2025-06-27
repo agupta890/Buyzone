@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export const Login = () => {
   const [formData, setFormData] = useState({
@@ -13,7 +14,7 @@ export const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.password) {
       alert("Passwords do not match!");
       return;
     }
@@ -82,7 +83,7 @@ export const Login = () => {
 
         <p className="text-center text-sm text-gray-600 mt-3">
           Don't have an account?
-          <a href="/register" className="text-yellow-500 hover:underline ml-1">Register</a>
+          <Link to ="/register" className="text-yellow-500 hover:underline ml-1">Register</Link>
         </p>
       </div>
     </div>
