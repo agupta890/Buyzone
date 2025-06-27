@@ -11,9 +11,34 @@ export const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+
+    if (formData.password !== formData.password) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("login successful!");
+      } else {
+        alert(data.message || "Login failed!");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Something went wrong!");
+    }
   };
 
   return (
@@ -58,7 +83,7 @@ export const Login = () => {
 
         <p className="text-center text-sm text-gray-600 mt-3">
           Don't have an account?
-          <a href="/signup" className="text-yellow-500 hover:underline ml-1">Register</a>
+          <Link to ="/register" className="text-yellow-500 hover:underline ml-1">Register</Link>
         </p>
       </div>
     </div>

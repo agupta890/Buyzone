@@ -21,11 +21,11 @@ const HomeCardGrid = () => {
       {cardData.map((card) => (
         <div
           key={card.id}
-          className="bg-white group rounded-lg  shadow hover:shadow-lg transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-105 text-center overflow-hidden">
+          className="bg-white group rounded-lg border-gray-200 border hover:shadow-2xl transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-105 text-center overflow-hidden">
           <img
             src={card.image}
             alt={card.title}
-            className="w-fit max-h-min  object-cover"
+            className="w-fit max-h-min p-3 rounded-3xl object-cover"
           />
           <p className="text-gray-700 group-hover:text-yellow-500 font-medium  py-2">{card.title}</p>
         </div>
