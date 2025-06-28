@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import {useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,7 +18,7 @@ export const Login = () => {
     e.preventDefault();
 
     if (formData.password !== formData.password) {
-      alert("Passwords do not match!");
+      toast.warn("Passwords do not match!");
       return;
     }
 
@@ -31,13 +34,14 @@ export const Login = () => {
       const data = await res.json();
 
       if (res.ok) {
-        alert("login successful!");
+        toast.success("login successful!");
+        navigate('/')
       } else {
-        alert(data.message || "Login failed!");
+        toast.error(data.message || "Login failed!");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Something went wrong!");
+      toast.error("Something went wrong!");
     }
   };
 

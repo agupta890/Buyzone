@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export const Register = () => {
   const [formData, setFormData] = useState({
@@ -19,7 +20,7 @@ export const Register = () => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      toast("Passwords do not match!");
       return;
     }
 
@@ -35,14 +36,14 @@ export const Register = () => {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Registration successful!");
+        toast.success("Registration successful!");
         navigate('/login');
       } else {
-        alert(data.message || "Registration failed!");
+        toast.error(data.message || "Registration failed!");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Something went wrong!");
+      toast.error("Something went wrong!");
     }
   };
 
