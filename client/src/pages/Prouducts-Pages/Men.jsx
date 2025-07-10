@@ -17,7 +17,7 @@ export const Men = () => {
     setLoading(true);
     setError(null);
 
-    fetch(`/api/products?category=${selectedCategory}`)
+    fetch(`http://localhost:3000/api/products?category=${selectedCategory}`)
       .then((res) => {
         if (!res.ok) {
           throw new Error('Failed to fetch products');
@@ -104,7 +104,7 @@ export const Men = () => {
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-44 object-cover"
+                  className="w-fit max-h-min p-2 object-cover"
                 />
                 <div className="p-4 flex flex-col flex-grow">
                   <h3 className="text-lg font-medium">{product.name}</h3>
