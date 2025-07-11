@@ -5,6 +5,8 @@ require('dotenv').config();
 
 const app = express();
 const authRouter = require('./router/auth-router');
+const productRoutes = require('./router/products-route');
+
 
 connectDB(); // Connect to MongoDB
 
@@ -14,6 +16,7 @@ app.use(express.json());
 
 // Use the router
 app.use('/api/auth', authRouter);
+app.use('/api/products', productRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

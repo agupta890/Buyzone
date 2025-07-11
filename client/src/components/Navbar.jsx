@@ -203,6 +203,18 @@ export const Navbar = () => {
                 >
                   SIGNUP
                 </NavLink>
+                 <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                    `text-sm font-medium transition ${
+                      isActive
+                        ? "text-yellow-500 font-semibold"
+                        : "text-black hover:text-yellow-500"
+                    }`
+                  }
+                >
+                  Admin
+                </NavLink>
               </>
             )}
 
