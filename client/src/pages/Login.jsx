@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
-import {useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 export const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -15,82 +11,110 @@ export const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  try {
+    const res = await fetch('http://localhost:3000/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
 
-    if (formData.password !== formData.password) {
-      toast.warn("Passwords do not match!");
-      return;
+    const data = await res.json();
+
+    if (res.ok) {
+      // ✅ Save user info + token in localStorage
+      localStorage.setItem("userInfo", JSON.stringify(data));
+
+      toast.success("Login successful!");
+      navigate('/');
+      window.location.reload(); // refresh so Navbar updates
+    } else {
+      toast.error(data.message || "Login failed!");
     }
+  } catch (error) {
+    console.error("Error:", error);
+    toast.error("Something went wrong!");
+  }
+};
 
-    try {
-      const res = await fetch('http://localhost:3000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        toast.success("login successful!");
-        navigate('/')
-      } else {
-        toast.error(data.message || "Login failed!");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("Something went wrong!");
-    }
-  };
 
   return (
-    <div className=" min-h-screen flex items-center justify-center bg-gray-50 px-4 py-4 sm:py-8 ">
-      <div className="max-w-md w-full bg-white p-4 sm:p-6 rounded-xl shadow-md">
-        <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-4 sm:mb-5">Welcome Back</h2>
+    <div className="flex items-center justify-center bg-white px-4 py-6">
+      <div className="max-w-4xl w-full flex flex-col md:flex-row items-center justify-center  rounded-lg shadow-md">
+        
+        {/* Left Section - Login Form */}
+        <div className="w-full md:w-1/2 p-6">
+          <h2 className="text-2xl font-bold text-center mb-6">Login to Buyzone</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-1">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              placeholder="Enter your buyzone email"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-1">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                placeholder="Email"
+              />
+            </div>
 
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-1">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              placeholder="Enter your buyzone password"
-            />
-          </div>
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-1">Password</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                placeholder="Password"
+              />
+            </div>
 
-          <button
-            type="submit"
-            className="w-full bg-yellow-500 text-white py-2 rounded-lg font-semibold hover:bg-yellow-600 transition"
-          >
-            Login
+            {/* Captcha Placeholder */}
+            <div className="border rounded-lg p-4 flex items-center space-x-2">
+              <input type="checkbox" className="w-4 h-4" />
+              <span className="text-sm text-gray-600">I'm not a robot</span>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="w-full bg-black text-white py-3 rounded-lg font-semibold hover:opacity-90"
+            >
+              Log In
+            </button>
+          </form>
+        </div>
+
+        {/* Divider */}
+        <div className="hidden md:flex w-px bg-gray-200 mx-6"></div>
+        <div className="my-4 md:hidden flex items-center">
+          <span className="w-full border-b" />
+          <span className="px-2 text-sm text-gray-500">or</span>
+          <span className="w-full border-b" />
+        </div>
+
+        {/* Right Section - Social Login */}
+        <div className="w-full md:w-1/2 p-6 flex flex-col space-y-3">
+          <button className="flex items-center justify-center border rounded-lg py-2 font-medium hover:bg-gray-50">
+            <img src="https://www.svgrepo.com/show/473731/youtube-color.svg" alt="YouTube" className="w-5 h-5 mr-2" />
+            Continue with YouTube
           </button>
-        </form>
-
-        <p className="text-center text-sm text-gray-600 mt-3">
-          Don't have an account?
-          <Link to ="/register" className="text-yellow-500 hover:underline ml-1">Register</Link>
-        </p>
+          <button className="flex items-center justify-center border rounded-lg py-2 font-medium hover:bg-gray-50">
+            <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google" className="w-5 h-5 mr-2" />
+            Continue with Google
+          </button>
+          <button className="flex items-center justify-center border rounded-lg py-2 font-medium hover:bg-gray-50">
+            <img src="https://www.svgrepo.com/show/448224/facebook.svg" alt="Facebook" className="w-5 h-5 mr-2" />
+            Continue with Facebook
+          </button>
+        </div>
       </div>
     </div>
   );
 };
-
