@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export const Register = () => {
   const [formData, setFormData] = useState({
@@ -19,7 +20,7 @@ export const Register = () => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
 
@@ -35,86 +36,90 @@ export const Register = () => {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Registration successful!");
+        toast.success("Registration successful!");
         navigate('/login');
       } else {
-        alert(data.message || "Registration failed!");
+        toast.error(data.message || "Registration failed!");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Something went wrong!");
+      toast.error("Something went wrong!");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-6 sm:py-12">
-      <div className="max-w-md w-full bg-white p-6 sm:p-8 rounded-xl shadow-md">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Create Your Account</h2>
+    <div className=" flex items-center justify-center bg-gradient-to-r from-pink-100 via-purple-100 to-yellow-100 px-4 py-10">
+      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8">
+        <h2 className="text-3xl font-extrabold text-center text-gray-800 mb-6">
+          Create Your Account
+        </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-gray-700 text-sm font-medium mb-1">Name</label>
+            <label className="block text-gray-700 text-sm font-semibold mb-1">Full Name</label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
               placeholder="Enter your full name"
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 text-sm font-medium mb-1">Email</label>
+            <label className="block text-gray-700 text-sm font-semibold mb-1">Email Address</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
               placeholder="Enter your email"
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 text-sm font-medium mb-1">Password</label>
+            <label className="block text-gray-700 text-sm font-semibold mb-1">Password</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
               placeholder="Create your password"
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 text-sm font-medium mb-1">Confirm Password</label>
+            <label className="block text-gray-700 text-sm font-semibold mb-1">Confirm Password</label>
             <input
               type="password"
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
               placeholder="Confirm your password"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-yellow-500 text-white py-2 rounded-lg font-semibold hover:bg-yellow-600 transition"
+            className="w-full bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-lg font-bold shadow-md transition duration-200"
           >
             Register
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-600 mt-4">
+        <p className="text-center text-sm text-gray-600 mt-6">
           Already have an account?
-          <Link to ="/login" className="text-yellow-500 hover:underline ml-1">Login</Link>
+          <Link to="/login" className="text-pink-500 hover:underline font-semibold ml-1">
+            Login
+          </Link>
         </p>
       </div>
     </div>

@@ -1,11 +1,11 @@
 // HomeCardGrid.tsx
-import cardImg1 from "../assets/home-card1.jpg";
-import cardImg2 from "../assets/home-card2.jpg";
+// import cardImg1 from "../assets/home-card1.jpg";
+// import cardImg2 from "../assets/home-card2.jpg";
 import cardImg3 from "../assets/home-card3.jpg";
 
 const cardData = [
-  { id: 1, title: "Mens Fashion", image: cardImg1 },
-  { id: 2, title: "Women Fashion", image: cardImg2 },
+  { id: 1, title: "Mens Fashion", image: cardImg3 },
+  { id: 2, title: "Women Fashion", image: cardImg3 },
   { id: 3, title: "Kids Fashion", image: cardImg3 },
   { id: 4, title: "Kids Fashion", image: cardImg3 },
 ];
@@ -25,9 +25,9 @@ const HomeCardGrid = () => {
           <img
             src={card.image}
             alt={card.title}
-            className="w-fit max-h-min p-3 rounded-3xl object-cover"
+            className="w-fit max-h-min p-3 rounded-2xl object-cover"
           />
-          <p className="text-gray-700 group-hover:text-yellow-500 font-medium  py-2">{card.title}</p>
+          <p className="text-gray-700 group-hover:text-yellow-500 font-medium py-2">{card.title}</p>
         </div>
       ))}
     </div>

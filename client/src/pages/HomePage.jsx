@@ -103,8 +103,6 @@ export const HomePage = () => {
     </div>
   </div>
 </div>
-
-
       {/* Cards Section */}
       <div>
         <HomeCardGrid/>
