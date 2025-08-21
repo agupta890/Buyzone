@@ -4,13 +4,17 @@ import { BrowserRouter} from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import './index.css'
 import App from './App.jsx'
+import {CartProvider} from './context/Cart-context.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
+    <CartProvider>
+       <BrowserRouter>
     <App />
      <ToastContainer />
     </BrowserRouter>
+    </CartProvider>
+   
     
   </StrictMode>,
 )

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { CartContext } from '../../context/Cart-context';
 
 const categories = [
   { id: 'upperwear', label: 'Upper Wear' },
@@ -8,6 +9,7 @@ const categories = [
 ];
 
 export const Bestseller = () => {
+   const { addToCart } = useContext(CartContext);
   const [selectedCategory, setSelectedCategory] = useState('upperwear');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -116,7 +118,7 @@ export const Bestseller = () => {
                   <p className="text-center text-gray-700 font-medium mt-2">
                     ₹{product.price}
                   </p>
-                  <button className="mt-4 w-full bg-black hover:bg-gray-800 text-white py-2 rounded-lg transition text-sm font-medium">
+                  <button className="mt-4 w-full bg-black hover:bg-gray-800 text-white py-2 rounded-lg transition text-sm font-medium" onClick={() => addToCart(product)}>
                     Add to Cart
                   </button>
                 </div>
