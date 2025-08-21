@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
+import { categories } from "../data/categories"; // adjust path if needed
 
 export const Navbar = () => {
   const { cart } = useContext(CartContext);
@@ -38,7 +39,6 @@ export const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
-                {/* Profile icon + name */}
                 <div className="flex items-center space-x-2">
                   <img
                     src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
@@ -49,7 +49,6 @@ export const Navbar = () => {
                     {user.name}
                   </span>
                 </div>
-
                 <NavLink to="/orders" className="text-sm hover:text-yellow-500">
                   My Orders
                 </NavLink>
@@ -79,33 +78,31 @@ export const Navbar = () => {
 
             {/* Cart */}
             <NavLink to="/cart" className="hover:text-yellow-500 relative">
-  <svg
-    className="w-6 h-6"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.293 2.293a1 1 0 00.217 1.32l.09.077a1 1 0 001.32-.217L9 15h6l1.293 2.293a1 1 0 001.32.217l.09-.077a1 1 0 00.217-1.32L17 13M9 21h6"
-    />
-  </svg>
-
-  {cart.length > 0 && (
-    <span className="absolute -top-4 -right-4 bg-pink-600 text-white text-xs px-2 py-0.5 rounded-full">
-      {cart.length}
-    </span>
-  )}
-</NavLink>
-
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.293 2.293a1 1 0 00.217 1.32l.09.077a1 1 0 001.32-.217L9 15h6l1.293 2.293a1 1 0 001.32.217l.09-.077a1 1 0 00.217-1.32L17 13M9 21h6"
+                />
+              </svg>
+              {cart.length > 0 && (
+                <span className="absolute -top-4 -right-4 bg-pink-600 text-white text-xs px-2 py-0.5 rounded-full">
+                  {cart.length}
+                </span>
+              )}
+            </NavLink>
           </div>
 
           {/* Mobile menu toggle */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden focus:outline-none flex gap-6"
+            className="md:hidden focus:outline-none"
             aria-label="Toggle menu"
           >
             <svg
@@ -121,37 +118,8 @@ export const Navbar = () => {
                 d="M4 6h16M4 12h16M4 18h16"
               />
             </svg>
-            <button
-  onClick={() => handleNavClick("/cart")}
-  className="relative flex items-center font-bold text-pink-600 hover:text-pink-700"
->
-  {/* Cart Icon */}
-  <svg
-    className="w-6 h-6"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.293 2.293a1 1 0 00.217 1.32l.09.077a1 1 0 001.32-.217L9 15h6l1.293 2.293a1 1 0 001.32.217l.09-.077a1 1 0 00.217-1.32L17 13M9 21h6"
-    />
-  </svg>
-
-  {/* Cart Count Badge */}
-  {cart.length > 0 && (
-    <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs px-2 py-0.5 rounded-full">
-      {cart.length}
-    </span>
-  )}
-</button>
-
           </button>
-          
         </div>
-        
       </div>
 
       {/* Categories (desktop only) */}
@@ -162,107 +130,38 @@ export const Navbar = () => {
         >
           Best Sellers
         </NavLink>
-        <NavLink
-          to="/homedecor"
-          className="text-sm font-bold hover:text-red-500"
-        >
-          Home Decor
-        </NavLink>
-        <NavLink to="/books" className="text-sm font-bold hover:text-red-500">
-          Books
-        </NavLink>
-        <NavLink
-          to="/handicraft"
-          className="text-sm font-bold hover:text-red-500"
-        >
-          Handicraft
-        </NavLink>
-        <NavLink to="/pooja" className="text-sm font-bold hover:text-red-500">
-          Pooja
-        </NavLink>
-        <NavLink to="/plants" className="text-sm font-bold hover:text-red-500">
-          Plants
-        </NavLink>
-        <NavLink
-          to="/cosmetic"
-          className="text-sm font-bold hover:text-red-500"
-        >
-          Cosmetic
-        </NavLink>
-        <NavLink
-          to="/dryfruits"
-          className="text-sm font-bold hover:text-red-500"
-        >
-          Dry Fruits
-        </NavLink>
-        <NavLink to="/toys" className="text-sm font-bold hover:text-red-500">
-          Toys
-        </NavLink>
+        {Object.entries(categories).map(([key, value]) => (
+          <NavLink
+            key={key}
+            to={`/category/${key}`}
+            className="text-sm font-bold hover:text-red-500 capitalize"
+          >
+            {value.title}
+          </NavLink>
+        ))}
         <NavLink to="/shop-all" className="text-sm font-bold text-pink-600">
           Shop All
         </NavLink>
       </div>
 
-
-
       {/* Mobile dropdown */}
       {menuOpen && (
         <div className="md:hidden px-4 pt-2 pb-4 space-y-2 bg-white shadow-md border-t">
-          {/* Categories */}
           <button
-            onClick={() => handleNavClick("/men")}
+            onClick={() => handleNavClick("/bestseller")}
             className="block text-left w-full hover:text-yellow-500"
           >
             Best Sellers
           </button>
-          <button
-            onClick={() => handleNavClick("/women")}
-            className="block text-left w-full hover:text-yellow-500"
-          >
-            Home Decor
-          </button>
-          <button
-            onClick={() => handleNavClick("/kids")}
-            className="block text-left w-full hover:text-yellow-500"
-          >
-            Books
-          </button>
-          <button
-            onClick={() => handleNavClick("/funny")}
-            className="block text-left w-full hover:text-yellow-500"
-          >
-            Handicraft
-          </button>
-          <button
-            onClick={() => handleNavClick("/sports")}
-            className="block text-left w-full hover:text-yellow-500"
-          >
-            Pooja
-          </button>
-          <button
-            onClick={() => handleNavClick("/digital")}
-            className="block text-left w-full hover:text-yellow-500"
-          >
-            Plants
-          </button>
-          <button
-            onClick={() => handleNavClick("/animals")}
-            className="block text-left w-full hover:text-yellow-500"
-          >
-            Cosmetic
-          </button>
-          <button
-            onClick={() => handleNavClick("/popculture")}
-            className="block text-left w-full hover:text-yellow-500"
-          >
-            Dry Fruits
-          </button>
-          <button
-            onClick={() => handleNavClick("/music")}
-            className="block text-left w-full hover:text-yellow-500"
-          >
-            Toys
-          </button>
+          {Object.entries(categories).map(([key, value]) => (
+            <button
+              key={key}
+              onClick={() => handleNavClick(`/category/${key}`)}
+              className="block text-left w-full hover:text-yellow-500 capitalize"
+            >
+              {value.title}
+            </button>
+          ))}
           <button
             onClick={() => handleNavClick("/shop-all")}
             className="block text-left w-full text-pink-600"
@@ -290,8 +189,6 @@ export const Navbar = () => {
                 >
                   My Orders
                 </button>
-                
-                
                 <button
                   onClick={handleLogout}
                   className="block text-left w-full hover:text-yellow-500"
@@ -315,13 +212,9 @@ export const Navbar = () => {
                 </button>
               </>
             )}
-            
           </div>
-          
         </div>
-        
       )}
-      
     </nav>
   );
 };

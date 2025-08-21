@@ -1,10 +1,12 @@
-const mongoose = require('mongoose');
-// Importing mongoose to define the schema for the Product model
+const mongoose = require("mongoose");
+
 const productSchema = new mongoose.Schema({
-  name: String,
-  price: Number,
-  image: String,
-  category: String,
+  name: { type: String, required: true },
+  price: { type: Number, required: true },
+  image: { type: String },
+  category: { type: String, required: true }, // e.g. "home-decor"
+  subcategory: { type: String }, // e.g. "Bedsheet"
   stock: { type: Number, default: 0 },
-}, { timestamps: true });
-module.exports=mongoose.model('Product', productSchema);
+});
+
+module.exports = mongoose.model("Product", productSchema);
