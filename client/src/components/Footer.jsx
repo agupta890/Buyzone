@@ -102,6 +102,20 @@ export const Footer = () => {
               </li>
             </ul>
           </div>
+          <div>
+            <h3 className="text-white font-semibold mb-4">Admin</h3>
+            <ul>
+              <li>
+                <NavLink
+                  to="/admin"
+                  className="hover:text-yellow-500"
+                  target="_blank"
+                >
+                  Admin Dashboard
+                </NavLink>
+              </li>
+            </ul>
+          </div>
 
           {/* Quick Links */}
           <div>

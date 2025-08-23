@@ -9,7 +9,7 @@ export const Cart = () => {
   useEffect(() => {
     const fetchCartItems = async () => {
       try {
-        const response = await axios.get('/api/cart'); // Update with your backend endpoint
+        const response = await axios.get('/api/products'); // Update with your backend endpoint
         const data = Array.isArray(response.data) ? response.data : [];
         setCartItems(data);
       } catch (err) {

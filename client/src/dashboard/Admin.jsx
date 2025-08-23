@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { categories } from "../data/categories"; // ✅ Import categories
 
 const API_URL = "http://localhost:3000/api/products";
-
-const categories = ["upperwear", "footwear", "lowerwear", "accessories"];
 
 export const Admin = () => {
   const [products, setProducts] = useState([]);
@@ -10,32 +9,33 @@ export const Admin = () => {
     name: "",
     price: "",
     image: "",
-    category: "upperwear",
+    category: "",
+    subcategory: "",
     stock: 0,
+    isBestseller: false,
   });
 
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Fetch all products
+  // ✅ Fetch Products
   const fetchProducts = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const res = await fetch(API_URL);
       const data = await res.json();
-      setProducts(data.products);
+      setProducts(data.products || []);
     } catch (err) {
       setError("Failed to fetch products");
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  // Add product
+  // ✅ Add Product
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
@@ -44,18 +44,26 @@ export const Admin = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      if (!res.ok) throw new Error("Add failed");
-      setFormData({ name: "", price: "", image: "", category: "upperwear" });
+      if (!res.ok) throw new Error("Failed to add product");
+
+      setFormData({
+        name: "",
+        price: "",
+        image: "",
+        category: "",
+        subCategory: "",
+        stock: 0,
+        isBestseller: false,
+      });
       fetchProducts();
-    } catch {
-      setError("Failed to add product");
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  // Delete product
+  // ✅ Delete Product
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?"))
-      return;
+    if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
       await fetch(`${API_URL}/${id}`, { method: "DELETE" });
       fetchProducts();
@@ -64,15 +72,31 @@ export const Admin = () => {
     }
   };
 
-  return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+  // ✅ Toggle Bestseller
+  const handleToggleBestseller = async (id, currentValue) => {
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isBestseller: !currentValue }),
+      });
+      if (!res.ok) throw new Error("Failed to update bestseller status");
+      fetchProducts();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
-      {/* Add Product Form */}
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Admin Panel</h1>
+
+      {/* ✅ Add Product Form */}
       <form
         onSubmit={handleAddProduct}
         className="bg-white p-6 rounded shadow mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4"
       >
+        {/* Product Name */}
         <input
           type="text"
           placeholder="Product Name"
@@ -81,6 +105,8 @@ export const Admin = () => {
           className="border p-2 rounded"
           required
         />
+
+        {/* Price */}
         <input
           type="number"
           placeholder="Price"
@@ -89,6 +115,8 @@ export const Admin = () => {
           className="border p-2 rounded"
           required
         />
+
+        {/* Image */}
         <input
           type="text"
           placeholder="Image URL"
@@ -97,41 +125,87 @@ export const Admin = () => {
           className="border p-2 rounded"
           required
         />
+
+        {/* ✅ Category Dropdown */}
         <select
           value={formData.category}
           onChange={(e) =>
-            setFormData({ ...formData, category: e.target.value })
+            setFormData({
+              ...formData,
+              category: e.target.value,
+              subcategory: "", // reset subcategory
+            })
           }
           className="border p-2 rounded"
+          required
         >
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
+          <option value="">Select Category</option>
+          {Object.keys(categories).map((catKey) => (
+            <option key={catKey} value={catKey}>
+              {categories[catKey].title}
             </option>
           ))}
         </select>
-        <button
-          type="submit"
-          className="col-span-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded"
+
+        {/* ✅ Subcategory Dropdown */}
+        <select
+          value={formData.subcategory}
+          onChange={(e) =>
+            setFormData({ ...formData, subcategory: e.target.value })
+          }
+          className="border p-2 rounded"
+          disabled={
+            !formData.category ||
+            categories[formData.category]?.subcategories?.length === 0
+          }
         >
-          Add Product
-        </button>
+          <option value="">Select Sub Category</option>
+          {formData.category &&
+            categories[formData.category]?.subcategories?.map((sub) => (
+              <option key={sub} value={sub}>
+                {sub}
+              </option>
+            ))}
+        </select>
+
+        {/* Stock */}
         <input
           type="number"
+          min="0"
           placeholder="Stock Quantity"
           value={formData.stock}
           onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
           className="border p-2 rounded"
           required
         />
+
+        {/* Bestseller Checkbox */}
+        <label className="flex items-center gap-2 col-span-full">
+          <input
+            type="checkbox"
+            checked={formData.isBestseller}
+            onChange={(e) =>
+              setFormData({ ...formData, isBestseller: e.target.checked })
+            }
+          />
+          Mark as Bestseller
+        </label>
+
+        <button
+          type="submit"
+          className="col-span-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded"
+        >
+          Add Product
+        </button>
       </form>
 
-      {/* Product List */}
+      {/* ✅ Product List */}
       <div>
         <h2 className="text-xl font-semibold mb-4">All Products</h2>
         {loading && <p>Loading...</p>}
         {error && <p className="text-red-500">{error}</p>}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {products.map((product) => (
             <div
               key={product._id}
@@ -145,15 +219,36 @@ export const Admin = () => {
               <h3 className="text-lg font-medium mt-2">{product.name}</h3>
               <p className="text-yellow-600 font-bold">₹{product.price}</p>
               <p className="text-sm text-gray-500 capitalize">
-                {product.category}
+                {product.category} → {product.subCategory}
               </p>
-              <button
-                onClick={() => handleDelete(product._id)}
-                className="mt-2 text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-              >
-                Delete
-              </button>
-              <p className="text-sm text-gray-500">In Stock: {product.stock}</p>
+              {product.isBestseller && (
+                <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                  Bestseller
+                </span>
+              )}
+              <p className="text-sm text-gray-500">Stock: {product.stock}</p>
+
+              {/* ✅ Buttons */}
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={() =>
+                    handleToggleBestseller(product._id, product.isBestseller)
+                  }
+                  className={`text-sm px-3 py-1 rounded ${
+                    product.isBestseller
+                      ? "bg-gray-400 hover:bg-gray-500 text-white"
+                      : "bg-green-500 hover:bg-green-600 text-white"
+                  }`}
+                >
+                  {product.isBestseller ? "Unmark Bestseller" : "Mark Bestseller"}
+                </button>
+                <button
+                  onClick={() => handleDelete(product._id)}
+                  className="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>
