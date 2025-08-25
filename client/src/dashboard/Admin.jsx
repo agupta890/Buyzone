@@ -12,7 +12,7 @@ export const Admin = () => {
     category: "",
     subcategory: "",
     stock: 0,
-    isBestseller: false,
+    isBestsellers: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -78,7 +78,7 @@ export const Admin = () => {
       const res = await fetch(`${API_URL}/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isBestseller: !currentValue }),
+        body: JSON.stringify({ isBestsellers: !currentValue }),
       });
       if (!res.ok) throw new Error("Failed to update bestseller status");
       fetchProducts();
@@ -183,9 +183,9 @@ export const Admin = () => {
         <label className="flex items-center gap-2 col-span-full">
           <input
             type="checkbox"
-            checked={formData.isBestseller}
+            checked={formData.isBestsellers}
             onChange={(e) =>
-              setFormData({ ...formData, isBestseller: e.target.checked })
+              setFormData({ ...formData, isBestsellers: e.target.checked })
             }
           />
           Mark as Bestseller
@@ -221,7 +221,7 @@ export const Admin = () => {
               <p className="text-sm text-gray-500 capitalize">
                 {product.category} → {product.subCategory}
               </p>
-              {product.isBestseller && (
+              {product.isBestsellers && (
                 <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
                   Bestseller
                 </span>
@@ -232,15 +232,15 @@ export const Admin = () => {
               <div className="flex gap-2 mt-2">
                 <button
                   onClick={() =>
-                    handleToggleBestseller(product._id, product.isBestseller)
+                    handleToggleBestseller(product._id, product.isBestsellers)
                   }
                   className={`text-sm px-3 py-1 rounded ${
-                    product.isBestseller
+                    product.isBestsellers
                       ? "bg-gray-400 hover:bg-gray-500 text-white"
                       : "bg-green-500 hover:bg-green-600 text-white"
                   }`}
                 >
-                  {product.isBestseller ? "Unmark Bestseller" : "Mark Bestseller"}
+                  {product.isBestsellers ? "Unmark Bestseller" : "Mark Bestseller"}
                 </button>
                 <button
                   onClick={() => handleDelete(product._id)}

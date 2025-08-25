@@ -5,7 +5,7 @@ import { Footer } from "./components/Footer";
 import { HomePage } from "./pages/HomePage";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
-import { Bestseller } from "./pages/Prouducts-Pages/Bestseller";
+import { BestSeller } from "./pages/Prouducts-Pages/Bestseller";
 
 import { Cart } from "./pages/Cart";
 import { Wishlist } from "./pages/Wishlist";
@@ -23,7 +23,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin" element={<Admin />} />
-        <Route path="/bestseller" element={<Bestseller />} />
+        <Route path="/bestseller" element={<BestSeller />} />
         <Route path="/category/:category" element={<CategoryPage />} />
         <Route path="/category/:category/:subcategory" element={<CategoryPage />} />
 
