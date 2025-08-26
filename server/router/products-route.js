@@ -1,6 +1,7 @@
 const express = require('express');
 const Product = require('../models/productSchema'); // Adjust path if needed
 
+
 const router = express.Router();
 
 // GET products (filter by category, subCategory, bestseller)
@@ -77,6 +78,20 @@ router.delete('/:id', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to delete product' });
+  }
+});
+
+// GET single product
+router.get('/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    res.json(product);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch product' });
   }
 });
 
