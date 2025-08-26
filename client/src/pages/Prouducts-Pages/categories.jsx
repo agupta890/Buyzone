@@ -12,14 +12,16 @@ const ProductCard = ({ product }) => {
       const { addToCart } = useContext(CartContext);
 
   return (
-    <div className="bg-white rounded-lg shadow hover:shadow-xl transition p-4 flex flex-col items-center">
+    <div className="bg-amber-300 border-orange-200 rounded-lg shadow hover:shadow-xl transition p-4 flex flex-col items-center">
       <img
         src={product.image}
         alt={product.name}
         className="w-full h-48 object-cover rounded mb-4"
       />
-      <h3 className="font-semibold text-lg text-center">{product.name}</h3>
+      <div className="text-center">
+      <h3 className="font-semibold text-lg ">{product.name}</h3>
       <p className="text-gray-700 mt-2">₹{product.price}</p>
+      </div>
       <button className="mt-4 bg-black text-white px-4 py-2 rounded hover:bg-gray-800" onClick={() => addToCart(product)}>
         Add to Cart
       </button>

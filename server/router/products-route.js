@@ -3,10 +3,10 @@ const Product = require('../models/productSchema'); // Adjust path if needed
 
 const router = express.Router();
 
-// GET products (filter by category & subCategory if provided)
+// GET products (filter by category, subCategory, bestseller)
 router.get('/', async (req, res) => {
   try {
-    const { category, subCategory } = req.query;
+    const { category, subCategory, bestsellers } = req.query;
     let query = {};
 
     if (category) {
@@ -16,6 +16,10 @@ router.get('/', async (req, res) => {
     if (subCategory) {
       // Case-insensitive match for subCategory
       query.subcategory = { $regex: new RegExp("^" + subCategory + "$", "i") };
+    }
+
+    if (bestsellers) {
+      query.isBestsellesr = bestsellers === "true"; // ?bestseller=true
     }
 
     const products = await Product.find(query);
@@ -29,15 +33,16 @@ router.get('/', async (req, res) => {
 // POST new product
 router.post('/', async (req, res) => {
   try {
-    const { name, price, image, category, subcategory, stock } = req.body;
+    const { name, price, image, category, subcategory, stock, isBestsellers } = req.body;
 
     const newProduct = new Product({
       name,
       price,
       image,
       category,
-      subcategory, // ✅ make sure schema includes this
+      subcategory, 
       stock,
+      isBestsellers: isBestsellers || false, // ✅ ensure default
     });
 
     await newProduct.save();
@@ -45,6 +50,22 @@ router.post('/', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to add product' });
+  }
+});
+
+// PATCH update bestseller
+router.patch('/:id', async (req, res) => {
+  try {
+    const { isBestsellers } = req.body;
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      { isBestsellers },
+      { new: true }
+    );
+    res.json({ message: 'Bestseller updated', product: updatedProduct });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update product' });
   }
 });
 
