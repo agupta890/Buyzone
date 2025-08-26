@@ -13,6 +13,7 @@ const ProductCard = ({ product }) => {
 
   return (
     <div className="bg-amber-300 border-orange-200 rounded-lg shadow hover:shadow-xl transition p-4 flex flex-col items-center">
+       <Link to={`/product/${product._id}`} className="w-full">
       <img
         src={product.image}
         alt={product.name}
@@ -21,7 +22,9 @@ const ProductCard = ({ product }) => {
       <div className="text-center">
       <h3 className="font-semibold text-lg ">{product.name}</h3>
       <p className="text-gray-700 mt-2">₹{product.price}</p>
+      
       </div>
+      </Link>
       <button className="mt-4 bg-black text-white px-4 py-2 rounded hover:bg-gray-800" onClick={() => addToCart(product)}>
         Add to Cart
       </button>

@@ -11,7 +11,9 @@ import { Cart } from "./pages/Cart";
 import { Wishlist } from "./pages/Wishlist";
 import { MyOrders } from "./pages/Myorders";
 import { Admin } from "./dashboard/Admin";
+
 import CategoryPage from "./pages/Prouducts-Pages/categories";
+import { ProductDetail } from "./components/ProductDetail";
 
 
 const App = () => {
@@ -25,8 +27,9 @@ const App = () => {
         <Route path="/admin" element={<Admin />} />
         <Route path="/bestseller" element={<BestSeller />} />
         <Route path="/category/:category" element={<CategoryPage />} />
-        <Route path="/category/:category/:subcategory" element={<CategoryPage />} />
-
+        <Route path="/category/:category/:subcategory" element={<CategoryPage />}
+         />
+<Route path="/product/:id" element={<ProductDetail />} />
 
         
 

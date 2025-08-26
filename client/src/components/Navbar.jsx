@@ -26,13 +26,13 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="w-full bg-white shadow">
+    <nav className="w-full bg-yellow-100 shadow">
       {/* Top row: Logo + Right actions */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <NavLink to="/" className="text-2xl font-bold whitespace-nowrap">
-            Buy<span className="text-pink-500">Zone</span>
+            Buy<span className="text-yellow-500">Zone</span>
           </NavLink>
 
           {/* Right side buttons */}
@@ -149,7 +149,7 @@ export const Navbar = () => {
       </div>
 
       {/* Categories (desktop only) */}
-      <div className="hidden md:flex justify-center flex-wrap gap-6 bg-pink-200 py-2 border-t">
+      <div className="hidden md:flex justify-center flex-wrap gap-6 bg-yellow-300 py-2 border-t">
         <NavLink
           to="/bestseller"
           className="text-sm font-bold hover:text-red-500"
