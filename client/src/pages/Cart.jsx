@@ -110,7 +110,76 @@ export const Cart = () => {
               </div>
             </div>
 
-            <button className="mt-6 w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded-lg shadow-md transition">
+            <button
+              onClick={async () => {
+                // Load Razorpay script if not present
+                if (!window.Razorpay) {
+                  await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.body.appendChild(script);
+                  }).catch(() => alert('Failed to load Razorpay SDK'));
+                }
+
+                try {
+                  const amount = getTotal(); 
+                  const res = await fetch('http://localhost:3000/api/payments/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount })
+                  });
+                  const data = await res.json();
+                  if (!res.ok) throw new Error(data.error || 'Order creation failed');
+
+                  const order = data.order;
+                  const options = {
+                    key: data.key_id, 
+                    amount: order.amount,
+                    currency: order.currency,
+                    order_id: order.id,
+                    handler: async function (response) {
+                      // Verify payment server-side
+                      const verifyRes = await fetch('http://localhost:3000/api/payments/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          razorpay_order_id: response.razorpay_order_id,
+                          razorpay_payment_id: response.razorpay_payment_id,
+                          razorpay_signature: response.razorpay_signature,
+                          cart,
+                          total: amount
+                        })
+                      });
+                      const verifyData = await verifyRes.json();
+                      if (verifyRes.ok && verifyData.verified) {
+                        alert('Payment successful! Order placed.');
+                        window.location.href = '/orders';
+                      } else {
+                        alert('Payment could not be verified: ' + (verifyData.error || 'Unknown error'));
+                      }
+                    },
+                    modal: {
+                      ondismiss: function () {
+                        alert('Payment cancelled');
+                      }
+                    }
+                  };
+
+                  const rzp = new window.Razorpay(options);
+                  rzp.on('payment.failed', function (resp) {
+                    console.error('Payment failed', resp);
+                    alert('Payment failed or was cancelled.');
+                  });
+                  rzp.open();
+                } catch (err) {
+                  console.error(err);
+                  alert(err.message || 'Checkout failed');
+                }
+              }}
+              className="mt-6 w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded-lg shadow-md transition"
+            >
               Proceed to Checkout →
             </button>
           </div>

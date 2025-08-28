@@ -15,19 +15,29 @@ export const Login = () => {
   try {
     const res = await fetch('http://localhost:3000/api/auth/login', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),
     });
+ 
 
     const data = await res.json();
 
     if (res.ok) {
-      // ✅ Save user info + token in localStorage
-      localStorage.setItem("userInfo", JSON.stringify(data));
+      // Save raw response in case token is nested or server used cookie-based sessions
+      try { localStorage.setItem('userInfo_raw', JSON.stringify(data)); } catch(e) { /* ignore */ }
 
+      // If server returned a token somewhere, save it; otherwise store raw data so MyOrders can detect session
+      const token = data?.token || data?.accessToken || data?.access_token || data?.jwt || null;
+      if (token) {
+        localStorage.setItem('userInfo', JSON.stringify({ token, user: data?.user || null }));
+      } else {
+        // keep the raw server response in localStorage (MyOrders will try cookie-based fetch if no token)
+        localStorage.setItem('userInfo', JSON.stringify({ session: true, user: data?.user || null }));
+      }
       toast.success("Login successful!");
       navigate('/');
-      window.location.reload(); // refresh so Navbar updates
+      window.location.reload(); 
     } else {
       toast.error(data.message || "Login failed!");
     }
