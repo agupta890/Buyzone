@@ -3,13 +3,14 @@ require("dotenv").config();
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
-require('dotenv').config();
+
 
 const app = express();
 const authRouter = require('./router/auth-router');
 const productRoutes = require('./router/products-route');
 const paymentRoutes = require('./router/payments-route');
 const ordersRouter = require('./router/orders-route');
+const cartRouter = require('./router/cart-router')
 
 
 
@@ -27,6 +28,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/products', productRoutes);
 app.use('/api/payments', paymentRoutes); 
 app.use('/api/orders', ordersRouter);
+app.use("/api/cart", cartRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
