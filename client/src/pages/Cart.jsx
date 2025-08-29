@@ -23,21 +23,21 @@ export const Cart = () => {
             <div className="space-y-6">
               {cart.map((item) => (
                 <div
-                  key={item._id}
+                  key={item.product._id}
                   className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b pb-6 last:border-0"
                 >
                   {/* Product Info */}
                   <div className="flex items-center gap-4 w-full sm:w-1/2">
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={item.product.image}
+                      alt={item.product.name}
                       className="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-lg shadow-md"
                     />
                     <div className="flex flex-col">
                       <h2 className="font-semibold text-gray-800 text-lg truncate w-40 sm:w-auto">
-                        {item.name}
+                        {item.product.name}
                       </h2>
-                      <p className="text-gray-500 text-sm">₹{item.price}</p>
+                      <p className="text-gray-500 text-sm">₹{item.product.price}</p>
                     </div>
                   </div>
 
@@ -48,7 +48,7 @@ export const Cart = () => {
                     <div className="flex items-center gap-3">
                       <button
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 transition"
-                        onClick={() => decreaseQty(item._id)}
+                        onClick={() => decreaseQty(item.product._id)}
                       >
                         −
                       </button>
@@ -57,7 +57,7 @@ export const Cart = () => {
                       </span>
                       <button
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 transition"
-                        onClick={() => increaseQty(item._id)}
+                        onClick={() => increaseQty(item.product._id)}
                       >
                         +
                       </button>
@@ -66,11 +66,11 @@ export const Cart = () => {
                     {/* Price + Remove */}
                     <div className="text-right min-w-[90px]">
                       <p className="font-semibold text-gray-800">
-                        ₹{item.price * item.quantity}
+                        ₹{item.product.price * item.quantity}
                       </p>
                       <button
                         className="text-sm text-red-500 hover:text-red-700 mt-1"
-                        onClick={() => removeFromCart(item._id)}
+                        onClick={() => removeFromCart(item.product._id)}
                       >
                         Remove
                       </button>
@@ -92,13 +92,13 @@ export const Cart = () => {
             <div className="space-y-4">
               {cart.map((item) => (
                 <div
-                  key={item._id}
+                  key={item.product._id}
                   className="flex justify-between text-gray-700 text-sm sm:text-base"
                 >
                   <span>
-                    {item.name} × {item.quantity}
+                    {item.product.name} × {item.quantity}
                   </span>
-                  <span>₹{item.price * item.quantity}</span>
+                  <span>₹{item.product.price * item.quantity}</span>
                 </div>
               ))}
 
@@ -110,40 +110,39 @@ export const Cart = () => {
               </div>
             </div>
 
+            {/* 🚀 Razorpay Logic - untouched */}
             <button
               onClick={async () => {
-                // Load Razorpay script if not present
                 if (!window.Razorpay) {
                   await new Promise((resolve, reject) => {
-                    const script = document.createElement('script');
-                    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+                    const script = document.createElement("script");
+                    script.src = "https://checkout.razorpay.com/v1/checkout.js";
                     script.onload = resolve;
                     script.onerror = reject;
                     document.body.appendChild(script);
-                  }).catch(() => alert('Failed to load Razorpay SDK'));
+                  }).catch(() => alert("Failed to load Razorpay SDK"));
                 }
 
                 try {
-                  const amount = getTotal(); 
-                  const res = await fetch('http://localhost:3000/api/payments/create-order', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                  const amount = getTotal();
+                  const res = await fetch("http://localhost:3000/api/payments/create-order", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ amount })
                   });
                   const data = await res.json();
-                  if (!res.ok) throw new Error(data.error || 'Order creation failed');
+                  if (!res.ok) throw new Error(data.error || "Order creation failed");
 
                   const order = data.order;
                   const options = {
-                    key: data.key_id, 
+                    key: data.key_id,
                     amount: order.amount,
                     currency: order.currency,
                     order_id: order.id,
                     handler: async function (response) {
-                      // Verify payment server-side
-                      const verifyRes = await fetch('http://localhost:3000/api/payments/verify', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                      const verifyRes = await fetch("http://localhost:3000/api/payments/verify", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                           razorpay_order_id: response.razorpay_order_id,
                           razorpay_payment_id: response.razorpay_payment_id,
@@ -154,28 +153,28 @@ export const Cart = () => {
                       });
                       const verifyData = await verifyRes.json();
                       if (verifyRes.ok && verifyData.verified) {
-                        alert('Payment successful! Order placed.');
-                        window.location.href = '/orders';
+                        alert("Payment successful! Order placed.");
+                        window.location.href = "/orders";
                       } else {
-                        alert('Payment could not be verified: ' + (verifyData.error || 'Unknown error'));
+                        alert("Payment could not be verified: " + (verifyData.error || "Unknown error"));
                       }
                     },
                     modal: {
                       ondismiss: function () {
-                        alert('Payment cancelled');
+                        alert("Payment cancelled");
                       }
                     }
                   };
 
                   const rzp = new window.Razorpay(options);
-                  rzp.on('payment.failed', function (resp) {
-                    console.error('Payment failed', resp);
-                    alert('Payment failed or was cancelled.');
+                  rzp.on("payment.failed", function (resp) {
+                    console.error("Payment failed", resp);
+                    alert("Payment failed or was cancelled.");
                   });
                   rzp.open();
                 } catch (err) {
                   console.error(err);
-                  alert(err.message || 'Checkout failed');
+                  alert(err.message || "Checkout failed");
                 }
               }}
               className="mt-6 w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded-lg shadow-md transition"

@@ -4,7 +4,7 @@ import { CartContext } from "../context/Cart-context";
 import { categories } from "../data/categories";
 
 export const Navbar = () => {
-  const { cart } = useContext(CartContext);
+  const { cart, clearCart } = useContext(CartContext);
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
@@ -15,7 +15,9 @@ export const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
+    
     localStorage.removeItem("userInfo");
+    clearCart();
     setUser(null);
     navigate("/");
   };
