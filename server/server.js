@@ -11,6 +11,7 @@ const productRoutes = require('./router/products-route');
 const paymentRoutes = require('./router/payments-route');
 const ordersRouter = require('./router/orders-route');
 const cartRouter = require('./router/cart-router');
+const addressRouter = require("./router/address-route");
 const cookieParser = require("cookie-parser");
 
 
@@ -32,6 +33,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/payments', paymentRoutes); 
 app.use('/api/orders', ordersRouter);
 app.use("/api/cart", cartRouter);
+app.use("/api/address", addressRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

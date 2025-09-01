@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { categories } from "../data/categories"; // ✅ Import categories
+import { categories } from "../data/categories";
 
 const API_URL = "http://localhost:3000/api/products";
 
@@ -14,7 +14,6 @@ export const Admin = () => {
     stock: 0,
     isBestsellers: false,
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -46,14 +45,15 @@ export const Admin = () => {
       });
       if (!res.ok) throw new Error("Failed to add product");
 
+      // Reset form
       setFormData({
         name: "",
         price: "",
         image: "",
         category: "",
-        subCategory: "",
+        subcategory: "",
         stock: 0,
-        isBestseller: false,
+        isBestsellers: false,
       });
       fetchProducts();
     } catch (err) {
@@ -65,10 +65,11 @@ export const Admin = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
-      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete product");
       fetchProducts();
-    } catch {
-      setError("Failed to delete product");
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -91,12 +92,11 @@ export const Admin = () => {
     <div className="max-w-6xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Admin Panel</h1>
 
-      {/* ✅ Add Product Form */}
+      {/* Add Product Form */}
       <form
         onSubmit={handleAddProduct}
         className="bg-white p-6 rounded shadow mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4"
       >
-        {/* Product Name */}
         <input
           type="text"
           placeholder="Product Name"
@@ -105,8 +105,6 @@ export const Admin = () => {
           className="border p-2 rounded"
           required
         />
-
-        {/* Price */}
         <input
           type="number"
           placeholder="Price"
@@ -115,8 +113,6 @@ export const Admin = () => {
           className="border p-2 rounded"
           required
         />
-
-        {/* Image */}
         <input
           type="text"
           placeholder="Image URL"
@@ -126,15 +122,11 @@ export const Admin = () => {
           required
         />
 
-        {/* ✅ Category Dropdown */}
+        {/* Category */}
         <select
           value={formData.category}
           onChange={(e) =>
-            setFormData({
-              ...formData,
-              category: e.target.value,
-              subcategory: "", // reset subcategory
-            })
+            setFormData({ ...formData, category: e.target.value, subcategory: "" })
           }
           className="border p-2 rounded"
           required
@@ -147,28 +139,24 @@ export const Admin = () => {
           ))}
         </select>
 
-        {/* ✅ Subcategory Dropdown */}
+        {/* Subcategory */}
         <select
           value={formData.subcategory}
-          onChange={(e) =>
-            setFormData({ ...formData, subcategory: e.target.value })
-          }
+          onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
           className="border p-2 rounded"
           disabled={
-            !formData.category ||
-            categories[formData.category]?.subcategories?.length === 0
+            !formData.category || !categories[formData.category]?.subcategories?.length
           }
         >
           <option value="">Select Sub Category</option>
           {formData.category &&
-            categories[formData.category]?.subcategories?.map((sub) => (
+            categories[formData.category].subcategories.map((sub) => (
               <option key={sub} value={sub}>
                 {sub}
               </option>
             ))}
         </select>
 
-        {/* Stock */}
         <input
           type="number"
           min="0"
@@ -179,7 +167,6 @@ export const Admin = () => {
           required
         />
 
-        {/* Bestseller Checkbox */}
         <label className="flex items-center gap-2 col-span-full">
           <input
             type="checkbox"
@@ -199,7 +186,7 @@ export const Admin = () => {
         </button>
       </form>
 
-      {/* ✅ Product List */}
+      {/* Product List */}
       <div>
         <h2 className="text-xl font-semibold mb-4">All Products</h2>
         {loading && <p>Loading...</p>}
@@ -207,28 +194,24 @@ export const Admin = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {products.map((product) => (
-            <div
-              key={product._id}
-              className="bg-white rounded shadow p-4 relative"
-            >
+            <div key={product._id} className="bg-white rounded shadow p-4 relative">
               <img
                 src={product.image}
                 alt={product.name}
-                className="h-32 w-full object-cover rounded"
-              />
+                className="max-h-40 object-contain transition-transform duration-500 group-hover:scale-105"
+                />
               <h3 className="text-lg font-medium mt-2">{product.name}</h3>
               <p className="text-yellow-600 font-bold">₹{product.price}</p>
               <p className="text-sm text-gray-500 capitalize">
-                {product.category} → {product.subCategory}
+                {product.category} → {product.subcategory}
               </p>
               {product.isBestsellers && (
-                <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                <span className="absolute top-2  bg-red-500 text-white text-xs px-2 py-1 rounded">
                   Bestseller
                 </span>
               )}
               <p className="text-sm text-gray-500">Stock: {product.stock}</p>
 
-              {/* ✅ Buttons */}
               <div className="flex gap-2 mt-2">
                 <button
                   onClick={() =>

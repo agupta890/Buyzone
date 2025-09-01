@@ -69,7 +69,7 @@ export const Cart = () => {
                         ₹{item.product.price * item.quantity}
                       </p>
                       <button
-                        className="text-sm text-red-500 hover:text-red-700 mt-1"
+                        className="text-sm cursor-pointer text-red-500 hover:text-red-700 mt-1"
                         onClick={() => removeFromCart(item.product._id)}
                       >
                         Remove
@@ -179,7 +179,7 @@ export const Cart = () => {
                   alert(err.message || "Checkout failed");
                 }
               }}
-              className="mt-6 w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded-lg shadow-md transition"
+              className="mt-6 w-full cursor-pointer bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded-lg shadow-md transition"
             >
               Proceed to Checkout →
             </button>
