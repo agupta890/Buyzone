@@ -1,65 +1,59 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { AuthContext } from "../context/AuthContext";
+// import ReCAPTCHA from "react-google-recaptcha";
 
 export const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const res = await fetch('http://localhost:3000/api/auth/login', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
- 
+    e.preventDefault();
+    try {
+      const res = await fetch("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        credentials: "include", // 🔑 send cookies
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (res.ok) {
-      // Save raw response in case token is nested or server used cookie-based sessions
-      try { localStorage.setItem('userInfo_raw', JSON.stringify(data)); } catch(e) { /* ignore */ }
-
-      // If server returned a token somewhere, save it; otherwise store raw data so MyOrders can detect session
-      const token = data?.token || data?.accessToken || data?.access_token || data?.jwt || null;
-      if (token) {
-        localStorage.setItem('userInfo', JSON.stringify({ token, user: data?.user || null }));
+      if (res.ok && data.user) {
+        // ✅ no token, just save user in context
+        login(data.user);
+        toast.success("Login successful!");
+        navigate("/");
       } else {
-        // keep the raw server response in localStorage (MyOrders will try cookie-based fetch if no token)
-        localStorage.setItem('userInfo', JSON.stringify({ session: true, user: data?.user || null }));
+        toast.error(data.message || "Login failed!");
       }
-      toast.success("Login successful!");
-      navigate('/');
-      window.location.reload(); 
-    } else {
-      toast.error(data.message || "Login failed!");
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Something went wrong!");
     }
-  } catch (error) {
-    console.error("Error:", error);
-    toast.error("Something went wrong!");
-  }
-};
-
+  };
 
   return (
     <div className="flex items-center justify-center bg-white px-4 py-6">
-      <div className="max-w-4xl w-full flex flex-col md:flex-row items-center justify-center  rounded-lg shadow-md">
-        
+      <div className="max-w-4xl w-full flex flex-col md:flex-row items-center justify-center rounded-lg shadow-md">
         {/* Left Section - Login Form */}
         <div className="w-full md:w-1/2 p-6">
-          <h2 className="text-2xl font-bold text-center mb-6">Login to Buyzone</h2>
+          <h2 className="text-2xl font-bold text-center mb-6">
+            Login to Buyzone
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-1">Email</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-1">
+                Email
+              </label>
               <input
                 type="email"
                 name="email"
@@ -73,7 +67,9 @@ export const Login = () => {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-1">Password</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-1">
+                Password
+              </label>
               <input
                 type="password"
                 name="password"
@@ -86,10 +82,10 @@ export const Login = () => {
             </div>
 
             {/* Captcha Placeholder */}
-            <div className="border rounded-lg p-4 flex items-center space-x-2">
-              <input type="checkbox" className="w-4 h-4" />
-              <span className="text-sm text-gray-600">I'm not a robot</span>
-            </div>
+            {/* <ReCAPTCHA
+              sitekey="YOUR_RECAPTCHA_SITE_KEY"
+              onChange={(value) => console.log("Captcha value:", value)}
+            /> */}
 
             {/* Submit Button */}
             <button
@@ -112,15 +108,27 @@ export const Login = () => {
         {/* Right Section - Social Login */}
         <div className="w-full md:w-1/2 p-6 flex flex-col space-y-3">
           <button className="flex items-center justify-center border rounded-lg py-2 font-medium hover:bg-gray-50">
-            <img src="https://www.svgrepo.com/show/473731/youtube-color.svg" alt="YouTube" className="w-5 h-5 mr-2" />
+            <img
+              src="https://www.svgrepo.com/show/473731/youtube-color.svg"
+              alt="YouTube"
+              className="w-5 h-5 mr-2"
+            />
             Continue with YouTube
           </button>
           <button className="flex items-center justify-center border rounded-lg py-2 font-medium hover:bg-gray-50">
-            <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google" className="w-5 h-5 mr-2" />
+            <img
+              src="https://www.svgrepo.com/show/355037/google.svg"
+              alt="Google"
+              className="w-5 h-5 mr-2"
+            />
             Continue with Google
           </button>
           <button className="flex items-center justify-center border rounded-lg py-2 font-medium hover:bg-gray-50">
-            <img src="https://www.svgrepo.com/show/448224/facebook.svg" alt="Facebook" className="w-5 h-5 mr-2" />
+            <img
+              src="https://www.svgrepo.com/show/448224/facebook.svg"
+              alt="Facebook"
+              className="w-5 h-5 mr-2"
+            />
             Continue with Facebook
           </button>
         </div>

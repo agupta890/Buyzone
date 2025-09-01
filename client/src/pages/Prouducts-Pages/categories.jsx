@@ -1,13 +1,26 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { categories } from "../../data/categories";
 import { CartContext } from "../../context/Cart-context";
+import { AuthContext } from "../../context/AuthContext";
+
 
 const API_URL = "http://localhost:3000/api/products";
+
 
 // ✅ Reusable Product Card Component
 const ProductCard = ({ product }) => {
   const { addToCart } = useContext(CartContext);
+  const { auth } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleAdd = () => {
+    if (!auth?.user?._id) {
+      navigate("/login"); // 🚀 redirect if guest
+      return;
+    }
+    addToCart(product);
+  };
 
   return (
     <div className="group relative bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col">
@@ -17,13 +30,13 @@ const ProductCard = ({ product }) => {
           <img
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-cover rounded-t-2xl transform group-hover:scale-105 transition-transform duration-500"
+            className="max-h-40 object-contain transition-transform duration-500 group-hover:scale-105"
           />
         </div>
 
         {/* Product Info */}
-        <div className="p-4 flex-1 flex flex-col text-center">
-          <h3 className="font-semibold text-lg text-gray-900 group-hover:text-black">
+        <div className="p-4  flex-1 flex flex-col  text-center">
+          <h3 className="font-semibold  text-lg text-gray-900 group-hover:text-black">
             {product.name}
           </h3>
           <p className="text-gray-600 mt-2 text-sm">₹{product.price}</p>
@@ -32,8 +45,8 @@ const ProductCard = ({ product }) => {
 
       {/* Add to Cart Button */}
       <button
-        className="m-4 bg-black text-white font-medium px-4 py-2 rounded-xl hover:bg-gray-900 transition"
-        onClick={() => addToCart(product)}
+        className="m-4 bg-green-800 text-white font-medium px-4 py-2 rounded-xl hover:bg-green-900 transition"
+        onClick={handleAdd}
       >
         Add to Cart
       </button>

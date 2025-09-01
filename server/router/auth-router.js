@@ -1,10 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const { home, register, login } = require('../controller/auth-controller');
+const express = require("express");
+const { login, register, getMe, logout } = require("../controller/auth-controller");
+const { protectUser } = require("../middleware/authMiddleware");
 
-// Route mappings
-router.get('/', home);
-router.post('/register', register);
-router.post('/login', login);
+const router = express.Router();
+
+router.post("/register", register);
+router.post("/login", login);
+router.post("/logout", logout);
+router.get("/me", protectUser, getMe);
 
 module.exports = router;
