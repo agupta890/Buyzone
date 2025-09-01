@@ -10,16 +10,19 @@ const authRouter = require('./router/auth-router');
 const productRoutes = require('./router/products-route');
 const paymentRoutes = require('./router/payments-route');
 const ordersRouter = require('./router/orders-route');
-const cartRouter = require('./router/cart-router')
+const cartRouter = require('./router/cart-router');
+const cookieParser = require("cookie-parser");
 
 
 
 connectDB(); // Connect to MongoDB
 
+app.use(cookieParser());
+
 // Enable CORS
  app.use(cors({
    origin: ['http://localhost:5173', 'http://localhost:3000'],
-   credentials: true
+   credentials: true,
  }));
 app.use(express.json());
 

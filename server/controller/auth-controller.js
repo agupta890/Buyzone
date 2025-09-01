@@ -1,5 +1,7 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/userSchema");
+// const Admin = require("../models/adminSchema"); // 🔹 Future use
 
 // Home page controller
 const home = async (req, res) => {
@@ -11,7 +13,31 @@ const home = async (req, res) => {
   }
 };
 
-// Registration controller
+// ✅ Get current logged-in user from token
+const getMe = async (req, res) => {
+  try {
+    res.json({ user: req.user }); // req.user is attached in middleware
+  } catch (err) {
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+// Helper to generate JWT
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+};
+
+// Helper to set cookie securely
+const setTokenCookie = (res, token) => {
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // send only over HTTPS in production
+    sameSite: "strict", // prevents CSRF
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+};
+
+// 🔹 Registration (User only)
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -22,18 +48,23 @@ const register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const user = new User({ name, email, password: hashedPassword });
     await user.save();
 
-    res.status(201).json({ message: "User registered successfully", user });
+    const token = generateToken(user._id);
+    setTokenCookie(res, token);
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user: { _id: user._id, name, email, role: "user" },
+    });
   } catch (error) {
     console.error("Register error:", error);
     res.status(500).json({ message: "Registration failed" });
   }
 };
 
-// Login controller
+// 🔹 Login (User only for now)
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -48,15 +79,47 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "Incorrect password" });
     }
 
-    res.status(200).json({ message: "Login successful" });
+    const token = generateToken(existingUser._id);
+    setTokenCookie(res, token);
+
+    res.status(200).json({
+      message: "Login successful",
+      user: {
+        _id: existingUser._id,
+        name: existingUser.name,
+        email: existingUser.email,
+      },
+    });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
+// 🔹 Logout
+const logout = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  res.status(200).json({ message: "Logged out successfully" });
+};
+
+/* 
+// 🔹 Future: Admin Registration/Login
+// Uncomment when needed
+
+// const registerAdmin = async (req, res) => { ... }
+// const loginAdmin = async (req, res) => { ... }
+*/
+
 module.exports = {
   home,
+  getMe,
   register,
-  login
+  login,
+  logout,
+  // registerAdmin, // 🔹 future use
+  // loginAdmin,    // 🔹 future use
 };

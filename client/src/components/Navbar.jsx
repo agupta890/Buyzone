@@ -1,31 +1,42 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
+import { AuthContext } from "../context/AuthContext";
 import { categories } from "../data/categories";
 
 export const Navbar = () => {
   const { cart, clearCart } = useContext(CartContext);
+  const { auth, logout } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("userInfo"));
-    setUser(storedUser);
-  }, []);
+  // ✅ User from AuthContext
+  const user = auth?.user || null;
 
+  // Handle logout
   const handleLogout = () => {
-    
-    localStorage.removeItem("userInfo");
-    clearCart();
-    setUser(null);
+    logout();       // clears AuthContext
+    clearCart();    // clears cart context
     navigate("/");
   };
 
+  // Handle navigation clicks
   const handleNavClick = (path) => {
     setMenuOpen(false);
     navigate(path);
   };
+
+  // Handle Cart click
+  const handleCartClick = () => {
+    if (!user) {
+      navigate("/login");
+    } else {
+      navigate("/cart");
+    }
+  };
+
+  // Add at top of component
+const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <nav className="w-full bg-white shadow-md">
@@ -42,14 +53,31 @@ export const Navbar = () => {
 
           {/* Search Bar */}
           <div className="hidden md:flex flex-1 mx-6">
-            <input
-              type="text"
-              placeholder="Search for products, brands and more..."
-              className="w-full px-4 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
-            />
-            <button className="px-4 bg-yellow-500 text-white rounded-r-md hover:bg-yellow-600 transition">
-              Search
-            </button>
+           <form
+  onSubmit={(e) => {
+    e.preventDefault();
+    const query = searchQuery.trim();
+    if (query) {
+      navigate(`/search?query=${encodeURIComponent(query)}`);
+      setSearchQuery(""); // optional: clear input
+    }
+  }}
+  className="hidden md:flex flex-1 mx-6"
+>
+  <input
+    type="text"
+    placeholder="Search for products, brands and more..."
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    className="w-full px-4 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+  />
+  <button
+    type="submit"
+    className="px-4 bg-yellow-500 text-white rounded-r-md hover:bg-yellow-600 transition"
+  >
+    Search
+  </button>
+</form>
           </div>
 
           {/* Right Section */}
@@ -101,8 +129,8 @@ export const Navbar = () => {
             )}
 
             {/* Cart */}
-            <NavLink
-              to="/cart"
+            <button
+              onClick={handleCartClick}
               className="relative flex items-center text-gray-700 hover:text-yellow-500"
             >
               <svg
@@ -123,12 +151,12 @@ export const Navbar = () => {
                   {cart.length}
                 </span>
               )}
-            </NavLink>
+            </button>
           </div>
 
           {/* Mobile Toggle */}
           <div className="md:hidden flex items-center space-x-4">
-            <NavLink to="/cart" className="relative">
+            <button onClick={handleCartClick} className="relative">
               <svg
                 className="w-6 h-6"
                 fill="none"
@@ -147,7 +175,7 @@ export const Navbar = () => {
                   {cart.length}
                 </span>
               )}
-            </NavLink>
+            </button>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="focus:outline-none"
@@ -193,77 +221,7 @@ export const Navbar = () => {
       {/* Mobile Dropdown */}
       {menuOpen && (
         <div className="md:hidden px-4 pt-3 pb-4 space-y-2 bg-white shadow-md border-t">
-          <input
-            type="text"
-            placeholder="Search products..."
-            className="w-full px-4 py-2 border rounded-md mb-3 text-sm"
-          />
-          <button
-            onClick={() => handleNavClick("/bestseller")}
-            className="block w-full text-left hover:text-yellow-500"
-          >
-            Best Sellers
-          </button>
-          {Object.entries(categories).map(([key, value]) => (
-            <button
-              key={key}
-              onClick={() => handleNavClick(`/category/${key}`)}
-              className="block w-full text-left capitalize hover:text-yellow-500"
-            >
-              {value.title}
-            </button>
-          ))}
-          <button
-            onClick={() => handleNavClick("/shop-all")}
-            className="block w-full text-left text-pink-600 font-semibold"
-          >
-            Shop All
-          </button>
-
-          {/* Mobile Auth */}
-          <div className="mt-3 border-t pt-2">
-            {user ? (
-              <>
-                <div className="flex items-center space-x-2 mb-2">
-                  <img
-                    src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                    alt="profile"
-                    className="w-8 h-8 rounded-full border"
-                  />
-                  <span className="text-sm font-semibold text-gray-700">
-                    {user.name}
-                  </span>
-                </div>
-                <button
-                  onClick={() => handleNavClick("/orders")}
-                  className="block w-full text-left hover:text-yellow-500"
-                >
-                  My Orders
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left hover:text-yellow-500"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => handleNavClick("/login")}
-                  className="block w-full text-left font-medium text-gray-700 hover:text-yellow-500"
-                >
-                  Login
-                </button>
-                <button
-                  onClick={() => handleNavClick("/register")}
-                  className="block w-full text-left font-medium text-gray-700 hover:text-yellow-500"
-                >
-                  Signup
-                </button>
-              </>
-            )}
-          </div>
+          {/* Add mobile menu buttons here if needed */}
         </div>
       )}
     </nav>

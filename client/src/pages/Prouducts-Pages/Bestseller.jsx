@@ -57,7 +57,7 @@ export const BestSeller = () => {
                   alt={product.name}
                   className="max-h-40 object-contain transition-transform duration-500 group-hover:scale-105"
                 />
-                <span className="absolute top-3 right-3 bg-black text-white text-xs font-semibold px-2 py-1 rounded-full">
+                <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                   Bestseller
                 </span>
               </div>
@@ -76,7 +76,7 @@ export const BestSeller = () => {
 
                 {/* Add to Cart */}
                 <button
-                  className="mt-3 w-full bg-gray-900 text-white text-xs font-medium py-2 rounded-md hover:bg-gray-800 transition-all"
+                  className="mt-3 w-full bg-green-900 text-white text-xs font-medium py-2 rounded-md hover:bg-green-800 transition-all"
                   onClick={(e) => {
                     e.preventDefault();
                     addToCart(product);

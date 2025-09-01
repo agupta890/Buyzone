@@ -1,11 +1,11 @@
 const express = require('express');
-const Cart = require('../models/cartSchema');  // new schema
-const Product = require('../models/productSchema');
+const Cart = require('../models/cartSchema');
+const { protectUser } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
 // ✅ Get user cart
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', protectUser, async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: req.params.userId }).populate('items.product');
     res.json(cart || { user: req.params.userId, items: [] });
@@ -16,7 +16,7 @@ router.get('/:userId', async (req, res) => {
 });
 
 // ✅ Add product to cart
-router.post('/:userId/add', async (req, res) => {
+router.post('/:userId/add', protectUser, async (req, res) => {
   try {
     const { productId, quantity } = req.body;
     let cart = await Cart.findOne({ user: req.params.userId });
@@ -42,7 +42,7 @@ router.post('/:userId/add', async (req, res) => {
 });
 
 // ✅ Remove product from cart
-router.delete('/:userId/remove/:productId', async (req, res) => {
+router.delete('/:userId/remove/:productId', protectUser, async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: req.params.userId });
     if (!cart) return res.status(404).json({ error: 'Cart not found' });
@@ -58,7 +58,7 @@ router.delete('/:userId/remove/:productId', async (req, res) => {
 });
 
 // ✅ Update quantity
-router.patch('/:userId/update/:productId', async (req, res) => {
+router.patch('/:userId/update/:productId', protectUser, async (req, res) => {
   try {
     const { quantity } = req.body;
     const cart = await Cart.findOne({ user: req.params.userId });
@@ -66,9 +66,7 @@ router.patch('/:userId/update/:productId', async (req, res) => {
     if (!cart) return res.status(404).json({ error: 'Cart not found' });
 
     const item = cart.items.find((i) => i.product.toString() === req.params.productId);
-    if (item) {
-      item.quantity = quantity;
-    }
+    if (item) item.quantity = quantity;
 
     await cart.save();
     res.json(cart);

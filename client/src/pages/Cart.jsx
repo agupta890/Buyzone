@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import  { useContext } from "react";
 import { CartContext } from "../context/Cart-context";
 
 export const Cart = () => {
@@ -127,8 +127,9 @@ export const Cart = () => {
                   const amount = getTotal();
                   const res = await fetch("http://localhost:3000/api/payments/create-order", {
                     method: "POST",
+                    credentials: "include",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ amount })
+                    body: JSON.stringify({ amount }),
                   });
                   const data = await res.json();
                   if (!res.ok) throw new Error(data.error || "Order creation failed");
@@ -142,6 +143,7 @@ export const Cart = () => {
                     handler: async function (response) {
                       const verifyRes = await fetch("http://localhost:3000/api/payments/verify", {
                         method: "POST",
+                        credentials: "include",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                           razorpay_order_id: response.razorpay_order_id,

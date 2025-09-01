@@ -1,9 +1,9 @@
-
 const express = require('express');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const router = express.Router();
-const Order = require('../models/Order'); 
+const Order = require('../models/orderSchema');
+const {protectUser} = require('../middleware/authMiddleware'); // make sure you have auth
 
 require('dotenv').config();
 
@@ -12,35 +12,32 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// Create an order (frontend sends amount in rupees)
+// Create Razorpay order
 router.post('/create-order', async (req, res) => {
   try {
     const { amount, currency = 'INR', receiptMeta } = req.body;
-    if (!amount || isNaN(amount)) {
-      return res.status(400).json({ error: 'Invalid amount' });
-    }
+    if (!amount || isNaN(amount)) return res.status(400).json({ error: 'Invalid amount' });
 
     const options = {
-      amount: Math.round(amount * 100), // convert ₹ -> paise
+      amount: Math.round(amount * 100), // ₹ -> paise
       currency,
       receipt: `receipt_order_${Date.now()}`,
       notes: receiptMeta || {},
     };
 
     const order = await razorpay.orders.create(options);
-
-    // return order and public key_id to the frontend
-    res.json({ order, key_id: process.env.RAZORPAY_KEY_ID });
+    res.json({ order});
   } catch (err) {
     console.error('Create order error:', err);
     res.status(500).json({ error: 'Failed to create order' });
   }
 });
 
-// Verify payment & persist order
-router.post('/verify', async (req, res) => {
+// Verify payment & save order
+router.post('/verify',protectUser, async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, cart, total } = req.body;
+
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return res.status(400).json({ verified: false, error: 'Missing payment fields' });
     }
@@ -54,9 +51,15 @@ router.post('/verify', async (req, res) => {
       return res.status(400).json({ verified: false, error: 'Invalid signature' });
     }
 
-    // Signature valid — create order in DB
+    const formattedCart = (cart || []).map(item => ({
+      product: item.product._id || item.product,
+      quantity: item.quantity || 1,
+      price: item.price || item.product.price || 0,
+    }));
+
     const newOrder = new Order({
-      items: cart || [],
+      user: req.user._id,
+      items: formattedCart,
       total: total || 0,
       payment_method: 'RAZORPAY',
       payment_id: razorpay_payment_id,
@@ -64,8 +67,8 @@ router.post('/verify', async (req, res) => {
       signature: razorpay_signature,
       status: 'Paid',
     });
-    await newOrder.save();
 
+    await newOrder.save();
     res.json({ verified: true, orderId: newOrder._id });
   } catch (err) {
     console.error('Verify error:', err);
