@@ -3,12 +3,15 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
 import { AuthContext } from "../context/AuthContext";
 import { categories } from "../data/categories";
+import { LogIn, UserPlus, LogOut } from "lucide-react"; // icon
 
 export const Navbar = () => {
   const { cart, clearCart } = useContext(CartContext);
   const { auth, logout } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [SearchQuery, setsetSearchQuery] = useState("")
   const navigate = useNavigate();
+ 
 
   // ✅ User from AuthContext
   const user = auth?.user || null;
@@ -32,6 +35,16 @@ export const Navbar = () => {
       navigate("/login");
     } else {
       navigate("/cart");
+    }
+  };
+  // ✅ Search
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const query = searchQuery.trim();
+    if (query) {
+      navigate(`/search?query=${encodeURIComponent(query)}`);
+     setSearchQuery("");
+      setMenuOpen(false);
     }
   };
 
@@ -220,8 +233,81 @@ const [searchQuery, setSearchQuery] = useState("");
 
       {/* Mobile Dropdown */}
       {menuOpen && (
-        <div className="md:hidden px-4 pt-3 pb-4 space-y-2 bg-white shadow-md border-t">
-          {/* Add mobile menu buttons here if needed */}
+        <div className="md:hidden px-4 pt-3 pb-4 space-y-4 bg-white shadow-md border-t">
+          {/* Search (mobile) */}
+          <form onSubmit={handleSearch} className="flex">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+            />
+            <button
+              type="submit"
+              className="px-3 bg-yellow-500 text-white rounded-r-md hover:bg-yellow-600"
+            >
+              Go
+            </button>
+          </form>
+
+         
+
+         
+
+          {/* Categories */}
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => handleNavClick("/bestseller")}
+              className="text-gray-700 hover:text-yellow-500 text-left"
+            >
+              Best Sellers
+            </button>
+            {Object.entries(categories).map(([key, value]) => (
+              <button
+                key={key}
+                onClick={() => handleNavClick(`/category/${key}`)}
+                className="capitalize text-gray-700 hover:text-yellow-500 text-left"
+              >
+                {value.title}
+              </button>
+            ))}
+            <button
+              onClick={() => handleNavClick("/shop-all")}
+              className="text-pink-600 font-semibold text-left"
+            >
+              Shop All
+            </button>
+             {/* User / Auth Links */}
+          {user ? (
+            <>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 w-full"
+              >
+                <LogOut size={18} /> Logout
+              </button>
+              
+            </>
+          ) : (
+            <>
+              <NavLink
+                to="/login"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 text-gray-700 hover:text-yellow-500"
+              >
+                <LogIn size={18} /> Login
+              </NavLink>
+              <NavLink
+                to="/register"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 text-gray-700 hover:text-yellow-500"
+              >
+                <UserPlus size={18} /> Signup
+              </NavLink>
+            </>
+          )}
+          </div>
         </div>
       )}
     </nav>
