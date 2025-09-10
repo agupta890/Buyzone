@@ -20,6 +20,7 @@ export const Admin = () => {
     stock: 0,
     isBestsellers: false,
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -63,7 +64,6 @@ export const Admin = () => {
       });
       if (!res.ok) throw new Error("Failed to add product");
 
-      // Reset form
       setFormData({
         name: "",
         price: "",
@@ -84,11 +84,10 @@ export const Admin = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
-      const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete product");
+      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
       fetchProducts();
-    } catch (err) {
-      setError(err.message);
+    } catch {
+      setError("Failed to delete product");
     }
   };
 
@@ -120,7 +119,120 @@ export const Admin = () => {
     }
   };
 
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Sidebar */}
+      <aside className="w-64 bg-white shadow-md p-6 space-y-4">
+        <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
+        <nav className="space-y-2">
+          <button
+            className={`block w-full text-left px-4 py-2 rounded ${
+              activeTab === "create" ? "bg-yellow-500 text-white" : "hover:bg-gray-100"
+            }`}
+            onClick={() => setActiveTab("create")}
+          >
+            ➕ Create Product
+          </button>
+          <div>
+            <p className="px-4 py-2 font-semibold text-gray-700">📦 All Products</p>
+            {Object.keys(categories).map((catKey) => (
+              <button
+                key={catKey}
+                onClick={() => {
+                  setActiveTab("products");
+                  setSelectedCategory(catKey);
+                  setSelectedSubcategory(null);
+                }}
+                className={`block w-full text-left px-6 py-2 rounded mb-1 ${
+                  selectedCategory === catKey
+                    ? "bg-yellow-500 text-white font-bold"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                {categories[catKey].title}
+              </button>
+            ))}
+          </div>
+          <button
+            className={`block w-full text-left px-4 py-2 rounded ${
+              activeTab === "orders" ? "bg-yellow-500 text-white" : "hover:bg-gray-100"
+            }`}
+            onClick={() => setActiveTab("orders")}
+          >
+            🧾 Orders
+          </button>
+        </nav>
+      </aside>
 
+      {/* Main Content */}
+      <main className="flex-1 p-6">
+        {/* Create Product */}
+        {activeTab === "create" && (
+          <form
+            onSubmit={handleAddProduct}
+            className="bg-white p-6 rounded shadow grid grid-cols-1 sm:grid-cols-2 gap-4"
+          >
+            <h2 className="text-xl font-semibold col-span-full mb-2">Add New Product</h2>
+
+            <input
+              type="text"
+              placeholder="Product Name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="border p-2 rounded"
+              required
+            />
+
+            <input
+              type="number"
+              placeholder="Price"
+              value={formData.price}
+              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+              className="border p-2 rounded"
+              required
+            />
+
+            <input
+              type="text"
+              placeholder="Image URL"
+              value={formData.image}
+              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+              className="border p-2 rounded"
+              required
+            />
+
+            <select
+              value={formData.category}
+              onChange={(e) =>
+                setFormData({ ...formData, category: e.target.value, subcategory: "" })
+              }
+              className="border p-2 rounded"
+              required
+            >
+              <option value="">Select Category</option>
+              {Object.keys(categories).map((catKey) => (
+                <option key={catKey} value={catKey}>
+                  {categories[catKey].title}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={formData.subcategory}
+              onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
+              className="border p-2 rounded"
+              disabled={
+                !formData.category || categories[formData.category]?.subcategories?.length === 0
+              }
+            >
+              <option value="">Select Sub Category</option>
+              {formData.category &&
+                categories[formData.category]?.subcategories?.map((sub) => (
+                  <option key={sub} value={sub}>
+                    {sub}
+                  </option>
+                ))}
+            </select>
 
             <input
               type="number"
@@ -132,7 +244,50 @@ export const Admin = () => {
               required
             />
 
+            <label className="flex items-center gap-2 col-span-full">
+              <input
+                type="checkbox"
+                checked={formData.isBestsellers}
+                onChange={(e) =>
+                  setFormData({ ...formData, isBestsellers: e.target.checked })
+                }
+              />
+              Mark as Bestseller
+            </label>
 
+            <button
+              type="submit"
+              className="col-span-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded"
+            >
+              Add Product
+            </button>
+          </form>
+        )}
+
+        {/* All Products */}
+        {activeTab === "products" && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">All Products</h2>
+            {loading && <p>Loading...</p>}
+            {error && <p className="text-red-500">{error}</p>}
+
+            {/* Subcategory navbar */}
+            {selectedCategory && (
+              <div className="flex gap-2 mb-4 flex-wrap">
+                <span className="font-semibold mr-2">Subcategories:</span>
+                {categories[selectedCategory]?.subcategories?.map((sub) => (
+                  <button
+                    key={sub}
+                    onClick={() => setSelectedSubcategory(sub)}
+                    className={`px-3 py-1 rounded ${
+                      selectedSubcategory === sub
+                        ? "bg-yellow-500 text-white font-semibold"
+                        : "bg-gray-200 hover:bg-gray-300"
+                    }`}
+                  >
+                    {sub}
+                  </button>
+                ))}
                 <button
                   onClick={() => setSelectedSubcategory(null)}
                   className={`px-3 py-1 rounded ${
