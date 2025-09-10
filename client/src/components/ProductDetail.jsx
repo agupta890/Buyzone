@@ -32,72 +32,72 @@ export const ProductDetail = () => {
   if (!product) return <p className="p-6">Product not found.</p>;
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <div className="max-w-7xl mx-auto px-4 lg:px-12 py-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
       {/* Left: Product Images */}
-      <div>
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full rounded-xl shadow-md border mb-6"
-        />
-        {/* Thumbnails (if you have multiple images later) */}
-        <div className="flex gap-4">
+      <div className="flex flex-col items-center">
+        <div className="w-full flex justify-center bg-white border rounded-md p-4 shadow-sm">
           <img
             src={product.image}
-            alt="thumb"
-            className="w-20 h-20 border rounded-lg cursor-pointer hover:shadow"
+            alt={product.name}
+            className="max-h-[450px] object-contain"
           />
-          <img
-            src={product.image}
-            alt="thumb"
-            className="w-20 h-20 border rounded-lg cursor-pointer hover:shadow"
-          />
+        </div>
+
+        {/* Action Buttons (Sticky on Desktop like Flipkart) */}
+        <div className="flex gap-4 mt-6 w-full justify-center">
+          <button
+            onClick={() => addToCart(product)}
+            className="flex-1 bg-orange-500 text-white text-lg font-semibold py-3 rounded-md hover:bg-orange-600 transition"
+          >
+            ADD TO CART
+          </button>
+          <button className="flex-1 bg-green-600 text-white text-lg font-semibold py-3 rounded-md hover:bg-green-700 transition">
+            BUY NOW
+          </button>
         </div>
       </div>
 
       {/* Right: Product Details */}
       <div className="flex flex-col">
         {/* Title */}
-        <h1 className="text-4xl font-bold mb-3">{product.name}</h1>
+        <h1 className="text-2xl lg:text-3xl font-semibold mb-2 text-gray-900">
+          {product.name}
+        </h1>
 
-        {/* Description */}
-        <p className="text-gray-600 text-lg mb-5">{product.description}</p>
+        {/* Ratings + Small Info */}
+        <div className="flex items-center gap-2 mb-4">
+          <span className="bg-green-600 text-white px-2 py-1 rounded text-sm font-medium">
+            4.3 ★
+          </span>
+          <span className="text-gray-600 text-sm">12,345 Ratings & 2,100 Reviews</span>
+        </div>
 
         {/* Price Section */}
-        <div className="flex items-center gap-4 mb-6">
-          <span className="text-3xl font-semibold text-green-600">
-            ₹{product.price}
+        <div className="flex items-end gap-3 mb-4">
+          <span className="text-3xl font-bold text-gray-900">₹{product.price}</span>
+          <span className="text-gray-500 line-through text-lg">
+            ₹{product.price + 500}
           </span>
-          <span className="text-gray-400 line-through">₹{product.price + 500}</span>
+          <span className="text-green-600 font-semibold text-lg">10% off</span>
         </div>
 
-        {/* Sizes (Static Example) */}
+        {/* Offers */}
         <div className="mb-6">
-          <p className="font-medium mb-2">Size:</p>
-          <div className="flex gap-3">
-            {["S", "M", "L", "XL"].map((size) => (
-              <button
-                key={size}
-                className="border rounded-lg px-4 py-2 hover:border-black"
-              >
-                {size}
-              </button>
-            ))}
-          </div>
+          <h3 className="font-semibold mb-2">Available offers</h3>
+          <ul className="list-disc list-inside text-gray-700 text-sm space-y-1">
+            <li>Bank Offer: 10% off on ICICI Credit Cards</li>
+            <li>Special Price: Get extra 5% off (price inclusive of discount)</li>
+            <li>Combo Offer: Buy 2 or more, save extra 10%</li>
+          </ul>
         </div>
 
-        {/* Add to Cart Button */}
-        <button
-          onClick={() => addToCart(product)}
-          className="bg-green-600 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow hover:bg-green-700 transition mb-4"
-        >
-          + Add to Cart
-        </button>
-
-        {/* Buy Now Button */}
-        <button className="border border-gray-400 px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-100 transition">
-          Buy this item
-        </button>
+        {/* Description */}
+        <div>
+          <h3 className="font-semibold mb-2">Product Description</h3>
+          <p className="text-gray-600 text-base leading-relaxed">
+            {product.description}
+          </p>
+        </div>
       </div>
     </div>
   );

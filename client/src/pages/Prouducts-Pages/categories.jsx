@@ -23,34 +23,38 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div className="group relative bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col">
-      <Link to={`/product/${product._id}`} className="flex-1 flex flex-col">
-        {/* Product Image */}
-        <div className="relative w-full h-56 flex items-center justify-center overflow-hidden">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="max-h-40 object-contain transition-transform duration-500 group-hover:scale-105"
-          />
-        </div>
-
-        {/* Product Info */}
-        <div className="p-4  flex-1 flex flex-col  text-center">
-          <h3 className="font-semibold  text-lg text-gray-900 group-hover:text-black">
-            {product.name}
-          </h3>
-          <p className="text-gray-600 mt-2 text-sm">₹{product.price}</p>
-        </div>
-      </Link>
-
-      {/* Add to Cart Button */}
-      <button
-        className="m-4 bg-green-800 text-white font-medium px-4 py-2 rounded-xl hover:bg-green-900 transition"
-        onClick={handleAdd}
-      >
-        Add to Cart
-      </button>
+    <div className="group relative bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 flex flex-col">
+  <Link to={`/product/${product._id}`} className="flex-1 flex flex-col">
+    {/* Product Image */}
+    <div className="relative w-full h-48 flex items-center justify-center p-4">
+      <img
+        src={product.image}
+        alt={product.name}
+        className="max-h-36 object-contain transition-transform duration-300 group-hover:scale-105"
+      />
     </div>
+
+    {/* Product Info */}
+    <div className="px-4 pb-4 flex flex-col text-left">
+      <h3 className="font-medium text-sm text-gray-800 line-clamp-2 group-hover:text-blue-600 transition">
+        {product.name}
+      </h3>
+      <p className="text-lg font-bold text-gray-900 mt-1">₹{product.price}</p>
+    </div>
+  </Link>
+
+  {/* Add to Cart Button */}
+  <div className="px-4 pb-4">
+    <button
+      className="w-full bg-green-900 text-white text-sm font-semibold px-3 py-2 rounded-md hover:bg-orange-600 active:scale-95 transition"
+      onClick={handleAdd}
+    >
+      ADD TO CART
+    </button>
+  </div>
+</div>
+
+
   );
 };
 
