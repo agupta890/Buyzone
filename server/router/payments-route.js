@@ -26,7 +26,7 @@ router.post('/create-order', async (req, res) => {
     };
 
     const order = await razorpay.orders.create(options);
-    res.json({ order});
+    res.json({ order,key_id: process.env.RAZORPAY_KEY_ID  });
   } catch (err) {
     console.error('Create order error:', err);
     res.status(500).json({ error: 'Failed to create order' });
