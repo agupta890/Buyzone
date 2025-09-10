@@ -360,7 +360,7 @@ export const Admin = () => {
               {orders.map((order) => (
                 <div key={order._id} className="bg-white p-4 rounded shadow">
                   <h3 className="font-medium mb-2">Order #{order._id}</h3>
-                  <p>Customer: {order.customerName}</p>
+                  <p>Customer: {order.name}</p>
                   <p>Status: {order.status}</p>
                   <div className="flex gap-2 mt-2">
                     {["Packing", "Dispatched", "Delivered"].map((status) => (
