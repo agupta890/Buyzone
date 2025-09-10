@@ -12,12 +12,7 @@ const productRoutes = require('./router/products-route');
 const paymentRoutes = require('./router/payments-route');
 const ordersRouter = require('./router/orders-route');
 const cartRouter = require('./router/cart-router');
-// <<<<<<< main
-// const addressRouter = require("./router/address-route");
-// const cookieParser = require("cookie-parser");
-// =======
-// const adminOrdersRoutes = require('./router/admin-orders');
-// >>>>>>> main
+const adminOrdersRoutes = require('./router/admin-orders');
 
 // ✅ Connect to MongoDB
 connectDB();
@@ -36,22 +31,18 @@ app.use('/api/products', productRoutes);
 app.use('/api/payments', paymentRoutes); 
 app.use('/api/orders', ordersRouter);
 app.use("/api/cart", cartRouter);
-// <<<<<<< main
-// app.use("/api/address", addressRouter);
-// =======
-// app.use("/api/admin/orders", adminOrdersRoutes);
+app.use("/api/admin/orders", adminOrdersRoutes);
 
-// // ✅ Default Route
-// app.get('/', (req, res) => {
-//   res.send('API is running...');
-// });
+// ✅ Default Route
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
 
-// // ✅ Error Handling Middleware
-// app.use((err, req, res, next) => {
-//   console.error(err.stack);
-//   res.status(500).json({ message: 'Server Error' });
-// });
-// >>>>>>> main
+// ✅ Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Server Error' });
+});
 
 // ✅ Start Server
 const PORT = process.env.PORT || 3000;
