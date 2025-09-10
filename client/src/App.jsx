@@ -9,6 +9,7 @@ import { BestSeller } from "./pages/Prouducts-Pages/Bestseller";
 import { Cart } from "./pages/Cart";
 import { Wishlist } from "./pages/Wishlist";
 import { MyOrders } from "./pages/Myorders";
+import {Admin} from './dashboard/Admin'
 // import { Admin } from "./dashboard/Admin";
 import CategoryPage from "./pages/Prouducts-Pages/categories";
 import { ProductDetail } from "./components/ProductDetail";
@@ -22,6 +23,7 @@ const App = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/admin" element={<Admin />} />
         {/* <Route path="/search" element={<SearchPage />} /> */}
 
         {/* <Route path="/admin" element={<Admin />} /> */}
