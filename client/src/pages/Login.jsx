@@ -18,7 +18,7 @@ export const Login = () => {
     try {
       const res = await fetch("http://localhost:3000/api/auth/login", {
         method: "POST",
-        credentials: "include", // 🔑 important for cookies
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
@@ -26,7 +26,7 @@ export const Login = () => {
       const data = await res.json();
 
       if (res.ok && data.user) {
-        login(data.user); // update context
+        login(data.user);
         toast.success("Login successful!");
         navigate("/");
       } else {
@@ -39,11 +39,22 @@ export const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center bg-white px-4 py-6">
-      <div className="max-w-4xl w-full flex flex-col md:flex-row items-center justify-center rounded-lg shadow-md">
-        {/* Left Section - Login Form */}
-        <div className="w-full md:w-1/2 p-6">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 py-6">
+      <div className="max-w-5xl w-full flex flex-col md:flex-row bg-white rounded-lg shadow-lg overflow-hidden">
+        
+        {/* Left Section - Image */}
+        <div className="hidden md:block md:w-1/2">
+          <img
+            src="https://res.cloudinary.com/project01/image/upload/v1757780287/piue1mytbf2dgrqrgz8f.jpg"
+            alt="Login Illustration"
+            className="w-full h-full object-center"
+          />
+        </div>
+
+        {/* Right Section - Login */}
+        <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
           <h2 className="text-2xl font-bold text-center mb-6">Login to Buyzone</h2>
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
@@ -85,40 +96,41 @@ export const Login = () => {
               Log In
             </button>
           </form>
-        </div>
 
-        {/* Divider + Socials (unchanged) */}
-        <div className="hidden md:flex w-px bg-gray-200 mx-6"></div>
-        <div className="my-4 md:hidden flex items-center">
-          <span className="w-full border-b" />
-          <span className="px-2 text-sm text-gray-500">or</span>
-          <span className="w-full border-b" />
-        </div>
-        <div className="w-full md:w-1/2 p-6 flex flex-col space-y-3">
-          <button className="flex items-center justify-center border rounded-lg py-2 font-medium hover:bg-gray-50">
-            <img
-              src="https://www.svgrepo.com/show/473731/youtube-color.svg"
-              alt="YouTube"
-              className="w-5 h-5 mr-2"
-            />
-            Continue with YouTube
-          </button>
-          <button className="flex items-center justify-center border rounded-lg py-2 font-medium hover:bg-gray-50">
-            <img
-              src="https://www.svgrepo.com/show/355037/google.svg"
-              alt="Google"
-              className="w-5 h-5 mr-2"
-            />
-            Continue with Google
-          </button>
-          <button className="flex items-center justify-center border rounded-lg py-2 font-medium hover:bg-gray-50">
-            <img
-              src="https://www.svgrepo.com/show/448224/facebook.svg"
-              alt="Facebook"
-              className="w-5 h-5 mr-2"
-            />
-            Continue with Facebook
-          </button>
+          {/* Divider */}
+          <div className="flex items-center my-6">
+            <span className="flex-grow border-t border-gray-300"></span>
+            <span className="px-3 text-sm text-gray-500">or</span>
+            <span className="flex-grow border-t border-gray-300"></span>
+          </div>
+
+          {/* Social Buttons */}
+          <div className="flex flex-col space-y-3">
+            {/* <button className="flex items-center justify-center border rounded-lg py-2 font-medium hover:bg-gray-50">
+              <img
+                src="https://www.svgrepo.com/show/473731/youtube-color.svg"
+                alt="YouTube"
+                className="w-5 h-5 mr-2"
+              />
+              Continue with YouTube
+            </button> */}
+            <button className="flex items-center justify-center border rounded-lg py-2 font-medium hover:bg-gray-50">
+              <img
+                src="https://www.svgrepo.com/show/355037/google.svg"
+                alt="Google"
+                className="w-5 h-5 mr-2"
+              />
+              Continue with Google
+            </button>
+            <button className="flex items-center justify-center border rounded-lg py-2 font-medium hover:bg-gray-50">
+              <img
+                src="https://www.svgrepo.com/show/448224/facebook.svg"
+                alt="Facebook"
+                className="w-5 h-5 mr-2"
+              />
+              Continue with Facebook
+            </button>
+          </div>
         </div>
       </div>
     </div>

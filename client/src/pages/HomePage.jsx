@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import HomeCardGrid from "./HomeCards";
 
 // Import your slider images
 import img3 from "../assets/slide3.jpg";
@@ -7,10 +8,10 @@ import img1 from "../assets/slide1.jpg";
 import img2 from "../assets/slide2.jpg";
 import img4 from "../assets/slide4.jpg";
 import img5 from "../assets/slide5.jpg";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 // Import your feature image
-import featureImg from "../assets/summer-season.jpg";
-import HomeCardGrid from "./HomeCards";
+const featureImg="https://res.cloudinary.com/project01/image/upload/v1757774635/rgirblwu1mv1rh89xqgl.jpg";
 
 const images = [img1, img2, img3, img4, img5];
 
@@ -37,9 +38,9 @@ export const HomePage = () => {
     <div>
       {/* Slide Bar */}
       <div className="px-4 sm:px-6 lg:px-2 max-w-screen-xl mx-auto">
-        <div className="relative w-full h-40 sm:h-52 md:h-64 lg:h-72 xl:h-80 overflow-hidden rounded-r-3l">
+        <div className="relative w-full rounded-2xl h-40 sm:h-52 md:h-64 lg:h-72 xl:h-80 overflow-hidden rounded-r-3l">
           <div
-            className="flex mt-4 w-full h-full transition-transform duration-700 ease-in-out"
+            className="flex mt-4 rounded-2xl w-full h-full transition-transform duration-700 ease-in-out"
             style={{ transform: `translateX(-${current * 100}%)` }}
           >
             {images.map((img, index) => (
@@ -47,7 +48,7 @@ export const HomePage = () => {
                 key={index}
                 src={img}
                 alt={`Slide ${index + 1}`}
-                className="w-full h-full object-center flex-shrink-0"
+                className="w-full h-full object-center rounded-2xl flex-shrink-0"
               />
             ))}
           </div>
@@ -55,15 +56,15 @@ export const HomePage = () => {
           {/* Navigation Buttons */}
           <button
             onClick={goToPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 text-black p-2  hover:bg-opacity-75"
+            className="absolute cursor-pointer border-1 hover:bg-amber-400 left-0 top-1/2 -translate-y-1/2  bg-white bg-opacity-50 text-black p-2"
           >
-            &#8592;
+            <ArrowLeft />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 text-black p-2  hover:bg-opacity-75"
+            className="absolute right-0 cursor-pointer border-1 hover:bg-amber-400 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 text-black p-2  hover:bg-opacity-75"
           >
-            &#8594;
+            <ArrowRight />
           </button>
 
           {/* Dot Indicators */}
@@ -85,7 +86,7 @@ export const HomePage = () => {
   <img
     src={featureImg}
     alt="Features"
-    className="w-full h-full object-cover rounded-lg opacity-70"
+    className="w-full h-full object-center rounded-lg opacity-70"
   />
   <div className="absolute inset-0 flex items-center justify-center  px-4 sm:px-8">
     <div className="text-black max-w-xl text-center sm:text-left space-y-2">
