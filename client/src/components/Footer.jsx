@@ -114,6 +114,15 @@ export const Footer = () => {
                   Admin Dashboard
                 </NavLink>
               </li>
+               <li>
+                <NavLink
+                  to="/address"
+                  className="hover:text-yellow-500"
+                  target="_blank"
+                >
+                  Address
+                </NavLink>
+              </li>
             </ul>
           </div>
 

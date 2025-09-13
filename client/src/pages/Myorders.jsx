@@ -36,7 +36,7 @@ export const MyOrders = () => {
       <h1 className="text-3xl font-bold mb-8 text-[#384959]">My Orders</h1>
       <div className="space-y-6">
         {orders.map(order => { 
-          const { _id, items, total, status, payment_method, payment_id, createdAt } = order;
+          const { _id, items, total, status, payment_method, payment_id, createdAt , address_id } = order;
 
           return (
             <div key={_id} className="border border-green-500 rounded-xl shadow-sm bg-white hover:shadow-md transition p-6">
@@ -46,8 +46,18 @@ export const MyOrders = () => {
                   <p className="text-sm text-gray-500">Placed on: {createdAt ? new Date(createdAt).toLocaleDateString() : "—"}</p>
                   <p className="mt-1 text-gray-700">Order Total: <span className="font-semibold text-[#384959]">₹{total.toFixed(2)}</span></p>
                   {payment_method && <p className="text-gray-600 text-sm mt-1">Payment: {payment_method} {payment_id && `• TXN ${payment_id}`}</p>}
-                </div>
 
+                   {/* ✅ Show Address */}
+          {address_id && (
+            <div className="mt-3 text-sm text-gray-700">
+              <p className="font-semibold">Delivery Address:</p>
+              <p>{address_id.fullName} ({address_id.phone})</p>
+              <p>{address_id.street}, {address_id.city}</p>
+              <p>{address_id.state} - {address_id.pincode}</p>
+            </div>
+          )}
+                </div>
+                
                 <span className={`px-4 py-1 h-fit rounded-full text-sm font-semibold mt-3 md:mt-0 
                   ${status === "Delivered" ? "bg-green-100 text-green-700" :
                     status === "Shipped" ? "bg-yellow-100 text-yellow-700" :
@@ -55,6 +65,9 @@ export const MyOrders = () => {
                         "bg-gray-100 text-gray-700"}`}>
                   {status}
                 </span>
+
+
+
               </div>
 
               <div className="space-y-4">

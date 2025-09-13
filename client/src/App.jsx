@@ -10,10 +10,11 @@ import { Cart } from "./pages/Cart";
 import { Wishlist } from "./pages/Wishlist";
 import { MyOrders } from "./pages/Myorders";
 import {Admin} from './dashboard/Admin'
-// import { Admin } from "./dashboard/Admin";
 import CategoryPage from "./pages/Prouducts-Pages/categories";
 import { ProductDetail } from "./components/ProductDetail";
-import ProtectedRoute from "./components/ProtectedRoute"; // ⬅️ import it
+import { AddressPage } from "./pages/AddressPage";
+import ProtectedRoute from "./components/ProtectedRoute"; //
+
 
 const App = () => {
   return (
@@ -24,9 +25,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin" element={<Admin />} />
-        {/* <Route path="/search" element={<SearchPage />} /> */}
 
-        {/* <Route path="/admin" element={<Admin />} /> */}
         <Route path="/bestseller" element={<BestSeller />} />
         <Route path="/category/:category" element={<CategoryPage />} />
         <Route
@@ -57,6 +56,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <MyOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/address"
+          element={
+            <ProtectedRoute>
+              <AddressPage />
             </ProtectedRoute>
           }
         />
