@@ -17,7 +17,7 @@ router.get("/", protectUser, async (req, res) => {
 // ✅ Save new address
 router.post("/", protectUser, async (req, res) => {
   try {
-    const { name, phone, pincode, house_no, street, city, state ,nearest} = req.body;
+    const { name, phone, pincode, house_no, street, city, state ,nearest,isDefault} = req.body;
     if (!name || !phone || !pincode || !street || !city || !state) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -48,6 +48,15 @@ router.post("/", protectUser, async (req, res) => {
 router.put("/:id", protectUser, async (req, res) => {
   try {
     const { id } = req.params;
+
+     // 🔹 If updating to default, unset previous default
+    if (req.body.isDefault) {
+      await Address.updateMany(
+        { user: req.user._id, isDefault: true },
+        { $set: { isDefault: false } }
+      );
+    }
+    
     const updated = await Address.findOneAndUpdate(
       { _id: id, user: req.user._id }, // ensure only owner can update
       req.body,
