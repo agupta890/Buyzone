@@ -2,7 +2,6 @@ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthContext } from "../context/AuthContext";
-// import ReCAPTCHA from "react-google-recaptcha";
 
 export const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -15,13 +14,11 @@ export const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
 
     try {
       const res = await fetch("http://localhost:3000/api/auth/login", {
         method: "POST",
-        credentials: "include", // 🔑 send cookies
+        credentials: "include", // 🔑 important for cookies
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
@@ -29,15 +26,14 @@ export const Login = () => {
       const data = await res.json();
 
       if (res.ok && data.user) {
-        // ✅ no token, just save user in context
-        // login(data.user);
+        login(data.user); // update context
         toast.success("Login successful!");
         navigate("/");
       } else {
         toast.error(data.message || "Login failed!");
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Login error:", error);
       toast.error("Something went wrong!");
     }
   };
@@ -47,10 +43,7 @@ export const Login = () => {
       <div className="max-w-4xl w-full flex flex-col md:flex-row items-center justify-center rounded-lg shadow-md">
         {/* Left Section - Login Form */}
         <div className="w-full md:w-1/2 p-6">
-          <h2 className="text-2xl font-bold text-center mb-6">
-            Login to Buyzone
-          </h2>
-
+          <h2 className="text-2xl font-bold text-center mb-6">Login to Buyzone</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
@@ -84,12 +77,6 @@ export const Login = () => {
               />
             </div>
 
-            {/* Captcha Placeholder */}
-            {/* <ReCAPTCHA
-              sitekey="YOUR_RECAPTCHA_SITE_KEY"
-              onChange={(value) => console.log("Captcha value:", value)}
-            /> */}
-
             {/* Submit Button */}
             <button
               type="submit"
@@ -100,15 +87,13 @@ export const Login = () => {
           </form>
         </div>
 
-        {/* Divider */}
+        {/* Divider + Socials (unchanged) */}
         <div className="hidden md:flex w-px bg-gray-200 mx-6"></div>
         <div className="my-4 md:hidden flex items-center">
           <span className="w-full border-b" />
           <span className="px-2 text-sm text-gray-500">or</span>
           <span className="w-full border-b" />
         </div>
-
-        {/* Right Section - Social Login */}
         <div className="w-full md:w-1/2 p-6 flex flex-col space-y-3">
           <button className="flex items-center justify-center border rounded-lg py-2 font-medium hover:bg-gray-50">
             <img

@@ -43,6 +43,17 @@ export const Navbar = () => {
     }
   };
 
+  // 🔹 Prevent flicker while checking auth
+  if (auth.loading) {
+    return (
+      <nav className="w-full bg-white shadow-md">
+        <div className="h-16 flex items-center justify-center text-gray-500">
+          Loading...
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <nav className="w-full bg-white shadow-md">
       {/* Top Header */}

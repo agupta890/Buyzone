@@ -5,7 +5,7 @@ const API_URL = "http://localhost:3000/api/products";
 const API_ORDERS = "http://localhost:3000/api/orders";
 
 export const Admin = () => {
-  const [activeTab, setActiveTab] = useState("create"); // create | products | orders
+  const [activeTab, setActiveTab] = useState("create");
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -120,9 +120,9 @@ export const Admin = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-md p-6 space-y-4">
+      <aside className="w-full md:w-64 bg-white shadow-md p-6 space-y-4 md:min-h-screen">
         <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
         <nav className="space-y-2">
           <button
@@ -165,7 +165,7 @@ export const Admin = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-4 sm:p-6 overflow-x-auto">
         {/* Create Product */}
         {activeTab === "create" && (
           <form
@@ -179,7 +179,7 @@ export const Admin = () => {
               placeholder="Product Name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="border p-2 rounded"
+              className="border p-2 rounded w-full"
               required
             />
 
@@ -188,7 +188,7 @@ export const Admin = () => {
               placeholder="Price"
               value={formData.price}
               onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              className="border p-2 rounded"
+              className="border p-2 rounded w-full"
               required
             />
 
@@ -197,7 +197,7 @@ export const Admin = () => {
               placeholder="Image URL"
               value={formData.image}
               onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-              className="border p-2 rounded"
+              className="border p-2 rounded w-full"
               required
             />
 
@@ -206,7 +206,7 @@ export const Admin = () => {
               onChange={(e) =>
                 setFormData({ ...formData, category: e.target.value, subcategory: "" })
               }
-              className="border p-2 rounded"
+              className="border p-2 rounded w-full"
               required
             >
               <option value="">Select Category</option>
@@ -220,7 +220,7 @@ export const Admin = () => {
             <select
               value={formData.subcategory}
               onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
-              className="border p-2 rounded"
+              className="border p-2 rounded w-full"
               disabled={
                 !formData.category || categories[formData.category]?.subcategories?.length === 0
               }
@@ -240,7 +240,7 @@ export const Admin = () => {
               placeholder="Stock Quantity"
               value={formData.stock}
               onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-              className="border p-2 rounded"
+              className="border p-2 rounded w-full"
               required
             />
 
@@ -324,7 +324,7 @@ export const Admin = () => {
                         Bestseller
                       </span>
                     )}
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex flex-wrap gap-2 mt-2">
                       <button
                         onClick={() =>
                           handleToggleBestseller(product._id, product.isBestsellers)
@@ -335,7 +335,7 @@ export const Admin = () => {
                             : "bg-green-500 hover:bg-green-600 text-white"
                         }`}
                       >
-                        {product.isBestsellers ? "Unmark Bestseller" : "Mark Bestseller"}
+                        {product.isBestsellers ? "Unmark" : "Mark"}
                       </button>
                       <button
                         onClick={() => handleDelete(product._id)}
@@ -351,87 +351,80 @@ export const Admin = () => {
         )}
 
         {/* Orders */}
-       {/* Orders */}
-{activeTab === "orders" && (
-  <div>
-    <h2 className="text-xl font-semibold mb-4">Orders</h2>
-    {orders.length === 0 ? (
-      <p>No orders received yet.</p>
-    ) : (
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
-          <thead>
-            <tr className="bg-gray-100 text-left text-sm font-semibold text-gray-700">
-              <th className="p-3 border">Order ID</th>
-              <th className="p-3 border">User</th>
-              <th className="p-3 border">Address</th>
-              <th className="p-3 border">Payment</th>
-              <th className="p-3 border">Status</th>
-              <th className="p-3 border">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order._id} className="text-sm hover:bg-gray-50">
-                {/* Order ID */}
-                <td className="p-3 border">{order._id}</td>
-
-                {/* User */}
-                <td className="p-3 border">
-                  {order.user?.name || "—"} <br />
-                  <span className="text-xs text-gray-500">{order.user?.email}</span>
-                </td>
-
-                {/* Address */}
-                <td className="p-3 border">
-                  {order.address_id ? (
-                    <>
-                      <p>{order.address_id.fullName}</p>
-                      <p>{order.address_id.street}, {order.address_id.city}</p>
-                      <p>{order.address_id.state} - {order.address_id.pincode}</p>
-                      <p className="text-xs text-gray-500">{order.address_id.phone}</p>
-                    </>
-                  ) : (
-                    <span className="text-gray-400">No address</span>
-                  )}
-                </td>
-
-                {/* Payment */}
-                <td className="p-3 border">
-                  {order.payment_method || "N/A"} <br />
-                  <span className="text-xs text-gray-500">{order.payment_id}</span>
-                </td>
-
-                {/* Status */}
-                <td className="p-3 border font-medium">{order.status}</td>
-
-                {/* Actions */}
-                <td className="p-3 border">
-                  <div className="flex flex-col gap-1">
-                    {["Packing", "Dispatched", "Delivered"].map((status) => (
-                      <button
-                        key={status}
-                        onClick={() => handleUpdateOrder(order._id, status)}
-                        className={`px-2 py-1 text-xs rounded ${
-                          order.status === status
-                            ? "bg-yellow-500 text-white"
-                            : "bg-gray-200 hover:bg-gray-300"
-                        }`}
-                      >
-                        {status}
-                      </button>
+        {activeTab === "orders" && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Orders</h2>
+            {orders.length === 0 ? (
+              <p>No orders received yet.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
+                  <thead>
+                    <tr className="bg-gray-100 text-left text-sm font-semibold text-gray-700">
+                      <th className="p-3 border">Order ID</th>
+                      <th className="p-3 border">User</th>
+                      <th className="p-3 border">Address</th>
+                      <th className="p-3 border">Payment</th>
+                      <th className="p-3 border">Status</th>
+                      <th className="p-3 border">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.map((order) => (
+                      <tr key={order._id} className="text-sm hover:bg-gray-50">
+                        <td className="p-3 border">{order._id}</td>
+                        <td className="p-3 border">
+                          {order.user?.name || "—"} <br />
+                          <span className="text-xs text-gray-500">{order.user?.email}</span>
+                        </td>
+                        <td className="p-3 border">
+                          {order.address_id ? (
+                            <>
+                              <p>{order.address_id.fullName}</p>
+                              <p>
+                                {order.address_id.street}, {order.address_id.city}
+                              </p>
+                              <p>
+                                {order.address_id.state} - {order.address_id.pincode}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {order.address_id.phone}
+                              </p>
+                            </>
+                          ) : (
+                            <span className="text-gray-400">No address</span>
+                          )}
+                        </td>
+                        <td className="p-3 border">
+                          {order.payment_method || "N/A"} <br />
+                          <span className="text-xs text-gray-500">{order.payment_id}</span>
+                        </td>
+                        <td className="p-3 border font-medium">{order.status}</td>
+                        <td className="p-3 border">
+                          <div className="flex flex-col sm:flex-row gap-1">
+                            {["Packing", "Dispatched", "Delivered"].map((status) => (
+                              <button
+                                key={status}
+                                onClick={() => handleUpdateOrder(order._id, status)}
+                                className={`px-2 py-1 text-xs rounded ${
+                                  order.status === status
+                                    ? "bg-yellow-500 text-white"
+                                    : "bg-gray-200 hover:bg-gray-300"
+                                }`}
+                              >
+                                {status}
+                              </button>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
                     ))}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )}
-  </div>
-)}
-
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );

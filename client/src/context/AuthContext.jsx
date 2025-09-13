@@ -5,30 +5,19 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({ user: null, loading: true });
 
-  // ✅ Check user on page reload
+  // ✅ Restore user session on reload
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem("token"); // get JWT
-      if (!token) {
-        setAuth({ user: null, loading: false });
-        return;
-      }
-
       try {
         const res = await fetch("http://localhost:3000/api/auth/me", {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // send JWT
-          },
+          credentials: "include", // send cookie
         });
 
         if (res.ok) {
           const data = await res.json();
           setAuth({ user: data.user, loading: false });
         } else {
-          // token invalid/expired
-          localStorage.removeItem("token");
           setAuth({ user: null, loading: false });
         }
       } catch (err) {
@@ -40,21 +29,41 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  // 🔹 Login: save user + token
-  const login = (userData, token) => {
-    localStorage.setItem("token", token);
+  // 🔹 Login (backend sets cookie, we just update state)
+  const login = (userData) => {
     setAuth({ user: userData, loading: false });
   };
 
-  // 🔹 Logout: remove token
-  const logout = () => {
-    localStorage.removeItem("token");
-    setAuth({ user: null, loading: false });
+  // 🔹 Logout (backend clears cookie)
+  const logout = async () => {
+    try {
+      await fetch("http://localhost:3000/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      setAuth({ user: null, loading: false });
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
   };
 
   return (
     <AuthContext.Provider value={{ auth, login, logout }}>
-      {children}
+      {auth.loading ? <LoadingScreen /> : children}
     </AuthContext.Provider>
+  );
+};
+
+// 🎨 Fancy loading screen
+const LoadingScreen = () => {
+  return (
+    <div className="flex items-center justify-center h-screen bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600">
+      <div className="flex flex-col items-center space-y-4">
+        <div className="w-16 h-16 border-4 border-white border-dashed rounded-full animate-spin"></div>
+        <h1 className="text-white text-2xl font-bold animate-pulse">
+          Loading your session...
+        </h1>
+      </div>
+    </div>
   );
 };

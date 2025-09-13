@@ -1,7 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userSchema");
-// const Admin = require("../models/adminSchema"); // 🔹 Future use
 
 // Home page controller
 const home = async (req, res) => {
@@ -16,7 +15,7 @@ const home = async (req, res) => {
 // ✅ Get current logged-in user from token
 const getMe = async (req, res) => {
   try {
-    res.json({ user: req.user }); // req.user is attached in middleware
+    res.json({ user: req.user }); // req.user comes from middleware
   } catch (err) {
     res.status(500).json({ message: "Something went wrong" });
   }
@@ -31,8 +30,8 @@ const generateToken = (id) => {
 const setTokenCookie = (res, token) => {
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // send only over HTTPS in production
-    sameSite: "strict", // prevents CSRF
+    secure: process.env.NODE_ENV === "production" ? true : false, // https only in prod
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // ✅ allow frontend-backend cross origin
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 };
@@ -80,6 +79,8 @@ const login = async (req, res) => {
     }
 
     const token = generateToken(existingUser._id);
+
+    // ✅ set cookie for backend usage
     setTokenCookie(res, token);
 
     res.status(200).json({
@@ -100,19 +101,11 @@ const login = async (req, res) => {
 const logout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production" ? true : false,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });
   res.status(200).json({ message: "Logged out successfully" });
 };
-
-/* 
-// 🔹 Future: Admin Registration/Login
-// Uncomment when needed
-
-// const registerAdmin = async (req, res) => { ... }
-// const loginAdmin = async (req, res) => { ... }
-*/
 
 module.exports = {
   home,
@@ -120,6 +113,4 @@ module.exports = {
   register,
   login,
   logout,
-  // registerAdmin, // 🔹 future use
-  // loginAdmin,    // 🔹 future use
 };
