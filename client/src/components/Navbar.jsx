@@ -1,35 +1,30 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
 import { AuthContext } from "../context/AuthContext";
 import { categories } from "../data/categories";
-import { LogIn, UserPlus, LogOut } from "lucide-react"; // icon
+import { LogIn, UserPlus, LogOut } from "lucide-react"; // icons
 
 export const Navbar = () => {
   const { cart, clearCart } = useContext(CartContext);
   const { auth, logout } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [SearchQuery, setsetSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
- 
 
-  // ✅ User from AuthContext
   const user = auth?.user || null;
 
-  // Handle logout
   const handleLogout = () => {
-    logout();       // clears AuthContext
-    clearCart();    // clears cart context
+    logout();
+    clearCart();
     navigate("/");
   };
 
-  // Handle navigation clicks
   const handleNavClick = (path) => {
     setMenuOpen(false);
     navigate(path);
   };
 
-  // Handle Cart click
   const handleCartClick = () => {
     if (!user) {
       navigate("/login");
@@ -37,19 +32,16 @@ export const Navbar = () => {
       navigate("/cart");
     }
   };
-  // ✅ Search
+
   const handleSearch = (e) => {
     e.preventDefault();
     const query = searchQuery.trim();
     if (query) {
       navigate(`/search?query=${encodeURIComponent(query)}`);
-     setSearchQuery("");
+      setSearchQuery("");
       setMenuOpen(false);
     }
   };
-
-  // Add at top of component
-const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <nav className="w-full bg-white shadow-md">
@@ -64,33 +56,23 @@ const [searchQuery, setSearchQuery] = useState("");
             Buy<span className="text-yellow-500">Zone</span>
           </NavLink>
 
-          {/* Search Bar */}
+          {/* Desktop Search */}
           <div className="hidden md:flex flex-1 mx-6">
-           <form
-  onSubmit={(e) => {
-    e.preventDefault();
-    const query = searchQuery.trim();
-    if (query) {
-      navigate(`/search?query=${encodeURIComponent(query)}`);
-      setSearchQuery(""); // optional: clear input
-    }
-  }}
-  className="hidden md:flex flex-1 mx-6"
->
-  <input
-    type="text"
-    placeholder="Search for products, brands and more..."
-    value={searchQuery}
-    onChange={(e) => setSearchQuery(e.target.value)}
-    className="w-full px-4 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
-  />
-  <button
-    type="submit"
-    className="px-4 bg-yellow-500 text-white rounded-r-md hover:bg-yellow-600 transition"
-  >
-    Search
-  </button>
-</form>
+            <form onSubmit={handleSearch} className="flex flex-1">
+              <input
+                type="text"
+                placeholder="Search for products, brands and more..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+              />
+              <button
+                type="submit"
+                className="px-4 bg-yellow-500 text-white rounded-r-md hover:bg-yellow-600 transition"
+              >
+                Search
+              </button>
+            </form>
           </div>
 
           {/* Right Section */}
@@ -131,7 +113,6 @@ const [searchQuery, setSearchQuery] = useState("");
               </div>
             )}
 
-            {/* Orders */}
             {user && (
               <NavLink
                 to="/orders"
@@ -234,7 +215,7 @@ const [searchQuery, setSearchQuery] = useState("");
       {/* Mobile Dropdown */}
       {menuOpen && (
         <div className="md:hidden px-4 pt-3 pb-4 space-y-4 bg-white shadow-md border-t">
-          {/* Search (mobile) */}
+          {/* Mobile Search */}
           <form onSubmit={handleSearch} className="flex">
             <input
               type="text"
@@ -251,11 +232,7 @@ const [searchQuery, setSearchQuery] = useState("");
             </button>
           </form>
 
-         
-
-         
-
-          {/* Categories */}
+          {/* Mobile Categories */}
           <div className="flex flex-col gap-2">
             <button
               onClick={() => handleNavClick("/bestseller")}
@@ -278,35 +255,33 @@ const [searchQuery, setSearchQuery] = useState("");
             >
               Shop All
             </button>
-             {/* User / Auth Links */}
-          {user ? (
-            <>
+
+            {/* User / Auth Links */}
+            {user ? (
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 w-full"
               >
                 <LogOut size={18} /> Logout
               </button>
-              
-            </>
-          ) : (
-            <>
-              <NavLink
-                to="/login"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 text-gray-700 hover:text-yellow-500"
-              >
-                <LogIn size={18} /> Login
-              </NavLink>
-              <NavLink
-                to="/register"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 text-gray-700 hover:text-yellow-500"
-              >
-                <UserPlus size={18} /> Signup
-              </NavLink>
-            </>
-          )}
+            ) : (
+              <>
+                <NavLink
+                  to="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 text-gray-700 hover:text-yellow-500"
+                >
+                  <LogIn size={18} /> Login
+                </NavLink>
+                <NavLink
+                  to="/register"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 text-gray-700 hover:text-yellow-500"
+                >
+                  <UserPlus size={18} /> Signup
+                </NavLink>
+              </>
+            )}
           </div>
         </div>
       )}

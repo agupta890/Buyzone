@@ -15,6 +15,9 @@ export const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+
     try {
       const res = await fetch("http://localhost:3000/api/auth/login", {
         method: "POST",
@@ -27,7 +30,7 @@ export const Login = () => {
 
       if (res.ok && data.user) {
         // ✅ no token, just save user in context
-        login(data.user);
+        // login(data.user);
         toast.success("Login successful!");
         navigate("/");
       } else {

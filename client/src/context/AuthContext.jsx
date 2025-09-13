@@ -1,53 +1,54 @@
-import React, { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({ user: null, loading: true });
 
-  // ✅ Check if user session is valid on page reload
+  // ✅ Check user on page reload
   useEffect(() => {
-  const checkAuth = async () => {
-    try {
-      const res = await fetch("http://localhost:3000/api/auth/me", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setAuth({ user: data.user, loading: false });
-      } else if (res.status === 401) {
-        // Not logged in → just clear state, no error log
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token"); // get JWT
+      if (!token) {
         setAuth({ user: null, loading: false });
-      } else {
-        console.error("Auth check failed:", res.status);
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:3000/api/auth/me", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // send JWT
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setAuth({ user: data.user, loading: false });
+        } else {
+          // token invalid/expired
+          localStorage.removeItem("token");
+          setAuth({ user: null, loading: false });
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
         setAuth({ user: null, loading: false });
       }
-    } catch (err) {
-      console.error("Auth check failed:", err);
-      setAuth({ user: null, loading: false });
-    }
-  };
+    };
 
-  checkAuth();
-}, []);
+    checkAuth();
+  }, []);
 
-  // 🔹 Save user in context only
-  const login = (userData) => {
+  // 🔹 Login: save user + token
+  const login = (userData, token) => {
+    localStorage.setItem("token", token);
     setAuth({ user: userData, loading: false });
   };
 
-  // 🔹 Logout clears backend cookie only
-  const logout = async () => {
-    try {
-      await fetch("http://localhost:3000/api/auth/logout", {
-        method: "POST",
-        credentials: "include", // ensures server clears cookie
-      });
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
+  // 🔹 Logout: remove token
+  const logout = () => {
+    localStorage.removeItem("token");
     setAuth({ user: null, loading: false });
   };
 
