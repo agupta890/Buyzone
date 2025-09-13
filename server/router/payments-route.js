@@ -10,36 +10,47 @@ require('dotenv').config();
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
+  
 });
 
+
 // Create Razorpay order
-router.post('/create-order', async (req, res) => {
+router.post("/create-order", async (req, res) => {
   try {
-    const { amount, currency = 'INR', receiptMeta } = req.body;
-    if (!amount || isNaN(amount)) return res.status(400).json({ error: 'Invalid amount' });
+    const { amount, currency = "INR" } = req.body;
+    if (!amount || isNaN(amount)) return res.status(400).json({ error: "Invalid amount" });
 
     const options = {
-      amount: Math.round(amount * 100), // ₹ -> paise
+      amount: Math.round(amount * 100),
       currency,
-      receipt: `receipt_order_${Date.now()}`,
-      notes: receiptMeta || {},
+      receipt: `receipt_${Date.now()}`,
     };
 
     const order = await razorpay.orders.create(options);
-    res.json({ order});
+    res.json({
+      order,
+      key_id: process.env.RAZORPAY_KEY_ID, // 🔑 send public key for frontend
+    });
   } catch (err) {
-    console.error('Create order error:', err);
-    res.status(500).json({ error: 'Failed to create order' });
+    console.error("Create order error:", err);
+    res.status(500).json({ error: "Failed to create order" });
   }
 });
+
 
 // Verify payment & save order
 router.post('/verify',protectUser, async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, cart, total } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, cart, total,address_id } = req.body;
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return res.status(400).json({ verified: false, error: 'Missing payment fields' });
+    }
+
+     if (!address_id) {
+      return res
+        .status(400)
+        .json({ verified: false, error: "Delivery address is required" });
     }
 
     const generated_signature = crypto
@@ -51,6 +62,7 @@ router.post('/verify',protectUser, async (req, res) => {
       return res.status(400).json({ verified: false, error: 'Invalid signature' });
     }
 
+        // Format cart items for DB
     const formattedCart = (cart || []).map(item => ({
       product: item.product._id || item.product,
       quantity: item.quantity || 1,
@@ -65,6 +77,7 @@ router.post('/verify',protectUser, async (req, res) => {
       payment_id: razorpay_payment_id,
       order_id: razorpay_order_id,
       signature: razorpay_signature,
+      address_id: address_id,
       status: 'Paid',
     });
 

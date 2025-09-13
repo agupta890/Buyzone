@@ -351,23 +351,68 @@ export const Admin = () => {
         )}
 
         {/* Orders */}
-        {activeTab === "orders" && (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Orders</h2>
-            {orders.length === 0 && <p>No orders received yet.</p>}
+       {/* Orders */}
+{activeTab === "orders" && (
+  <div>
+    <h2 className="text-xl font-semibold mb-4">Orders</h2>
+    {orders.length === 0 ? (
+      <p>No orders received yet.</p>
+    ) : (
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
+          <thead>
+            <tr className="bg-gray-100 text-left text-sm font-semibold text-gray-700">
+              <th className="p-3 border">Order ID</th>
+              <th className="p-3 border">User</th>
+              <th className="p-3 border">Address</th>
+              <th className="p-3 border">Payment</th>
+              <th className="p-3 border">Status</th>
+              <th className="p-3 border">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((order) => (
+              <tr key={order._id} className="text-sm hover:bg-gray-50">
+                {/* Order ID */}
+                <td className="p-3 border">{order._id}</td>
 
-            <div className="space-y-4">
-              {orders.map((order) => (
-                <div key={order._id} className="bg-white p-4 rounded shadow">
-                  <h3 className="font-medium mb-2">Order #{order._id}</h3>
-                  <p>Customer: {order.name}</p>
-                  <p>Status: {order.status}</p>
-                  <div className="flex gap-2 mt-2">
+                {/* User */}
+                <td className="p-3 border">
+                  {order.user?.name || "—"} <br />
+                  <span className="text-xs text-gray-500">{order.user?.email}</span>
+                </td>
+
+                {/* Address */}
+                <td className="p-3 border">
+                  {order.address_id ? (
+                    <>
+                      <p>{order.address_id.fullName}</p>
+                      <p>{order.address_id.street}, {order.address_id.city}</p>
+                      <p>{order.address_id.state} - {order.address_id.pincode}</p>
+                      <p className="text-xs text-gray-500">{order.address_id.phone}</p>
+                    </>
+                  ) : (
+                    <span className="text-gray-400">No address</span>
+                  )}
+                </td>
+
+                {/* Payment */}
+                <td className="p-3 border">
+                  {order.payment_method || "N/A"} <br />
+                  <span className="text-xs text-gray-500">{order.payment_id}</span>
+                </td>
+
+                {/* Status */}
+                <td className="p-3 border font-medium">{order.status}</td>
+
+                {/* Actions */}
+                <td className="p-3 border">
+                  <div className="flex flex-col gap-1">
                     {["Packing", "Dispatched", "Delivered"].map((status) => (
                       <button
                         key={status}
                         onClick={() => handleUpdateOrder(order._id, status)}
-                        className={`px-3 py-1 rounded ${
+                        className={`px-2 py-1 text-xs rounded ${
                           order.status === status
                             ? "bg-yellow-500 text-white"
                             : "bg-gray-200 hover:bg-gray-300"
@@ -377,11 +422,16 @@ export const Admin = () => {
                       </button>
                     ))}
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+)}
+
       </main>
     </div>
   );

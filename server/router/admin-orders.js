@@ -9,6 +9,7 @@ router.get("/", protectAdmin, async (req, res) => {
     const orders = await Order.find()
       .populate("user", "name email")
       .populate("items.product", "name image price")
+      .populate("address_id")
       .sort({ createdAt: -1 });
 
     res.json({ orders });
