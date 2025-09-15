@@ -27,6 +27,25 @@ export const ProductDetail = () => {
     fetchProduct();
   }, [id]);
 
+
+  useEffect(() => {
+  if (product) {
+    let recent = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
+
+    // remove if already exists
+    recent = recent.filter((p) => p._id !== product._id);
+
+    // add latest product on top
+    recent.unshift(product);
+
+    // keep only last 6 items
+    if (recent.length > 6) recent.pop();
+
+    localStorage.setItem("recentlyViewed", JSON.stringify(recent));
+  }
+}, [product]);
+
+
   if (loading) return <p className="p-6 text-lg">Loading...</p>;
   if (error) return <p className="p-6 text-red-500">{error}</p>;
   if (!product) return <p className="p-6">Product not found.</p>;
@@ -36,12 +55,15 @@ export const ProductDetail = () => {
       {/* Left: Product Images */}
       <div className="flex flex-col items-center">
         <div className="w-full flex justify-center bg-white border rounded-md p-4 shadow-sm">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="max-h-[450px] object-contain"
-          />
-        </div>
+  <div className="w-[350px] h-[450px]  flex items-center justify-center">
+    <img
+      src={product.image}
+      alt={product.name}
+      className="w-full h-full object-contain rounded-md"
+    />
+  </div>
+</div>
+
 
         {/* Action Buttons (Sticky on Desktop like Flipkart) */}
         <div className="flex gap-4 mt-6 w-full justify-center">

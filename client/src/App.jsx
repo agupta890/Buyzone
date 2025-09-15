@@ -13,7 +13,8 @@ import {Admin} from './dashboard/Admin'
 import CategoryPage from "./pages/Prouducts-Pages/categories";
 import { ProductDetail } from "./components/ProductDetail";
 import { AddressPage } from "./pages/AddressPage";
-import ProtectedRoute from "./components/ProtectedRoute"; //
+import ProtectedRoute from "./components/ProtectedRoute"; 
+import ShopAll from "./pages/ShopAll";
 
 
 const App = () => {
@@ -32,6 +33,7 @@ const App = () => {
           path="/category/:category/:subcategory"
           element={<CategoryPage />}
         />
+        <Route path="/shop-all" element={<ShopAll/>} />
         <Route path="/product/:id" element={<ProductDetail />} />
 
         {/* 🔐 Protected Routes */}

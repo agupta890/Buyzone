@@ -42,7 +42,7 @@ const HomeCardGrid = () => {
         {cardData.map((card) => (
           <Link
             key={card.id}
-            to='/bestseller'
+            to='/shop-all'
             className="bg-white group rounded-lg border border-gray-300 hover:shadow-2xl transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:scale-105 text-center overflow-hidden"
           >
             <div className="w-full h-52 bg-gray-300 flex items-center justify-center">
@@ -52,9 +52,11 @@ const HomeCardGrid = () => {
                 className="w-full h-full object-cover"
               />
             </div>
+            <div className="mt-3 rounded-t-lg bg-gray-300">
             <p className="text-gray-700 group-hover:text-yellow-500 font-medium py-3">
               {card.title}
             </p>
+            </div>
           </Link>
         ))}
       </div>

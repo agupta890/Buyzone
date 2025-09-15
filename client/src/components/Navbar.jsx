@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
 import { AuthContext } from "../context/AuthContext";
 import { categories } from "../data/categories";
-import { LogIn, UserPlus, LogOut } from "lucide-react"; // icons
+import { LogIn, UserPlus, LogOut, Heart } from "lucide-react"; // icons
 
 export const Navbar = () => {
   const { cart, clearCart } = useContext(CartContext);
@@ -133,6 +133,16 @@ export const Navbar = () => {
               </NavLink>
             )}
 
+           {/* ✅ Add Wishlist in mobile menu */}
+    {user && (
+      <NavLink
+        to="/wishlist"
+        onClick={() => setMenuOpen(false)}
+        className="flex items-center gap-2 text-gray-700 hover:text-pink-600"
+      >
+        <Heart/>
+      </NavLink>
+    )}
             {/* Cart */}
             <button
               onClick={handleCartClick}
@@ -161,6 +171,16 @@ export const Navbar = () => {
 
           {/* Mobile Toggle */}
           <div className="md:hidden flex items-center space-x-4">
+            {/* ✅ Add Wishlist in mobile menu */}
+            {user && (
+              <NavLink
+                to="/wishlist"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 text-gray-700 hover:text-pink-600"
+              >
+                <Heart />
+              </NavLink>
+            )}
             <button onClick={handleCartClick} className="relative">
               <svg
                 className="w-6 h-6"
@@ -206,6 +226,10 @@ export const Navbar = () => {
 
       {/* Categories Row */}
       <div className="hidden md:flex justify-center flex-wrap gap-6 bg-gray-100 py-2 text-sm font-medium">
+        <NavLink to="/shop-all" className="text-pink-600 font-semibold">
+          Shop All
+        </NavLink>
+
         <NavLink to="/bestseller" className="hover:text-yellow-500">
           Best Sellers
         </NavLink>
@@ -218,9 +242,6 @@ export const Navbar = () => {
             {value.title}
           </NavLink>
         ))}
-        <NavLink to="/shop-all" className="text-pink-600 font-semibold">
-          Shop All
-        </NavLink>
       </div>
 
       {/* Mobile Dropdown */}
@@ -251,6 +272,14 @@ export const Navbar = () => {
             >
               Best Sellers
             </button>
+
+            <button
+              onClick={() => handleNavClick("/shop-all")}
+              className="text-pink-600 font-semibold text-left"
+            >
+              Shop All
+            </button>
+
             {Object.entries(categories).map(([key, value]) => (
               <button
                 key={key}
@@ -260,12 +289,6 @@ export const Navbar = () => {
                 {value.title}
               </button>
             ))}
-            <button
-              onClick={() => handleNavClick("/shop-all")}
-              className="text-pink-600 font-semibold text-left"
-            >
-              Shop All
-            </button>
 
             {/* User / Auth Links */}
             {user ? (

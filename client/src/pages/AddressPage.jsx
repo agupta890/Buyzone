@@ -119,7 +119,7 @@ export const AddressPage = ({ onSelectAddress }) => {
   const handleSelect = (id) => {
     setSelectedId(id);
     Cookies.set("selected_address_id", id, { expires: 1 });
-    if (onSelectAddress) onSelectAddress(id); // ✅ pass to Cart
+    if (onSelectAddress) onSelectAddress(id);
   };
 
   return (
