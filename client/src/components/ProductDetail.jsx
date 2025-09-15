@@ -11,6 +11,7 @@ export const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Logic untouched
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -27,76 +28,56 @@ export const ProductDetail = () => {
     fetchProduct();
   }, [id]);
 
-
   useEffect(() => {
-  if (product) {
-    let recent = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
+    if (product) {
+      let recent = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
+      recent = recent.filter((p) => p._id !== product._id);
+      recent.unshift(product);
+      if (recent.length > 6) recent.pop();
+      localStorage.setItem("recentlyViewed", JSON.stringify(recent));
+    }
+  }, [product]);
 
-    // remove if already exists
-    recent = recent.filter((p) => p._id !== product._id);
-
-    // add latest product on top
-    recent.unshift(product);
-
-    // keep only last 6 items
-    if (recent.length > 6) recent.pop();
-
-    localStorage.setItem("recentlyViewed", JSON.stringify(recent));
-  }
-}, [product]);
-
-
-  if (loading) return <p className="p-6 text-lg">Loading...</p>;
-  if (error) return <p className="p-6 text-red-500">{error}</p>;
-  if (!product) return <p className="p-6">Product not found.</p>;
+  if (loading) return <p className="p-6 text-lg text-center">Loading...</p>;
+  if (error) return <p className="p-6 text-red-500 text-center">{error}</p>;
+  if (!product) return <p className="p-6 text-center">Product not found.</p>;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 lg:px-12 py-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
-      {/* Left: Product Images */}
-      <div className="flex flex-col items-center">
-        <div className="w-full flex justify-center bg-white border rounded-md p-4 shadow-sm">
-  <div className="w-[350px] h-[450px]  flex items-center justify-center">
-    <img
-      src={product.image}
-      alt={product.name}
-      className="w-full h-full object-contain rounded-md"
-    />
-  </div>
-</div>
-
-
-        {/* Action Buttons (Sticky on Desktop like Flipkart) */}
-        <div className="flex gap-4 mt-6 w-full justify-center">
-          <button
-            onClick={() => addToCart(product)}
-            className="flex-1 bg-orange-500 text-white text-lg font-semibold py-3 rounded-md hover:bg-orange-600 transition"
-          >
-            ADD TO CART
-          </button>
-          <button className="flex-1 bg-green-600 text-white text-lg font-semibold py-3 rounded-md hover:bg-green-700 transition">
-            BUY NOW
-          </button>
+    <div className="min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-12 py-8 flex flex-col lg:flex-row gap-8 relative">
+      
+      {/* Left: Smaller Image */}
+      <div className="flex-1 flex justify-center">
+        <div className="w-full max-w-sm h-[300px] sm:h-[350px] bg-white rounded-3xl shadow-xl flex items-center justify-center p-4">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="object-contain w-full h-full"
+          />
         </div>
       </div>
 
-      {/* Right: Product Details */}
-      <div className="flex flex-col">
+      {/* Right: Details */}
+      <div className="flex-1 flex flex-col justify-between">
         {/* Title */}
-        <h1 className="text-2xl lg:text-3xl font-semibold mb-2 text-gray-900">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
           {product.name}
         </h1>
 
-        {/* Ratings + Small Info */}
-        <div className="flex items-center gap-2 mb-4">
-          <span className="bg-green-600 text-white px-2 py-1 rounded text-sm font-medium">
+        {/* Ratings */}
+        <div className="flex items-center gap-3 mb-5">
+          <span className="bg-green-600 text-white px-3 py-1 rounded-lg font-medium">
             4.3 ★
           </span>
-          <span className="text-gray-600 text-sm">12,345 Ratings & 2,100 Reviews</span>
+          <span className="text-gray-600 text-sm">
+            12,345 Ratings & 2,100 Reviews
+          </span>
         </div>
 
-        {/* Price Section */}
-        <div className="flex items-end gap-3 mb-4">
-          <span className="text-3xl font-bold text-gray-900">₹{product.price}</span>
+        {/* Price */}
+        <div className="flex flex-wrap items-baseline gap-3 mb-6">
+          <span className="text-3xl sm:text-4xl font-bold text-gray-900">
+            ₹{product.price}
+          </span>
           <span className="text-gray-500 line-through text-lg">
             ₹{product.price + 500}
           </span>
@@ -104,8 +85,10 @@ export const ProductDetail = () => {
         </div>
 
         {/* Offers */}
-        <div className="mb-6">
-          <h3 className="font-semibold mb-2">Available offers</h3>
+        <div className="mb-6 bg-white p-4 rounded-2xl shadow-md">
+          <h3 className="font-semibold mb-2 text-gray-800 text-lg">
+            Available Offers
+          </h3>
           <ul className="list-disc list-inside text-gray-700 text-sm space-y-1">
             <li>Bank Offer: 10% off on ICICI Credit Cards</li>
             <li>Special Price: Get extra 5% off (price inclusive of discount)</li>
@@ -114,11 +97,39 @@ export const ProductDetail = () => {
         </div>
 
         {/* Description */}
-        <div>
-          <h3 className="font-semibold mb-2">Product Description</h3>
+        <div className="bg-white p-4 rounded-2xl shadow-md mb-24 lg:mb-0">
+          <h3 className="font-semibold mb-2 text-gray-800 text-lg">
+            Product Description
+          </h3>
           <p className="text-gray-600 text-base leading-relaxed">
             {product.description}
           </p>
+        </div>
+
+        {/* Buttons: Sticky on mobile, inline on desktop */}
+        <div className="lg:hidden fixed bottom-0 left-0 w-full bg-white p-4 shadow-t flex gap-4 z-50">
+          <button
+            onClick={() => addToCart(product)}
+            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-2xl transition"
+          >
+            ADD TO CART
+          </button>
+          <button className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-2xl transition">
+            BUY NOW
+          </button>
+        </div>
+
+        {/* Desktop Buttons */}
+        <div className="hidden lg:flex gap-4 mt-6">
+          <button
+            onClick={() => addToCart(product)}
+            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-2xl transition"
+          >
+            ADD TO CART
+          </button>
+          <button className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-2xl transition">
+            BUY NOW
+          </button>
         </div>
       </div>
     </div>

@@ -70,9 +70,7 @@ export const BestSeller = () => {
                 <p className="text-base font-bold text-gray-800 mt-1">
                   ₹{product.price}
                 </p>
-                <p className="text-xs text-gray-500 capitalize mt-1">
-                  {product.category} → {product.subcategory}
-                </p>
+                
 
                 {/* Add to Cart */}
                 <button
