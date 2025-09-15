@@ -1,12 +1,6 @@
 
 export const categories = {
 
-//   const categories = [
-//   { id: 'upperwear', label: 'Upper Wear' },
-//   { id: 'footwear', label: 'Footwear' },
-//   { id: 'lowerwear', label: 'Lower Wear' },
-//   { id: 'accessories', label: 'Accessories' },
-// ];
   "home-decor": {
     title: "Home Decor",
     subcategories: ["Bedsheet", "Wall Painting"],

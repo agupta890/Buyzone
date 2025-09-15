@@ -51,9 +51,11 @@ export const MyOrders = () => {
           {address_id && (
             <div className="mt-3 text-sm text-gray-700">
               <p className="font-semibold">Delivery Address:</p>
-              <p>{address_id.fullName} ({address_id.phone})</p>
-              <p>{address_id.street}, {address_id.city}</p>
+              <p>{address_id.name}</p>
+                <p>{address_id.phone}</p>
+              <p>{address_id.house_no} {address_id.street}, {address_id.city}</p>
               <p>{address_id.state} - {address_id.pincode}</p>
+              <p>{address_id.nearest}</p>
             </div>
           )}
                 </div>

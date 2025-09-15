@@ -119,7 +119,7 @@ export const AddressPage = ({ onSelectAddress }) => {
   const handleSelect = (id) => {
     setSelectedId(id);
     Cookies.set("selected_address_id", id, { expires: 1 });
-    if (onSelectAddress) onSelectAddress(id); // ✅ pass to Cart
+    if (onSelectAddress) onSelectAddress(id);
   };
 
   return (
@@ -139,7 +139,7 @@ export const AddressPage = ({ onSelectAddress }) => {
               <div className="flex-1">
                 <p className="font-semibold">{addr.name}</p>
                 <p>
-                  {addr.house_no},{addr.street}, {addr.city}, {addr.state} -{" "}
+                  {addr.house_no} {addr.street}, {addr.city}, {addr.state} -{" "}
                   {addr.pincode}
                 </p>
                 <p className="text-gray-600">📞 {addr.phone}</p>
