@@ -13,30 +13,37 @@ export const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const res = await fetch("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+  try {
+    const res = await fetch("http://localhost:3000/api/auth/login", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.ok && data.user) {
-        login(data.user);
-        toast.success("Login successful!");
-        navigate("/");
+    if (res.ok && data.user) {
+      login(data.user); // save user in context
+      toast.success("Login successful!");
+
+      // ✅ Redirect based on role
+      if (data.user.role === "admin") {
+        navigate("/admin"); // redirect admin to admin panel
       } else {
-        toast.error(data.message || "Login failed!");
+        navigate("/"); // regular user
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      toast.error("Something went wrong!");
+    } else {
+      toast.error(data.message || "Login failed!");
     }
-  };
+  } catch (error) {
+    console.error("Login error:", error);
+    toast.error("Something went wrong!");
+  }
+};
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 py-6">
