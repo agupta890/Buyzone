@@ -18,6 +18,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    role: {
+      type: String,
+      enum: ["user", "admin"], // either user or admin
+      default: "user",          // normal users are default
+    },
   },
   { timestamps: true }
 );

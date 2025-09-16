@@ -62,33 +62,37 @@ const register = async (req, res) => {
     res.status(500).json({ message: "Registration failed" });
   }
 };
-
-// 🔹 Login (User only for now)
+//login controller
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Find user
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Check password
     const isPasswordValid = await bcrypt.compare(password, existingUser.password);
     if (!isPasswordValid) {
       return res.status(400).json({ message: "Incorrect password" });
     }
 
+    // Generate JWT
     const token = generateToken(existingUser._id);
 
-    // ✅ set cookie for backend usage
+    // Set cookie
     setTokenCookie(res, token);
 
+    // Respond with role included
     res.status(200).json({
       message: "Login successful",
       user: {
         _id: existingUser._id,
         name: existingUser.name,
         email: existingUser.email,
+        role: existingUser.role || "user", // 👈 Important: send role
       },
     });
   } catch (error) {
@@ -96,6 +100,7 @@ const login = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 // 🔹 Logout
 const logout = (req, res) => {
