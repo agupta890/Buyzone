@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { categories } from "../data/categories";
 
 const API_URL = "http://localhost:3000/api/products";
-const API_ORDERS = "http://localhost:3000/api/orders";
+const API_ORDERS = "http://localhost:3000/api/admin/orders"; // admin route
 
 export const Admin = () => {
   const [activeTab, setActiveTab] = useState("create");
@@ -10,6 +10,7 @@ export const Admin = () => {
   const [orders, setOrders] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  const [dateFilter, setDateFilter] = useState("All");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -40,11 +41,13 @@ export const Admin = () => {
   // Fetch Orders
   const fetchOrders = async () => {
     try {
-      const res = await fetch(API_ORDERS);
+      const res = await fetch(API_ORDERS, { credentials: "include" });
       const data = await res.json();
-      setOrders(data.orders || []);
-    } catch {
+      if (res.ok) setOrders(data.orders || []);
+      else setError(data.message || "Failed to fetch orders");
+    } catch (err) {
       setError("Failed to fetch orders");
+      console.error(err);
     }
   };
 
@@ -108,16 +111,46 @@ export const Admin = () => {
   // Update Order Status
   const handleUpdateOrder = async (id, status) => {
     try {
-      await fetch(`${API_ORDERS}/${id}`, {
+      const res = await fetch(`${API_ORDERS}/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ status }),
       });
-      fetchOrders();
-    } catch {
+      const data = await res.json();
+      if (res.ok) fetchOrders();
+      else setError(data.message || "Failed to update order status");
+    } catch (err) {
       setError("Failed to update order status");
+      console.error(err);
     }
   };
+
+  // Sort orders by date (latest first)
+  const sortedOrders = [...orders].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
+  // Filter orders by date
+  const filteredOrders = sortedOrders.filter((order) => {
+    const orderDate = new Date(order.createdAt);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    switch (dateFilter) {
+      case "Today":
+        return orderDate.toDateString() === today.toDateString();
+      case "Yesterday":
+        return orderDate.toDateString() === yesterday.toDateString();
+      case "Last 7 Days":
+        const lastWeek = new Date();
+        lastWeek.setDate(today.getDate() - 7);
+        return orderDate >= lastWeek && orderDate <= today;
+      default:
+        return true;
+    }
+  });
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
@@ -173,7 +206,6 @@ export const Admin = () => {
             className="bg-white p-6 rounded shadow grid grid-cols-1 sm:grid-cols-2 gap-4"
           >
             <h2 className="text-xl font-semibold col-span-full mb-2">Add New Product</h2>
-
             <input
               type="text"
               placeholder="Product Name"
@@ -182,7 +214,6 @@ export const Admin = () => {
               className="border p-2 rounded w-full"
               required
             />
-
             <input
               type="number"
               placeholder="Price"
@@ -191,7 +222,6 @@ export const Admin = () => {
               className="border p-2 rounded w-full"
               required
             />
-
             <input
               type="text"
               placeholder="Image URL"
@@ -200,7 +230,6 @@ export const Admin = () => {
               className="border p-2 rounded w-full"
               required
             />
-
             <select
               value={formData.category}
               onChange={(e) =>
@@ -216,7 +245,6 @@ export const Admin = () => {
                 </option>
               ))}
             </select>
-
             <select
               value={formData.subcategory}
               onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
@@ -233,7 +261,6 @@ export const Admin = () => {
                   </option>
                 ))}
             </select>
-
             <input
               type="number"
               min="0"
@@ -243,7 +270,6 @@ export const Admin = () => {
               className="border p-2 rounded w-full"
               required
             />
-
             <label className="flex items-center gap-2 col-span-full">
               <input
                 type="checkbox"
@@ -254,7 +280,6 @@ export const Admin = () => {
               />
               Mark as Bestseller
             </label>
-
             <button
               type="submit"
               className="col-span-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded"
@@ -354,73 +379,109 @@ export const Admin = () => {
         {activeTab === "orders" && (
           <div>
             <h2 className="text-xl font-semibold mb-4">Orders</h2>
-            {orders.length === 0 ? (
-              <p>No orders received yet.</p>
+
+            {/* Date Filters */}
+            <div className="flex gap-2 mb-4 flex-wrap">
+              {["All", "Today", "Yesterday", "Last 7 Days"].map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setDateFilter(filter)}
+                  className={`px-3 py-1 rounded ${
+                    dateFilter === filter
+                      ? "bg-yellow-500 text-white font-semibold"
+                      : "bg-gray-200 hover:bg-gray-300"
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+
+            {filteredOrders.length === 0 ? (
+              <p>No orders for selected date.</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
-                  <thead>
-                    <tr className="bg-gray-100 text-left text-sm font-semibold text-gray-700">
-                      <th className="p-3 border">Order ID</th>
-                      <th className="p-3 border">User</th>
-                      <th className="p-3 border">Address</th>
-                      <th className="p-3 border">Payment</th>
-                      <th className="p-3 border">Status</th>
-                      <th className="p-3 border">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders.map((order) => (
-                      <tr key={order._id} className="text-sm hover:bg-gray-50">
-                        <td className="p-3 border">{order._id}</td>
-                        <td className="p-3 border">
-                          {order.user?.name || "—"} <br />
-                          <span className="text-xs text-gray-500">{order.user?.email}</span>
-                        </td>
-                        <td className="p-3 border">
-                          {order.address_id ? (
-                            <>
-                              <p>{order.address_id.fullName}</p>
-                              <p>
-                                {order.address_id.street}, {order.address_id.city}
-                              </p>
-                              <p>
-                                {order.address_id.state} - {order.address_id.pincode}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {order.address_id.phone}
-                              </p>
-                            </>
-                          ) : (
-                            <span className="text-gray-400">No address</span>
-                          )}
-                        </td>
-                        <td className="p-3 border">
-                          {order.payment_method || "N/A"} <br />
-                          <span className="text-xs text-gray-500">{order.payment_id}</span>
-                        </td>
-                        <td className="p-3 border font-medium">{order.status}</td>
-                        <td className="p-3 border">
-                          <div className="flex flex-col sm:flex-row gap-1">
-                            {["Packing", "Dispatched", "Delivered"].map((status) => (
-                              <button
-                                key={status}
-                                onClick={() => handleUpdateOrder(order._id, status)}
-                                className={`px-2 py-1 text-xs rounded ${
-                                  order.status === status
-                                    ? "bg-yellow-500 text-white"
-                                    : "bg-gray-200 hover:bg-gray-300"
-                                }`}
-                              >
-                                {status}
-                              </button>
-                            ))}
+              <div className="flex flex-col gap-4">
+                {filteredOrders.map((order) => (
+                  <div
+                    key={order._id}
+                    className="bg-white shadow-md rounded-lg p-4 border border-gray-200"
+                  >
+                    {/* Header */}
+                    <div className="flex justify-between items-center mb-4">
+                      <div>
+                        <p className="font-semibold">
+                          {order.user?.name || "—"} ({order.user?.email})
+                        </p>
+                        <p className="text-gray-500 text-sm">
+                          Order ID: {order._id} | {new Date(order.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <select
+                          value={order.status}
+                          onChange={(e) => handleUpdateOrder(order._id, e.target.value)}
+                          className="border rounded p-1"
+                        >
+                          {["Packing", "Dispatched", "Delivered"].map((status) => (
+                            <option key={status} value={status}>
+                              {status}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Address */}
+                    <div className="mb-2 text-sm text-gray-700">
+                      <p className="font-semibold">Shipping Address:</p>
+                      {order.address_id ? (
+                        <>
+                          <p>{order.address_id.house_no}, {order.address_id.building}</p>
+                          <p>{order.address_id.street}, {order.address_id.city}</p>
+                          <p>
+                            {order.address_id.state} - {order.address_id.pincode}
+                          </p>
+                          <p className="text-xs text-gray-500">{order.address_id.phone}</p>
+                        </>
+                      ) : (
+                        <span className="text-gray-400">No address</span>
+                      )}
+                    </div>
+
+                    {/* Payment */}
+                    <div className="mb-2 text-sm text-gray-700">
+                      <p className={`font-semibold ${
+                        order.payment_method === "COD" ? "text-yellow-600" : "text-green-600"
+                      }`}>
+                        Payment: {order.payment_method === "COD" ? "COD" : "Paid"}{" "}
+                        {order.payment_method !== "COD" && order.payment_id
+                          ? `(Transaction ID: ${order.payment_id})`
+                          : ""}
+                      </p>
+                    </div>
+
+                    {/* Products */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {order.items?.map((item) => (
+                        <div
+                          key={item.product._id}
+                          className="border p-2 rounded flex items-center gap-2 hover:shadow-md transition-shadow"
+                        >
+                          <img
+                            src={item.product.image}
+                            alt={item.product.name}
+                            className="w-16 h-16 object-cover rounded"
+                          />
+                          <div>
+                            <p className="font-semibold">{item.product.name}</p>
+                            <p className="text-sm">Qty: {item.quantity}</p>
+                            <p className="text-yellow-600 font-bold">₹{item.product.price}</p>
                           </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
