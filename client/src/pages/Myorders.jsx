@@ -35,49 +35,61 @@ export const MyOrders = () => {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold mb-8 text-[#384959]">My Orders</h1>
       <div className="space-y-6">
-        {orders.map(order => { 
-          const { _id, items, total, status, payment_method, payment_id, createdAt , address_id } = order;
+        {orders.map(order => {
+          const { _id, items, total, status, payment_method, payment_id, createdAt, updatedAt, address_id } = order;
 
           return (
             <div key={_id} className="border border-green-500 rounded-xl shadow-sm bg-white hover:shadow-md transition p-6">
+              {/* Order Header */}
               <div className="flex flex-col md:flex-row justify-between mb-6 border-b pb-4">
                 <div>
                   <p className="text-gray-700 font-semibold">Order ID: <span className="text-[#384959]">{_id}</span></p>
                   <p className="text-sm text-gray-500">Placed on: {createdAt ? new Date(createdAt).toLocaleDateString() : "—"}</p>
                   <p className="mt-1 text-gray-700">Order Total: <span className="font-semibold text-[#384959]">₹{total.toFixed(2)}</span></p>
-                  {payment_method && <p className="text-gray-600 text-sm mt-1">Payment: {payment_method} {payment_id && `• TXN ${payment_id}`}</p>}
+                  {payment_method && (
+                    <p className="text-gray-600 text-sm mt-1">
+                      Payment: {payment_method} {payment_id && `• TXN ${payment_id}`}
+                    </p>
+                  )}
 
-                   {/* ✅ Show Address */}
-          {address_id && (
-            <div className="mt-3 text-sm text-gray-700">
-              <p className="font-semibold">Delivery Address:</p>
-              <p>{address_id.name}</p>
-                <p>{address_id.phone}</p>
-              <p>{address_id.house_no} {address_id.street}, {address_id.city}</p>
-              <p>{address_id.state} - {address_id.pincode}</p>
-              <p>{address_id.nearest}</p>
-            </div>
-          )}
+                  {/* ✅ Address */}
+                  {address_id && (
+                    <div className="mt-3 text-sm text-gray-700">
+                      <p className="font-semibold">Delivery Address:</p>
+                      <p>{address_id.name}</p>
+                      <p>{address_id.phone}</p>
+                      <p>{address_id.house_no}, {address_id.building}</p>
+                      <p>{address_id.street}, {address_id.city}</p>
+                      <p>{address_id.state} - {address_id.pincode}</p>
+                    </div>
+                  )}
                 </div>
-                
-                <span className={`px-4 py-1 h-fit rounded-full text-sm font-semibold mt-3 md:mt-0 
-                  ${status === "Delivered" ? "bg-green-100 text-green-700" :
-                    status === "Shipped" ? "bg-yellow-100 text-yellow-700" :
+
+                {/* ✅ Status Badge */}
+                <span
+                  className={`px-4 py-1 h-fit rounded-full text-sm font-semibold mt-3 md:mt-0
+                    ${status === "Delivered" ? "bg-green-100 text-green-700" :
+                      status === "Shipped" ? "bg-yellow-100 text-yellow-700" :
                       status === "Paid" ? "bg-blue-100 text-blue-700" :
-                        "bg-gray-100 text-gray-700"}`}>
+                      status === "Processing" ? "bg-purple-100 text-purple-700" :
+                      status === "Cancelled" ? "bg-red-100 text-red-700" :
+                      "bg-gray-100 text-gray-700"}`}
+                >
                   {status}
                 </span>
-
-
-
               </div>
 
+              {/* ✅ Order Items */}
               <div className="space-y-4">
                 {items.map((item, idx) => {
                   const product = item.product || {};
                   return (
                     <div key={idx} className="flex items-center gap-4 border border-green-500 rounded-lg p-3 hover:bg-gray-50">
-                      <img src={product.image || "/placeholder.png"} alt={product.name || "Product"} className="w-20 h-20 object-cover rounded-lg border" />
+                      <img
+                        src={product.image || "/placeholder.png"}
+                        alt={product.name || "Product"}
+                        className="w-20 h-20 object-cover rounded-lg border"
+                      />
                       <div className="flex-1">
                         <p className="font-medium text-gray-800">{product.name || "Product"}</p>
                         <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
@@ -85,15 +97,15 @@ export const MyOrders = () => {
                       </div>
                       <div className="text-right">
                         {status === "Delivered" ? (
-                          <p className="text-green-600 text-sm font-medium">Delivered on {new Date(createdAt).toLocaleDateString()}</p>
+                          <p className="text-green-600 text-sm font-medium">
+                            Delivered on {new Date(updatedAt).toLocaleDateString()}
+                          </p>
                         ) : status === "Shipped" ? (
                           <p className="text-yellow-600 text-sm font-medium">On the way 🚚</p>
                         ) : (
                           <p className="text-gray-600 text-sm font-medium">Processing...</p>
                         )}
-                        <button className="mt-2 px-4 py-1 text-sm bg-[#384959] text-white rounded-lg hover:bg-[#2d3a47]">
-                          View Details
-                        </button>
+                        
                       </div>
                     </div>
                   );

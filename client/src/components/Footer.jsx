@@ -126,29 +126,6 @@ export const Footer = () => {
             </ul>
           </FooterSection>
 
-          {/* Admin */}
-          <FooterSection title="Admin">
-            <ul className="space-y-2">
-              <li>
-                <NavLink
-                  to="/admin"
-                  className="hover:text-yellow-500"
-                  target="_blank"
-                >
-                  Admin Dashboard
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/address"
-                  className="hover:text-yellow-500"
-                  target="_blank"
-                >
-                  Address
-                </NavLink>
-              </li>
-            </ul>
-          </FooterSection>
 
           {/* Quick Links */}
           <FooterSection title="Quick Links">
