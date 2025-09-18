@@ -17,7 +17,7 @@ export const Navbar = () => {
   const handleLogout = () => {
     logout();
     clearCart();
-    navigate("/");
+    navigate("/login");
   };
 
   const handleNavClick = (path) => {
@@ -75,7 +75,7 @@ export const Navbar = () => {
                 placeholder="Search for products, brands and more..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+                className="w-full px-4 py-2 rounded-l-md border  border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
               />
               <button
                 type="submit"
@@ -90,11 +90,16 @@ export const Navbar = () => {
           <div className="hidden md:flex items-center space-x-6">
             {user ? (
               <div className="flex items-center space-x-3">
-                <img
-                  src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                <video
+                  src="https://cdn-icons-mp4.flaticon.com/512/8121/8121295.mp4"
                   alt="profile"
-                  className="w-8 h-8 rounded-full border"
+                  autoPlay
+                  loop
+                  muted
+
+                  className="w-8 h-8 rounded-full border-green-500 border-2"
                 />
+                
                 <div className="flex flex-col">
                   <span className="text-sm font-semibold text-gray-800">
                     {user.name}
@@ -225,7 +230,7 @@ export const Navbar = () => {
       </div>
 
       {/* Categories Row */}
-      <div className="hidden md:flex justify-center flex-wrap gap-6 bg-gray-100 py-2 text-sm font-medium">
+      <div className="hidden md:flex justify-center flex-wrap gap-6 lg:gap-10 bg-gray-100 py-2 text-sm font-medium">
         <NavLink to="/shop-all" className="text-pink-600 font-semibold">
           Shop All
         </NavLink>

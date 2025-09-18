@@ -46,7 +46,7 @@ export const Login = () => {
 
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 py-6">
+    <div className="flex items-center justify-center min-h-screen bg-gray-300 px-4 py-6">
       <div className="max-w-5xl w-full flex flex-col md:flex-row bg-white rounded-lg shadow-lg overflow-hidden">
         
         {/* Left Section - Image */}
@@ -74,7 +74,7 @@ export const Login = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Email"
               />
             </div>
@@ -90,7 +90,7 @@ export const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Password"
               />
             </div>

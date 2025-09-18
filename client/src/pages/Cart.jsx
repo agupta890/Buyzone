@@ -21,9 +21,19 @@ export const Cart = () => {
             </h1>
 
             {cart.length === 0 ? (
-              <p className="text-gray-600 text-center py-16 text-lg">
-                🛒 Your cart is empty
-              </p>
+              <div className="flex flex-col items-center justify-center text-center mt-8">
+  <video
+    src="https://cdn-icons-mp4.flaticon.com/512/15547/15547248.mp4"
+    autoPlay
+    loop
+    muted
+    className="w-48 h-48 mb-4"
+  ></video>
+  <p className="text-gray-600 text-lg">
+    Your cart is empty
+  </p>
+</div>
+
             ) : (
               <div className="space-y-6">
                 {cart.map((item) => (

@@ -99,16 +99,6 @@ export const Footer = () => {
           <FooterSection title="Shop By Category">
             <ul className="space-y-2">
               <li>
-                <NavLink to="/men" className="hover:text-yellow-500">
-                  Men
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/women" className="hover:text-yellow-500">
-                  Women
-                </NavLink>
-              </li>
-              <li>
                 <NavLink to="/mobile-covers" className="hover:text-yellow-500">
                   Mobile Covers
                 </NavLink>

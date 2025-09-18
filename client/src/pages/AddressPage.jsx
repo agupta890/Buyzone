@@ -134,7 +134,7 @@ export const AddressPage = ({ onSelectAddress }) => {
           {addresses.map((addr) => (
             <div
               key={addr._id}
-              className="p-4 border rounded-lg bg-white shadow hover:shadow-md transition flex flex-row justify-between items-start sm:items-center gap-4"
+              className="p-4 border rounded-lg bg-white shadow hover:shadow-md transition flex flex-col lg:flex-row  justify-between items-center sm:items-center gap-4"
             >
               <div className="flex-1">
                 <p className="font-semibold">{addr.name}</p>
