@@ -1,15 +1,18 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const RecentlyViewed = () => {
   const [recentItems, setRecentItems] = useState([]);
+  const { auth } = useContext(AuthContext);
 
   useEffect(() => {
+    if (!auth.user) return; // ✅ Only load for logged-in users
     const items = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
     setRecentItems(items);
-  }, []);
+  }, [auth.user]); // re-check if user changes
 
-  if (recentItems.length === 0) return null; // hide if nothing viewed
+  if (!auth.user || recentItems.length === 0) return null; // ✅ conditional render AFTER effect
 
   return (
     <section className="py-10 bg-gray-700 px-4 sm:px-6 lg:px-12">
