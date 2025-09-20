@@ -1,15 +1,17 @@
 import { createContext, useState, useEffect } from "react";
-
+import { VITE_API_URL } from "../config";
 export const AuthContext = createContext();
+
 
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({ user: null, loading: true });
+  
 
   // ✅ Restore user session on reload
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/auth/me", {
+        const res = await fetch(`${VITE_API_URL}/auth/me`, {
           method: "GET",
           credentials: "include", // send cookie
         });
@@ -37,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   // 🔹 Logout (backend clears cookie)
   const logout = async () => {
     try {
-      await fetch("http://localhost:3000/api/auth/logout", {
+      await fetch(`${VITE_API_URL}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -57,13 +59,21 @@ export const AuthProvider = ({ children }) => {
 // 🎨 Fancy loading screen
 const LoadingScreen = () => {
   return (
-    <div className="flex items-center justify-center h-screen bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600">
-      <div className="flex flex-col items-center space-y-4">
-        <div className="w-16 h-16 border-4 border-white border-dashed rounded-full animate-spin"></div>
-        <h1 className="text-white text-2xl font-bold animate-pulse">
-          Loading your session...
-        </h1>
-      </div>
-    </div>
+   <div className="flex items-center justify-center h-screen bg-gradient-to-r from-yellow-400 to-yellow-600">
+  <div className="flex flex-col items-center space-y-6">
+    {/* Title */}
+    <h1 className="text-4xl md:text-5xl font-extrabold text-black tracking-wide">
+      BuyZone
+    </h1>
+
+    {/* Loader */}
+    <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
+
+    {/* Loading text */}
+    <p className="text-black text-lg font-semibold animate-pulse">
+      Loading your session...
+    </p>
+  </div>
+</div>
   );
 };

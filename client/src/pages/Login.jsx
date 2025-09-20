@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthContext } from "../context/AuthContext";
+import { VITE_API_URL } from "../config";
 
 export const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -16,7 +17,7 @@ export const Login = () => {
   e.preventDefault();
 
   try {
-    const res = await fetch("http://localhost:3000/api/auth/login", {
+    const res = await fetch(`${VITE_API_URL}/auth/login`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },

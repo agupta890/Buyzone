@@ -15,6 +15,7 @@ import { ProductDetail } from "./components/ProductDetail";
 import { AddressPage } from "./pages/AddressPage";
 import ProtectedRoute from "./components/ProtectedRoute"; 
 import ShopAll from "./pages/ShopAll";
+import Profile from "./components/profile/Profile";
 
 
 
@@ -45,6 +46,15 @@ const App = () => {
               <Cart />
             </ProtectedRoute>
           }
+        />
+
+        <Route 
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile/>
+          </ProtectedRoute>
+        }
         />
         <Route
           path="/wishlist"

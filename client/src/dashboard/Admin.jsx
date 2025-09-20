@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { categories } from "../data/categories";
+import { VITE_API_URL } from "../config";
 
-const API_URL = "http://localhost:3000/api/products";
-const API_ORDERS = "http://localhost:3000/api/admin/orders"; // admin route
+const API_URL = `${VITE_API_URL}/products`;
+const API_ORDERS = `${VITE_API_URL}/admin/orders`; // admin route
 
 export const Admin = () => {
   const [activeTab, setActiveTab] = useState("create");

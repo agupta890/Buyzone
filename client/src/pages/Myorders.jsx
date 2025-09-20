@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { VITE_API_URL } from "../config";
 
 export const MyOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -8,7 +9,7 @@ export const MyOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/orders", {
+        const response = await fetch(`${VITE_API_URL}/orders`, {
           method: "GET",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
@@ -91,6 +92,8 @@ export const MyOrders = () => {
                     </p>
                   )}
 
+                  
+
                   {/* ✅ Delivery Address */}
                   {address_id && (
                     <div className="mt-3 text-xs sm:text-sm text-gray-700">
@@ -144,12 +147,12 @@ export const MyOrders = () => {
                       <img
                         src={product.image || "/placeholder.png"}
                         alt={product.name || "Product"}
-                        className="w-20 h-20 object-cover rounded-lg border"
+                        className="bg-gray-300 p-1 w-32 h-42 object-contain rounded-lg "
                       />
 
                       {/* Product Info */}
                       <div className="flex-1 text-sm sm:text-base">
-                        <p className="font-medium text-gray-800 truncate">
+                        <p className="font-medium text-gray-800 overflow-hidden">
                           {product.name || "Product"}
                         </p>
                         <p className="text-xs sm:text-sm text-gray-500">

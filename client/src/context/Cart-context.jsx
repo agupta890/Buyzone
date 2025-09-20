@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
+import { VITE_API_URL } from "../config";
 
 export const CartContext = createContext();
 
@@ -16,7 +17,7 @@ export const CartProvider = ({ children }) => {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:3000/api/cart/${auth.user._id}`, {
+      const res = await fetch(`${VITE_API_URL}/cart/${auth.user._id}`, {
         method: "GET",
         credentials: "include", // ✅ send cookies
       });
@@ -37,7 +38,7 @@ export const CartProvider = ({ children }) => {
     if (!auth?.user?._id) return navigate("/login");
     try {
       const res = await fetch(
-        `http://localhost:3000/api/cart/${auth.user._id}/add`,
+        `${VITE_API_URL}/cart/${auth.user._id}/add`,
         {
           method: "POST",
           credentials: "include", // ✅
@@ -56,7 +57,7 @@ export const CartProvider = ({ children }) => {
     if (!auth?.user?._id) return;
     try {
       const res = await fetch(
-        `http://localhost:3000/api/cart/${auth.user._id}/remove/${id}`,
+        `${VITE_API_URL}/cart/${auth.user._id}/remove/${id}`,
         {
           method: "DELETE",
           credentials: "include", // ✅
@@ -76,7 +77,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/cart/${auth.user._id}/update/${id}`,
+        `${VITE_API_URL}/cart/${auth.user._id}/update/${id}`,
         {
           method: "PATCH",
           credentials: "include", // ✅
@@ -98,7 +99,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/cart/${auth.user._id}/update/${id}`,
+        `${VITE_API_URL}/cart/${auth.user._id}/update/${id}`,
         {
           method: "PATCH",
           credentials: "include", // ✅

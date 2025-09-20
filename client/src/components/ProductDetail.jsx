@@ -2,8 +2,9 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
 import BuyButton from "./BuyButton";
+import { VITE_API_URL } from "../config";
 
-const API_URL = "http://localhost:3000/api/products";
+const API_URL = `${VITE_API_URL}/products`;
 
 export const ProductDetail = () => {
   const { id } = useParams();
