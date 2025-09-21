@@ -1,38 +1,83 @@
-# Node
+# Dependencies - Both Client and Server
+client/node_modules/
+server/node_modules/
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+
+# Package lock files
+client/package-lock.json
+server/package-lock.json
 package-lock.json
-.pnpm-debug.log*
+
+# Environment variables
+.env
+client/.env
+server/.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Logs
 logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# dotenv
-.env
-.env.local
-.env.*.local
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
 
-# Build outputs
-dist/
-build/
+# Coverage directory
+coverage/
+client/coverage/
+server/coverage/
 
-# Client-specific
-client/node_modules/
+# Build directories
+client/build/
 client/dist/
-client/.env
-
-# Server-specific
-server/node_modules/
+server/build/
 server/dist/
-server/.env
+build/
+dist/
 
-# IDE / OS
+# IDE files
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-client/.env
+
+# Temporary folders
+tmp/
+temp/
+
+# Optional npm cache directory
+.npm
+
+# Yarn files
+.yarn-integrity
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js (if using)
+client/.next/
+.next/
+
+# React build
+client/build/
+
+# Nuxt.js (if using)
+client/.nuxt/
+client/dist/
