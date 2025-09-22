@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 
 const FooterSection = ({ title, children }) => {
@@ -35,7 +35,7 @@ export const Footer = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-8">
           {/* Customer Care */}
           <FooterSection title="Customer Care">
-            <ul className="space-y-2">
+            <ul className="space-y-2 pt-2">
               <li>
                 <NavLink to="/help" className="hover:text-yellow-500">
                   Contact Us
@@ -66,7 +66,7 @@ export const Footer = () => {
 
           {/* About BuyZone */}
           <FooterSection title="About BuyZone">
-            <ul className="space-y-2">
+            <ul className="space-y-2 pt-2">
               <li>
                 <NavLink to="/about" className="hover:text-yellow-500">
                   About Us
@@ -97,17 +97,7 @@ export const Footer = () => {
 
           {/* Shop By Category */}
           <FooterSection title="Shop By Category">
-            <ul className="space-y-2">
-              <li>
-                <NavLink to="/men" className="hover:text-yellow-500">
-                  Men
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/women" className="hover:text-yellow-500">
-                  Women
-                </NavLink>
-              </li>
+            <ul className="space-y-2 pt-2">
               <li>
                 <NavLink to="/mobile-covers" className="hover:text-yellow-500">
                   Mobile Covers
@@ -129,7 +119,7 @@ export const Footer = () => {
 
           {/* Quick Links */}
           <FooterSection title="Quick Links">
-            <ul className="space-y-2">
+            <ul className="space-y-2 pt-2">
               <li>
                 <NavLink to="/gift-cards" className="hover:text-yellow-500">
                   Gift Cards
@@ -160,7 +150,7 @@ export const Footer = () => {
 
           {/* Download App */}
           <FooterSection title="Download App">
-            <div className="flex space-x-4 mt-2">
+            <div className="flex space-x-4 pt-2">
               <a
                 href="https://play.google.com/store/apps/details?id=com.buyzone.app"
                 target="_blank"

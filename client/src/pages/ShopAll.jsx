@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
+import { VITE_API_URL } from "../config";
 
 const ShopAll = () => {
   const [products, setProducts] = useState([]);
@@ -11,7 +12,7 @@ const ShopAll = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/products");
+        const res = await fetch(`${VITE_API_URL}/api/products`);
         const data = await res.json();
 
         // ✅ If API returns { products: [...] }
@@ -37,7 +38,7 @@ const ShopAll = () => {
   if (loading) return <p className="text-center py-10">Loading products...</p>;
 
   return (
-    <div className="px-6 py-10 max-w-7xl mx-auto">
+    <div className="px-4 py-10 max-w-7xl mx-auto ">
       <h1 className="text-3xl font-bold text-center mb-10">
         Shop All Products
       </h1>
@@ -45,12 +46,12 @@ const ShopAll = () => {
       {products.length === 0 ? (
         <p className=" text-center text-gray-600">No products available.</p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {products.map((product) => (
             <Link
               to={`/product/${product._id}`}
               key={product._id}
-              className="bg-neutral-200 p-1   rounded-lg shadow-sm hover:shadow-lg transition transform hover:-translate-y-1"
+              className="bg-neutral-200 p-1 rounded-lg shadow-sm hover:shadow-lg transition transform hover:-translate-y-1"
             >
                <div className="w-full h-48 rounded-t-lg flex items-center justify-center">
               <img

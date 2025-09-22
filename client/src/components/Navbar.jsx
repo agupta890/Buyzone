@@ -17,7 +17,7 @@ export const Navbar = () => {
   const handleLogout = () => {
     logout();
     clearCart();
-    navigate("/");
+    navigate("/login");
   };
 
   const handleNavClick = (path) => {
@@ -62,7 +62,7 @@ export const Navbar = () => {
           {/* Logo */}
           <NavLink
             to="/"
-            className="text-2xl font-extrabold tracking-wide text-gray-900"
+            className="text-xl lg:text-2xl sm:text-xl font-extrabold tracking-wide text-gray-900"
           >
             Buy<span className="text-yellow-500">Zone</span>
           </NavLink>
@@ -75,7 +75,7 @@ export const Navbar = () => {
                 placeholder="Search for products, brands and more..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+                className="w-full px-4 py-2 rounded-l-md border  border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
               />
               <button
                 type="submit"
@@ -90,11 +90,20 @@ export const Navbar = () => {
           <div className="hidden md:flex items-center space-x-6">
             {user ? (
               <div className="flex items-center space-x-3">
-                <img
-                  src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                  alt="profile"
-                  className="w-8 h-8 rounded-full border"
-                />
+               {/* User Avatar */}
+  {user && (
+    <NavLink to="/profile">
+      <video
+        src="https://cdn-icons-mp4.flaticon.com/512/8121/8121295.mp4"
+        alt="profile"
+        autoPlay
+        loop
+        muted
+        className="w-6 h-6 rounded-full border-green-500 border-2"
+      />
+    </NavLink>
+  )}
+                
                 <div className="flex flex-col">
                   <span className="text-sm font-semibold text-gray-800">
                     {user.name}
@@ -170,62 +179,99 @@ export const Navbar = () => {
           </div>
 
           {/* Mobile Toggle */}
-          <div className="md:hidden flex items-center space-x-4">
-            {/* ✅ Add Wishlist in mobile menu */}
-            {user && (
-              <NavLink
-                to="/wishlist"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 text-gray-700 hover:text-pink-600"
-              >
-                <Heart />
-              </NavLink>
-            )}
-            <button onClick={handleCartClick} className="relative">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.293 2.293a1 1 0 00.217 1.32l.09.077a1 1 0 001.32-.217L9 15h6l1.293 2.293a1 1 0 001.32.217l.09-.077a1 1 0 00.217-1.32L17 13M9 21h6"
-                />
-              </svg>
-              {cart.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs px-2 py-0.5 rounded-full">
-                  {cart.length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="focus:outline-none"
-              aria-label="Toggle menu"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-          </div>
+          
+<div className="md:hidden flex items-center space-x-3">
+  {/* Mobile Search Bar */}
+  <form onSubmit={handleSearch} className="flex flex-1 max-w-[140px]">
+    <input
+      type="text"
+      placeholder="Search..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      className="w-full px-2 py-1 rounded-l-md border border-gray-300 text-xs focus:outline-none focus:ring-1 focus:ring-yellow-400"
+    />
+    <button
+      type="submit"
+      className="px-2 bg-yellow-500 text-white rounded-r-md hover:bg-yellow-600 text-xs"
+    >
+      Go
+    </button>
+  </form>
+
+  {/* User Avatar */}
+  {user && (
+    <NavLink to="/profile">
+      <video
+        src="https://cdn-icons-mp4.flaticon.com/512/8121/8121295.mp4"
+        alt="profile"
+        autoPlay
+        loop
+        muted
+        className="w-6 h-6 rounded-full border-green-500 border-2"
+      />
+    </NavLink>
+  )}
+
+  {/* Wishlist */}
+  {user && (
+    <NavLink
+      to="/wishlist"
+      onClick={() => setMenuOpen(false)}
+      className="flex items-center text-gray-700 hover:text-pink-600"
+    >
+      <Heart />
+    </NavLink>
+  )}
+
+  {/* Cart */}
+  <button onClick={handleCartClick} className="relative">
+    <svg
+      className="w-6 h-6"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.293 2.293a1 1 0 00.217 1.32l.09.077a1 1 0 001.32-.217L9 15h6l1.293 2.293a1 1 0 001.32.217l.09-.077a1 1 0 00.217-1.32L17 13M9 21h6"
+      />
+    </svg>
+    {cart.length > 0 && (
+      <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs px-2 py-0.5 rounded-full">
+        {cart.length}
+      </span>
+    )}
+  </button>
+
+  {/* Mobile Menu Toggle */}
+  <button
+    onClick={() => setMenuOpen(!menuOpen)}
+    className="focus:outline-none"
+    aria-label="Toggle menu"
+  >
+    <svg
+      className="w-6 h-6"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M4 6h16M4 12h16M4 18h16"
+      />
+    </svg>
+  </button>
+</div>
+
         </div>
       </div>
 
       {/* Categories Row */}
-      <div className="hidden md:flex justify-center flex-wrap gap-6 bg-gray-100 py-2 text-sm font-medium">
+      <div className="hidden md:flex justify-center flex-wrap gap-6 lg:gap-10 bg-gray-100 py-2 text-sm font-medium">
         <NavLink to="/shop-all" className="text-pink-600 font-semibold">
           Shop All
         </NavLink>

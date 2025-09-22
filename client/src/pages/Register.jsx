@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { VITE_API_URL } from "../config";
 
 export const Register = () => {
   const [formData, setFormData] = useState({
@@ -25,7 +26,7 @@ export const Register = () => {
     }
 
     try {
-      const res = await fetch('http://localhost:3000/api/auth/register', {
+      const res = await fetch(`${VITE_API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -48,7 +49,7 @@ export const Register = () => {
   };
 
   return (
-    <div className=" flex items-center justify-center bg-gradient-to-r from-pink-100 via-purple-100 to-yellow-100 px-4 py-10">
+    <div className=" flex items-center justify-center bg-gray-300 px-4 py-10">
       <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8">
         <h2 className="text-3xl font-extrabold text-center text-gray-800 mb-6">
           Create Your Account
@@ -63,7 +64,7 @@ export const Register = () => {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="Enter your full name"
             />
           </div>
@@ -76,7 +77,7 @@ export const Register = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="Enter your email"
             />
           </div>
@@ -89,7 +90,7 @@ export const Register = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="Create your password"
             />
           </div>
@@ -102,14 +103,14 @@ export const Register = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="Confirm your password"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-lg font-bold shadow-md transition duration-200"
+            className="w-full bg-green-500 hover:bg-green-600 cursor-pointer text-white py-2.5 rounded-lg font-bold shadow-md transition duration-200"
           >
             Register
           </button>

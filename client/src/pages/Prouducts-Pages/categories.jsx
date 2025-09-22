@@ -3,9 +3,10 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { categories } from "../../data/categories";
 import { CartContext } from "../../context/Cart-context";
 import { AuthContext } from "../../context/AuthContext";
+import { VITE_API_URL } from "../../config";
 
 
-const API_URL = "http://localhost:3000/api/products";
+const API_URL = `${VITE_API_URL}/api/products`;
 
 
 // ✅ Reusable Product Card Component
@@ -21,6 +22,8 @@ const ProductCard = ({ product }) => {
     }
     addToCart(product);
   };
+
+  
 
   return (
     <div className="group relative bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 flex flex-col">

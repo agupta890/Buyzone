@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
+import { VITE_API_URL } from "../config";
 
 export const CartContext = createContext();
 
@@ -16,9 +17,9 @@ export const CartProvider = ({ children }) => {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:3000/api/cart/${auth.user._id}`, {
+      const res = await fetch(`${VITE_API_URL}/api/cart/${auth.user._id}`, {
         method: "GET",
-        credentials: "include", // ✅ send cookies
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to load cart");
       const data = await res.json();
@@ -36,15 +37,12 @@ export const CartProvider = ({ children }) => {
   const addToCart = async (product) => {
     if (!auth?.user?._id) return navigate("/login");
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/cart/${auth.user._id}/add`,
-        {
-          method: "POST",
-          credentials: "include", // ✅
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productId: product._id, quantity: 1 }),
-        }
-      );
+      const res = await fetch(`${VITE_API_URL}/api/cart/${auth.user._id}/add`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product._id, quantity: 1 }),
+      });
       if (!res.ok) throw new Error("Failed to add to cart");
       await loadCart();
     } catch (err) {
@@ -55,13 +53,10 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (id) => {
     if (!auth?.user?._id) return;
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/cart/${auth.user._id}/remove/${id}`,
-        {
-          method: "DELETE",
-          credentials: "include", // ✅
-        }
-      );
+      const res = await fetch(`${VITE_API_URL}/api/cart/${auth.user._id}/remove/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Failed to remove from cart");
       await loadCart();
     } catch (err) {
@@ -75,15 +70,12 @@ export const CartProvider = ({ children }) => {
     if (!item) return;
 
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/cart/${auth.user._id}/update/${id}`,
-        {
-          method: "PATCH",
-          credentials: "include", // ✅
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ quantity: item.quantity + 1 }),
-        }
-      );
+      const res = await fetch(`${VITE_API_URL}/api/cart/${auth.user._id}/update/${id}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantity: item.quantity + 1 }),
+      });
       if (!res.ok) throw new Error("Failed to increase quantity");
       await loadCart();
     } catch (err) {
@@ -97,15 +89,12 @@ export const CartProvider = ({ children }) => {
     if (!item || item.quantity <= 1) return;
 
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/cart/${auth.user._id}/update/${id}`,
-        {
-          method: "PATCH",
-          credentials: "include", // ✅
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ quantity: item.quantity - 1 }),
-        }
-      );
+      const res = await fetch(`${VITE_API_URL}/api/cart/${auth.user._id}/update/${id}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantity: item.quantity - 1 }),
+      });
       if (!res.ok) throw new Error("Failed to decrease quantity");
       await loadCart();
     } catch (err) {

@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
+import BuyButton from "./BuyButton";
+import { VITE_API_URL } from "../config";
 
-const API_URL = "http://localhost:3000/api/products";
+const API_URL = `${VITE_API_URL}/api/products`;
 
 export const ProductDetail = () => {
   const { id } = useParams();
@@ -114,9 +116,7 @@ export const ProductDetail = () => {
           >
             ADD TO CART
           </button>
-          <button className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-2xl transition">
-            BUY NOW
-          </button>
+          <BuyButton product={product}/>
         </div>
 
         {/* Desktop Buttons */}
@@ -127,9 +127,7 @@ export const ProductDetail = () => {
           >
             ADD TO CART
           </button>
-          <button className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-2xl transition">
-            BUY NOW
-          </button>
+          <BuyButton product={product}/>
         </div>
       </div>
     </div>

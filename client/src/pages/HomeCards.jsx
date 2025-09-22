@@ -43,7 +43,7 @@ const HomeCardGrid = () => {
           <Link
             key={card.id}
             to='/shop-all'
-            className="bg-white group rounded-lg border border-gray-300 hover:shadow-2xl transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:scale-105 text-center overflow-hidden"
+            className="bg-white group rounded-lg  border-gray-300 hover:shadow-2xl transition-transform duration-300 ease-in-out hover:-translate-y-6 hover:scale-105 text-center overflow-hidden"
           >
             <div className="w-full h-52 bg-gray-300 flex items-center justify-center">
               <img
