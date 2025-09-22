@@ -17,7 +17,7 @@ export const Login = () => {
   e.preventDefault();
 
   try {
-    const res = await fetch(`${VITE_API_URL}/auth/login`, {
+    const res = await fetch(`${VITE_API_URL}/api/auth/login`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },

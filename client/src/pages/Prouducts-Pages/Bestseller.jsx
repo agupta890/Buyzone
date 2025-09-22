@@ -3,7 +3,7 @@ import { CartContext } from "../../context/Cart-context";
 import { Link } from "react-router-dom";
 import { VITE_API_URL } from "../../config";
 
-const API_URL = `${VITE_API_URL}/products`;
+const API_URL = `${VITE_API_URL}/api/products`;
 
 export const BestSeller = () => {
   const [bestsellers, setBestsellers] = useState([]);

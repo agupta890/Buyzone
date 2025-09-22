@@ -6,7 +6,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { VITE_API_URL } from "../../config";
 
 
-const API_URL = `${VITE_API_URL}/products`;
+const API_URL = `${VITE_API_URL}/api/products`;
 
 
 // ✅ Reusable Product Card Component

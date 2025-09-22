@@ -175,7 +175,7 @@ export const Cart = () => {
                 try {
                   const amount = getTotal();
                   const res = await fetch(
-                    `${VITE_API_URL}/payments/create-order`,
+                    `${VITE_API_URL}/api/payments/create-order`,
                     {
                       method: "POST",
                       credentials: "include",
@@ -195,7 +195,7 @@ export const Cart = () => {
                     order_id: order.id,
                     handler: async function (response) {
                       const verifyRes = await fetch(
-                        `${VITE_API_URL}/payments/verify`,
+                        `${VITE_API_URL}/api/payments/verify`,
                         {
                           method: "POST",
                           credentials: "include",

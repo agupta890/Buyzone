@@ -9,7 +9,7 @@ export const MyOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch(`${VITE_API_URL}/orders`, {
+        const response = await fetch(`${VITE_API_URL}/api/orders`, {
           method: "GET",
           credentials: "include",
           headers: { "Content-Type": "application/json" },

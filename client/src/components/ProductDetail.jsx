@@ -4,7 +4,7 @@ import { CartContext } from "../context/Cart-context";
 import BuyButton from "./BuyButton";
 import { VITE_API_URL } from "../config";
 
-const API_URL = `${VITE_API_URL}/products`;
+const API_URL = `${VITE_API_URL}/api/products`;
 
 export const ProductDetail = () => {
   const { id } = useParams();

@@ -15,7 +15,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`${VITE_API_URL}/auth/me`, {
+        const res = await fetch(`${VITE_API_URL}/api/auth/me`, {
           credentials: "include",
         });
         const data = await res.json();
@@ -40,7 +40,7 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch(`${VITE_API_URL}/auth/logout`, {
+      await fetch(`${VITE_API_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -71,7 +71,7 @@ const Profile = () => {
         formDataToSend.append("profilePhoto", formData.profilePhoto);
       }
 
-      const res = await fetch(`${VITE_API_URL}/auth/update-profile`, {
+      const res = await fetch(`${VITE_API_URL}/api/auth/update-profile`, {
         method: "PUT",
         credentials: "include",
         body: formDataToSend,

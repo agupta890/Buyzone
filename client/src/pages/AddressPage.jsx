@@ -31,7 +31,7 @@ export const AddressPage = ({ onSelectAddress }) => {
       }
     }
 
-    fetch(`${VITE_API_URL}/address`, { credentials: "include" })
+    fetch(`${VITE_API_URL}/api/address`, { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch addresses");
         return res.json();
@@ -49,8 +49,8 @@ export const AddressPage = ({ onSelectAddress }) => {
     e.preventDefault();
     try {
       const url = editingId
-        ? `${VITE_API_URL}/address/${editingId}`
-        : `${VITE_API_URL}/address`;
+        ? `${VITE_API_URL}/api/address/${editingId}`
+        : `${VITE_API_URL}/api/address`;
       const method = editingId ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -93,7 +93,7 @@ export const AddressPage = ({ onSelectAddress }) => {
     if (!window.confirm("Are you sure you want to delete this address?"))
       return;
     try {
-      const res = await fetch(`${VITE_API_URL}/address/${id}`, {
+      const res = await fetch(`${VITE_API_URL}/api/address/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -200,7 +200,7 @@ export const AddressPage = ({ onSelectAddress }) => {
 
         <input
           inputMode="numeric"
-          minLength={10}
+          minLength="[0-9]{10}"
           maxLength={10}
           placeholder="Phone Number"
           value={form.phone}

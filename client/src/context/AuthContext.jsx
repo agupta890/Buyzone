@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch(`${VITE_API_URL}/auth/me`, {
+        const res = await fetch(`${VITE_API_URL}/api/auth/me`, {
           method: "GET",
           credentials: "include", // send cookie
         });
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   // 🔹 Logout (backend clears cookie)
   const logout = async () => {
     try {
-      await fetch(`${VITE_API_URL}/auth/logout`, {
+      await fetch(`${VITE_API_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
