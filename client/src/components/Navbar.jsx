@@ -336,32 +336,42 @@ export const Navbar = () => {
               </button>
             ))}
 
-            {/* User / Auth Links */}
-            {user ? (
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 w-full"
-              >
-                <LogOut size={18} /> Logout
-              </button>
-            ) : (
-              <>
-                <NavLink
-                  to="/login"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 text-gray-700 hover:text-yellow-500"
-                >
-                  <LogIn size={18} /> Login
-                </NavLink>
-                <NavLink
-                  to="/register"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 text-gray-700 hover:text-yellow-500"
-                >
-                  <UserPlus size={18} /> Signup
-                </NavLink>
-              </>
-            )}
+           
+           {/* User / Auth Links */}
+{user ? (
+  <>
+    <button
+      onClick={() => handleNavClick("/orders")}
+      className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 w-full"
+    >
+      Orders
+    </button>
+    <button
+      onClick={handleLogout}
+      className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 w-full"
+    >
+      <LogOut size={18} /> Logout
+    </button>
+  </>
+) : (
+  <>
+    <NavLink
+      to="/login"
+      onClick={() => setMenuOpen(false)}
+      className="flex items-center gap-2 text-gray-700 hover:text-yellow-500"
+    >
+      <LogIn size={18} /> Login
+    </NavLink>
+    <NavLink
+      to="/register"
+      onClick={() => setMenuOpen(false)}
+      className="flex items-center gap-2 text-gray-700 hover:text-yellow-500"
+    >
+      <UserPlus size={18} /> Signup
+    </NavLink>
+  </>
+)}
+
           </div>
         </div>
       )}
