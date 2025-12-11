@@ -18,7 +18,8 @@ export const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`${API_URL}/${id}`);
+        const res = await fetch(`${API_URL}/${id}`,{credentials: "include",});
+      
         if (!res.ok) throw new Error("Failed to fetch product");
         const data = await res.json();
         setProduct(data);
