@@ -89,14 +89,17 @@ app.use((err, req, res, next) => {
 });
 
 // ✅ For Vercel, don't use app.listen in production
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
-
+// Only listen if NOT running on Vercel
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
 }
+
+module.exports = app; // Export for Vercel
+
 
 // ✅ Export for Vercel
 module.exports = app;
