@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { VITE_API_URL } from "../config";
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 export const MyOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -9,7 +10,7 @@ export const MyOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch(`${VITE_API_URL}/api/orders`, {
+        const response = await fetch(`${API_URL}/api/orders`, {
           method: "GET",
           credentials: "include",
           headers: { "Content-Type": "application/json" },

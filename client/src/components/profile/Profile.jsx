@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { VITE_API_URL } from "../../config";
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 const userProfileImage = "https://picsum.photos/200?random=2";
 const fallbackImage = "https://picsum.photos/200?random=3";
@@ -15,7 +16,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`${VITE_API_URL}/api/auth/me`, {
+        const res = await fetch(`${API_URL}/api/auth/me`, {
           credentials: "include",
         });
         const data = await res.json();
@@ -40,7 +41,7 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch(`${VITE_API_URL}/api/auth/logout`, {
+      await fetch(`${API_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -71,7 +72,7 @@ const Profile = () => {
         formDataToSend.append("profilePhoto", formData.profilePhoto);
       }
 
-      const res = await fetch(`${VITE_API_URL}/api/auth/update-profile`, {
+      const res = await fetch(`${API_URL}/api/auth/update-profile`, {
         method: "PUT",
         credentials: "include",
         body: formDataToSend,

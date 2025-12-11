@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { VITE_API_URL } from "../config";
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 export const AddressPage = ({ onSelectAddress }) => {
   const [addresses, setAddresses] = useState([]);
@@ -31,7 +32,7 @@ export const AddressPage = ({ onSelectAddress }) => {
       }
     }
 
-    fetch(`${VITE_API_URL}/api/address`, { credentials: "include" })
+    fetch(`${API_URL}/api/address`, { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch addresses");
         return res.json();
@@ -49,8 +50,8 @@ export const AddressPage = ({ onSelectAddress }) => {
     e.preventDefault();
     try {
       const url = editingId
-        ? `${VITE_API_URL}/api/address/${editingId}`
-        : `${VITE_API_URL}/api/address`;
+        ? `${API_URL}/api/address/${editingId}`
+        : `${API_URL}/api/address`;
       const method = editingId ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -93,7 +94,7 @@ export const AddressPage = ({ onSelectAddress }) => {
     if (!window.confirm("Are you sure you want to delete this address?"))
       return;
     try {
-      const res = await fetch(`${VITE_API_URL}/api/address/${id}`, {
+      const res = await fetch(`${API_URL}/api/address/${id}`, {
         method: "DELETE",
         credentials: "include",
       });

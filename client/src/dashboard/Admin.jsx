@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { categories } from "../data/categories";
-import { VITE_API_URL } from "../config";
+const API_URL = import.meta.env.VITE_API_URL;
 
-const API_URL = `${VITE_API_URL}/api/products`;
-const API_ORDERS = `${VITE_API_URL}/api/admin/orders`; // admin route
+
+const API_PRODUCTS = `${API_URL}/api/products`;
+const API_ORDERS = `${API_URL}/api/admin/orders`; // admin route
 
 export const Admin = () => {
   const [activeTab, setActiveTab] = useState("create");
@@ -30,7 +31,7 @@ export const Admin = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch(API_URL);
+      const res = await fetch(API_PRODUCTS);
       const data = await res.json();
       setProducts(data.products || []);
     } catch (err) {
@@ -61,7 +62,7 @@ export const Admin = () => {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(API_URL, {
+      const res = await fetch(API_PRODUCTS, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -88,7 +89,7 @@ export const Admin = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
-      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      await fetch(`${API_PRODUCTS}/${id}`, { method: "DELETE" });
       fetchProducts();
     } catch {
       setError("Failed to delete product");
@@ -98,7 +99,7 @@ export const Admin = () => {
   // Toggle Bestseller
   const handleToggleBestseller = async (id, currentValue) => {
     try {
-      await fetch(`${API_URL}/${id}`, {
+      await fetch(`${API_PRODUCTS}/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isBestsellers: !currentValue }),

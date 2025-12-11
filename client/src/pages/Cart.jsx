@@ -3,7 +3,8 @@ import { CartContext } from "../context/Cart-context";
 import { AddressPage } from "./AddressPage"; //
 import { useNavigate } from "react-router-dom";
 import RecentlyViewed from "./RecentlyViewed";
-import { VITE_API_URL } from "../config";
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 export const Cart = () => {
   const { cart, removeFromCart, increaseQty, decreaseQty, getTotal } =
@@ -175,7 +176,7 @@ export const Cart = () => {
                 try {
                   const amount = getTotal();
                   const res = await fetch(
-                    `${VITE_API_URL}/api/payments/create-order`,
+                    `${API_URL}/api/payments/create-order`,
                     {
                       method: "POST",
                       credentials: "include",
@@ -195,7 +196,7 @@ export const Cart = () => {
                     order_id: order.id,
                     handler: async function (response) {
                       const verifyRes = await fetch(
-                        `${VITE_API_URL}/api/payments/verify`,
+                        `${API_URL}/api/payments/verify`,
                         {
                           method: "POST",
                           credentials: "include",

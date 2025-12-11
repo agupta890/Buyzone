@@ -1,7 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
-import { VITE_API_URL } from "../config";
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 const ShopAll = () => {
   const [products, setProducts] = useState([]);
@@ -12,7 +13,7 @@ const ShopAll = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch(`${VITE_API_URL}/api/products`);
+        const res = await fetch(`${API_URL}/api/products`);
         const data = await res.json();
 
         // ✅ If API returns { products: [...] }

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { VITE_API_URL } from "../config";
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 export const Register = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +27,7 @@ export const Register = () => {
     }
 
     try {
-      const res = await fetch(`${VITE_API_URL}/api/auth/register`, {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

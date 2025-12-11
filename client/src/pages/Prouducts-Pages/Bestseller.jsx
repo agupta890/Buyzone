@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
 import { CartContext } from "../../context/Cart-context";
 import { Link } from "react-router-dom";
-import { VITE_API_URL } from "../../config";
+const API_URL = import.meta.env.VITE_API_URL;
 
-const API_URL = `${VITE_API_URL}/api/products`;
+const API_PRODUCTS = `${API_URL}/api/products`;
 
 export const BestSeller = () => {
   const [bestsellers, setBestsellers] = useState([]);
@@ -14,7 +14,7 @@ export const BestSeller = () => {
   const fetchBestsellers = async () => {
     setLoading(true);
     try {
-      const res = await fetch(API_URL);
+      const res = await fetch(API_PRODUCTS);
       const data = await res.json();
       const best = (data.products || []).filter((p) => p.isBestsellers);
       setBestsellers(best);

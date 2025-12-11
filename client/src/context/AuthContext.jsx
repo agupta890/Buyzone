@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react";
-import { VITE_API_URL } from "../config";
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const AuthContext = createContext();
 
 
@@ -11,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch(`${VITE_API_URL}/api/auth/me`, {
+        const res = await fetch(`${API_URL}/api/auth/me`, {
           method: "GET",
           credentials: "include", // send cookie
         });
@@ -39,7 +40,7 @@ export const AuthProvider = ({ children }) => {
   // 🔹 Logout (backend clears cookie)
   const logout = async () => {
     try {
-      await fetch(`${VITE_API_URL}/api/auth/logout`, {
+      await fetch(`${API_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       });

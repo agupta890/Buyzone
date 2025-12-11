@@ -1,7 +1,8 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
-import { VITE_API_URL } from "../config";
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 export const CartContext = createContext();
 
@@ -17,7 +18,7 @@ export const CartProvider = ({ children }) => {
       return;
     }
     try {
-      const res = await fetch(`${VITE_API_URL}/api/cart/${auth.user._id}`, {
+      const res = await fetch(`${API_URL}/api/cart/${auth.user._id}`, {
         method: "GET",
         credentials: "include",
       });
@@ -37,7 +38,7 @@ export const CartProvider = ({ children }) => {
   const addToCart = async (product) => {
     if (!auth?.user?._id) return navigate("/login");
     try {
-      const res = await fetch(`${VITE_API_URL}/api/cart/${auth.user._id}/add`, {
+      const res = await fetch(`${API_URL}/api/cart/${auth.user._id}/add`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -53,7 +54,7 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (id) => {
     if (!auth?.user?._id) return;
     try {
-      const res = await fetch(`${VITE_API_URL}/api/cart/${auth.user._id}/remove/${id}`, {
+      const res = await fetch(`${API_URL}/api/cart/${auth.user._id}/remove/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -70,7 +71,7 @@ export const CartProvider = ({ children }) => {
     if (!item) return;
 
     try {
-      const res = await fetch(`${VITE_API_URL}/api/cart/${auth.user._id}/update/${id}`, {
+      const res = await fetch(`${API_URL}/api/cart/${auth.user._id}/update/${id}`, {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -89,7 +90,7 @@ export const CartProvider = ({ children }) => {
     if (!item || item.quantity <= 1) return;
 
     try {
-      const res = await fetch(`${VITE_API_URL}/api/cart/${auth.user._id}/update/${id}`, {
+      const res = await fetch(`${API_URL}/api/cart/${auth.user._id}/update/${id}`, {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

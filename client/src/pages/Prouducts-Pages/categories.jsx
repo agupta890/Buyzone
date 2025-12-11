@@ -3,10 +3,11 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { categories } from "../../data/categories";
 import { CartContext } from "../../context/Cart-context";
 import { AuthContext } from "../../context/AuthContext";
-import { VITE_API_URL } from "../../config";
+const API_URL = import.meta.env.VITE_API_URL;
 
 
-const API_URL = `${VITE_API_URL}/api/products`;
+
+const API_PRODUCTS = `${API_URL}/api/products`;
 
 
 // ✅ Reusable Product Card Component
@@ -79,7 +80,7 @@ const CategoryPage = () => {
     setLoading(true);
     setError(null);
     try {
-      let url = `${API_URL}?category=${category}`;
+      let url = `${API_PRODUCTS}?category=${category}`;
       if (subcategory) {
         url += `&subCategory=${subcategory.replace("-", " ")}`;
       }
