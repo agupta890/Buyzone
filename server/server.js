@@ -19,7 +19,8 @@ app.use(cors({
     'http://localhost:3000',
     // Add your frontend Vercel URL when deployed
     'https://buyzone-p1r5.vercel.app',
-    'https://buyzoneindia.netlify.app'
+    'https://buyzoneindia.netlify.app',
+    'https://buyzone-frontend.onrender.com'
   ],
   credentials: true,
 }));
