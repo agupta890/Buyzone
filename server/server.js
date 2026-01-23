@@ -1,33 +1,29 @@
-require("dotenv").config({ override: true });
-
-const express = require("express");
-const cors = require("cors");
-const connectDB = require("./config/db");
+require("dotenv").config({override: true});
+const express = require('express');
+const cors = require('cors');
+const connectDB = require('./config/db');
 const cookieParser = require("cookie-parser");
 
 const app = express();
 
-// ========================
-// CONNECT DATABASE
-// ========================
+// ✅ Connect to MongoDB
 connectDB();
 
-// ========================
-// CORS CONFIG (MUST BE FIRST)
-// ========================
+// ✅ Middleware
+app.use(cookieParser());
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://buyzone-p1r5.vercel.app",
-  "https://buyzoneindia.netlify.app",
-  "https://buyzone-frontend.onrender.com"
-];
-
+// ✅ Update CORS for production
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like Postman)
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://buyzone-p1r5.vercel.app",
+        "https://buyzoneindia.netlify.app",
+        "https://buyzone-frontend.onrender.com"
+      ];
+
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
@@ -37,105 +33,87 @@ app.use(
       }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// Handle Preflight Requests
-app.options("*", cors());
-
-// ========================
-// OTHER MIDDLEWARES
-// ========================
-
-app.use(cookieParser());
-
-// ✅ Update CORS for production
-app.use(cors({
-  origin: [
-    'http://localhost:5173', 
-    'http://localhost:3000',
-    // Add your frontend Vercel URL when deployed
-    'https://buyzone-p1r5.vercel.app',
-    'https://buyzoneindia.netlify.app'
-  ],
-  credentials: true,
-}));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ========================
-// ROUTES IMPORT
-// ========================
-
-const authRouter = require("./router/auth-router");
-const productRoutes = require("./router/products-route");
-const paymentRoutes = require("./router/payments-route");
-const ordersRouter = require("./router/orders-route");
-const cartRouter = require("./router/cart-router");
-const adminOrdersRoutes = require("./router/admin-orders");
+// ✅ Import Routers
+const authRouter = require('./router/auth-router');
+const productRoutes = require('./router/products-route');
+const paymentRoutes = require('./router/payments-route');
+const ordersRouter = require('./router/orders-route');
+const cartRouter = require('./router/cart-router');
+const adminOrdersRoutes = require('./router/admin-orders');
 const addressRoutes = require("./router/address-route");
 
-// ========================
-// ROUTES
-// ========================
-
-app.use("/api/auth", authRouter);
-app.use("/api/products", productRoutes);
-app.use("/api/payments", paymentRoutes);
-app.use("/api/orders", ordersRouter);
+// ✅ Routes
+app.use('/api/auth', authRouter);
+app.use('/api/products', productRoutes);
+app.use('/api/payments', paymentRoutes); 
+app.use('/api/orders', ordersRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/admin/orders", adminOrdersRoutes);
 app.use("/api/address", addressRoutes);
 
-// ========================
-// HEALTH CHECK
-// ========================
-
-app.get("/", (req, res) => {
-  res.json({
-    message: "API is running successfully 🚀",
-    status: "OK",
-    time: new Date().toISOString(),
+// ✅ Health Check Route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'API is running on Vercel!', 
+    status: 'success',
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV
   });
 });
 
-// ========================
-// 404 HANDLER
-// ========================
+// ✅ API Status Route
+app.get('/api', (req, res) => {
+  res.json({ 
+    message: 'API endpoints are working!',
+    version: '1.0.0',
+    endpoints: [
+      '/api/auth',
+      '/api/products', 
+      '/api/payments',
+      '/api/orders',
+      '/api/cart',
+      '/api/admin/orders',
+      '/api/address'
+    ]
+  });
+});
 
+// ✅ 404 Handler
 app.use((req, res) => {
-  res.status(404).json({
-    message: "Route not found",
-    path: req.originalUrl,
+  res.status(404).json({ 
+    message: 'Route not found',
+    path: req.originalUrl 
   });
 });
 
-// ========================
-// ERROR HANDLER
-// ========================
-
+// ✅ Error Handling Middleware
 app.use((err, req, res, next) => {
-  console.error("❌ Server Error:", err.message);
-
-  res.status(500).json({
-    success: false,
-    message: err.message || "Internal Server Error",
+  console.error('❌ Error:', err.stack);
+  res.status(err.status || 500).json({ 
+    message: err.message || 'Server Error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
 });
 
-// ========================
-// SERVER START
-// ========================
-
+// ✅ For Vercel, don't use app.listen in production
 const PORT = process.env.PORT || 3000;
 
+// Only listen if NOT running on Vercel
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
   });
 }
 
+module.exports = app; // Export for Vercel
+
+
+// ✅ Export for Vercel
 module.exports = app;
