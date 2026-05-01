@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-const API_URL = import.meta.env.VITE_API_URL;
+import { User, Mail, Lock, ArrowRight, UserPlus, Chrome } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const Register = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ export const Register = () => {
     password: '',
     confirmPassword: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
 
@@ -20,9 +22,11 @@ export const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match!");
+      setIsSubmitting(false);
       return;
     }
 
@@ -38,92 +42,151 @@ export const Register = () => {
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("Registration successful!");
+        toast.success("Welcome to the community! Registration successful.");
         navigate('/login');
       } else {
-        toast.error(data.message || "Registration failed!");
+        toast.error(data.message || "Registration failed. Please try again.");
       }
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Something went wrong!");
+      toast.error("An unexpected error occurred. Please try later.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className=" flex items-center justify-center bg-gray-300 px-4 py-10">
-      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8">
-        <h2 className="text-3xl font-extrabold text-center text-gray-800 mb-6">
-          Create Your Account
-        </h2>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-10">
+      <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 p-8 sm:p-12 border border-slate-100 relative overflow-hidden">
+        {/* Decorative Background Element */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl"></div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-gray-700 text-sm font-semibold mb-1">Full Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter your full name"
-            />
+        <div className="relative z-10">
+          <div className="mb-10 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500/10 rounded-3xl mb-6 shadow-inner">
+              <UserPlus className="text-amber-600" size={32} />
+            </div>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight">Create Account</h2>
+            <p className="text-slate-500 font-medium mt-2">Start your premium shopping journey</p>
           </div>
 
-          <div>
-            <label className="block text-gray-700 text-sm font-semibold mb-1">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter your email"
-            />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <User className="text-slate-400 group-focus-within:text-amber-500 transition-colors" size={18} />
+                </div>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-medium text-slate-900"
+                  placeholder="Enter your full name"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Mail className="text-slate-400 group-focus-within:text-amber-500 transition-colors" size={18} />
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-medium text-slate-900"
+                  placeholder="name@example.com"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700 ml-1">Password</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className="text-slate-400 group-focus-within:text-amber-500 transition-colors" size={18} />
+                </div>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-medium text-slate-900"
+                  placeholder="Create password"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700 ml-1">Confirm Password</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className="text-slate-400 group-focus-within:text-amber-500 transition-colors" size={18} />
+                </div>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-medium text-slate-900"
+                  placeholder="Repeat password"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-amber-500 transition-all shadow-xl hover:shadow-amber-500/20 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed group mt-2"
+            >
+              {isSubmitting ? "Creating account..." : "Join BuyZone"}
+              <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
+            </button>
+          </form>
+
+          {/* Social Divider */}
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-slate-100"></span>
+            </div>
+            <div className="relative flex justify-center text-[10px] uppercase tracking-[0.2em] font-black">
+              <span className="px-4 bg-white text-slate-400">Instant Access</span>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-gray-700 text-sm font-semibold mb-1">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Create your password"
-            />
+          {/* Social Login */}
+          <div className="grid grid-cols-2 gap-4">
+            <button className="flex items-center justify-center gap-2 border border-slate-100 rounded-2xl py-3.5 font-bold text-slate-700 hover:bg-slate-50 transition-colors text-sm">
+              <Chrome size={18} className="text-red-500" />
+              Google
+            </button>
+            <button className="flex items-center justify-center gap-2 border border-slate-100 rounded-2xl py-3.5 font-bold text-slate-700 hover:bg-slate-50 transition-colors text-sm">
+              <svg className="w-4 h-4 text-blue-600 fill-current" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+              Facebook
+            </button>
           </div>
 
-          <div>
-            <label className="block text-gray-700 text-sm font-semibold mb-1">Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Confirm your password"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-green-500 hover:bg-green-600 cursor-pointer text-white py-2.5 rounded-lg font-bold shadow-md transition duration-200"
-          >
-            Register
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-gray-600 mt-6">
-          Already have an account?
-          <Link to="/login" className="text-pink-500 hover:underline font-semibold ml-1">
-            Login
-          </Link>
-        </p>
+          <p className="mt-10 text-center text-slate-500 font-medium text-sm">
+            Already have an account?{" "}
+            <Link to="/login" className="text-amber-600 font-black hover:text-amber-700 transition-colors underline underline-offset-4 decoration-2 decoration-amber-500/30">
+              Sign In
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
 };
+

@@ -34,7 +34,8 @@ router.post('/:userId/add', protectUser, async (req, res) => {
     }
 
     await cart.save();
-    res.json(cart);
+    const populatedCart = await cart.populate('items.product');
+    res.json(populatedCart);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to add to cart' });
@@ -50,7 +51,8 @@ router.delete('/:userId/remove/:productId', protectUser, async (req, res) => {
     cart.items = cart.items.filter((i) => i.product.toString() !== req.params.productId);
     await cart.save();
 
-    res.json(cart);
+    const populatedCart = await cart.populate('items.product');
+    res.json(populatedCart);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to remove item' });
@@ -69,7 +71,8 @@ router.patch('/:userId/update/:productId', protectUser, async (req, res) => {
     if (item) item.quantity = quantity;
 
     await cart.save();
-    res.json(cart);
+    const populatedCart = await cart.populate('items.product');
+    res.json(populatedCart);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to update quantity' });

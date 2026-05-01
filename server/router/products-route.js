@@ -7,7 +7,7 @@ const router = express.Router();
 // GET products (filter by category, subCategory, bestseller)
 router.get('/', async (req, res) => {
   try {
-    const { category, subCategory, bestsellers } = req.query;
+    const { category, subCategory, bestsellers, page = 1, limit = 12 } = req.query;
     let query = {};
 
     if (category) {
@@ -20,11 +20,25 @@ router.get('/', async (req, res) => {
     }
 
     if (bestsellers) {
-      query.isBestsellesr = bestsellers === "true"; // ?bestseller=true
+      query.isBestsellers = bestsellers === "true"; // ?bestsellers=true
     }
 
-    const products = await Product.find(query);
-    res.json({ products });
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    // Use .lean() for faster execution as these are read-only plain objects
+    const products = await Product.find(query)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean();
+
+    const total = await Product.countDocuments(query);
+
+    res.json({ 
+      products,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(total / limit),
+      totalProducts: total
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch products' });

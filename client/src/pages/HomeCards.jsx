@@ -1,64 +1,84 @@
 import { Link } from "react-router-dom";
-
-const cardData = [
-  {
-    id: 1,
-    title: "Bed Sheet",
-    slug: "home-decore",
-    image:
-      "https://res.cloudinary.com/project01/image/upload/v1757776904/dzgpi8n9htbbsn4vhkfc.jpg",
-  },
-  {
-    id: 2,
-    title: "Books",
-    slug: "novel",
-    image:
-      "https://res.cloudinary.com/project01/image/upload/v1757777678/bregkxof9duaekfmgvvq.jpg",
-  },
-  {
-    id: 3,
-    title: "Toys",
-    slug: "teddy",
-    image:
-      "https://res.cloudinary.com/project01/image/upload/v1757777911/thyvg6wtsna4tlukrnn9.jpg",
-  },
-  {
-    id: 4,
-    title: "Dry fruits",
-    slug: "mix-dry-fruits",
-    image:
-      "https://res.cloudinary.com/project01/image/upload/v1757779960/b2osrwlhj0ap4qzhnwmy.jpg",
-  },
-];
+import { ArrowUpRight } from "lucide-react";
+import { categories } from "../data/categories";
 
 const HomeCardGrid = () => {
-  return (
-    <section className="py-10 px-4 sm:px-6 lg:px-12">
-      <h2 className="text-2xl text-amber-400 md:text-3xl lg:text-4xl font-bold text-center mb-8">
-        Featured Categories
-      </h2>
+  // Convert categories object to an array for easier mapping
+  const categoryEntries = Object.entries(categories).slice(0, 4); // Show first 4 on home
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
-        {cardData.map((card) => (
+  return (
+    <section className="py-16 sm:py-28 px-6 max-w-7xl mx-auto overflow-hidden">
+      {/* Section Header */}
+      <div className="text-center mb-16 sm:mb-24 space-y-4">
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <span className="h-[2px] w-8 bg-amber-500 rounded-full"></span>
+          <span className="text-amber-600 font-black uppercase tracking-[0.3em] text-[10px] sm:text-xs">
+            Discovery
+          </span>
+          <span className="h-[2px] w-8 bg-amber-500 rounded-full"></span>
+        </div>
+        <h2 className="text-4xl sm:text-7xl font-black text-slate-900 tracking-tight leading-none">
+          The <span className="text-amber-500">Edit</span>
+        </h2>
+        <p className="text-gray-500 text-sm sm:text-xl max-w-xl mx-auto font-medium leading-relaxed">
+          Carefully selected collections for those who appreciate the finer details in life.
+        </p>
+      </div>
+
+      {/* Category Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-6">
+        {categoryEntries.map(([slug, card], index) => (
           <Link
-            key={card.id}
-            to='/shop-all'
-            className="bg-white group rounded-lg  border-gray-300 hover:shadow-2xl transition-transform duration-300 ease-in-out hover:-translate-y-6 hover:scale-105 text-center overflow-hidden"
+            key={slug}
+            to={`/category/${slug}`}
+            className="group block relative"
           >
-            <div className="w-full h-52 bg-gray-300 flex items-center justify-center">
+            {/* Card Body */}
+            <div className="relative aspect-[3/4] rounded-[2.5rem] bg-gray-100 overflow-hidden shadow-sm transition-all duration-700 group-hover:shadow-2xl group-hover:-translate-y-4">
+              {/* Image with subtle zoom and shift */}
               <img
                 src={card.image}
                 alt={card.title}
-                className="w-full h-full object-cover"
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110 group-hover:rotate-1"
               />
+              
+              {/* Refined Glassmorphism Info Box */}
+              <div className="absolute bottom-6 left-6 right-6">
+                <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-white/50 shadow-xl transform transition-all duration-500 group-hover:bg-white">
+                  <span className="block text-amber-600 text-[10px] font-black uppercase tracking-widest mb-1 opacity-80">
+                    {card.subtitle}
+                  </span>
+                  <h3 className="text-slate-900 text-xl font-black tracking-tight flex items-center justify-between">
+                    {card.title}
+                    <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center -mr-2 transform rotate-45 group-hover:rotate-0 transition-transform duration-500">
+                      <ArrowUpRight size={16} />
+                    </div>
+                  </h3>
+                </div>
+              </div>
             </div>
-            <div className="mt-3 rounded-t-lg bg-gray-300">
-            <p className="text-gray-700 group-hover:text-yellow-500 font-medium py-3">
-              {card.title}
-            </p>
-            </div>
+
+            {/* Decorative Number (Background) */}
+            <span className="absolute -top-4 -left-4 text-8xl font-black text-slate-900/5 select-none transition-colors group-hover:text-amber-500/10">
+              0{index + 1}
+            </span>
           </Link>
         ))}
+      </div>
+
+
+      {/* Footer Link */}
+      <div className="mt-16 sm:mt-24 text-center">
+        <Link 
+          to="/shop-all" 
+          className="inline-flex items-center gap-4 bg-slate-900 text-white px-10 py-5 rounded-full font-black hover:bg-amber-500 transition-all shadow-xl hover:shadow-amber-500/20 transform hover:scale-105 active:scale-95 group"
+        >
+          View All Collections
+          <div className="bg-white/20 p-1 rounded-full group-hover:translate-x-1 transition-transform">
+            <ArrowUpRight size={20} />
+          </div>
+        </Link>
       </div>
     </section>
   );

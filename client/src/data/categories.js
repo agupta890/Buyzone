@@ -1,43 +1,74 @@
 
 export const categories = {
-
   "home-decor": {
     title: "Home Decor",
+    subtitle: "Luxury & Comfort",
+    image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=1000&auto=format&fit=crop",
+    icon: "Home",
+    color: "from-blue-500 to-cyan-400",
     subcategories: ["Bedsheet", "Wall Painting"],
-    products: [], // add products later
+    products: [],
   },
   books: {
     title: "Books",
+    subtitle: "Knowledge Hub",
+    image: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=1000&auto=format&fit=crop",
+    icon: "Book",
+    color: "from-amber-500 to-orange-400",
     subcategories: ["Fiction", "Non-Fiction"],
     products: [],
   },
   "handy-craft": {
     title: "Handy Craft",
+    subtitle: "Artisan Made",
+    image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=1000&auto=format&fit=crop",
+    icon: "Paintbrush",
+    color: "from-purple-500 to-pink-400",
     subcategories: [],
     products: [],
   },
   "pooja-path-item": {
     title: "Pooja Path Item",
+    subtitle: "Spiritual Essentials",
+    image: "https://images.unsplash.com/photo-1561059488-916d69792237?q=80&w=1000&auto=format&fit=crop",
+    icon: "Flower",
+    color: "from-red-500 to-orange-400",
     subcategories: ["Home Temples", "Pooja Ki Thali", "Poshak"],
     products: [],
   },
   plants: {
     title: "Plants",
+    subtitle: "Green Life",
+    image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=1000&auto=format&fit=crop",
+    icon: "Sprout",
+    color: "from-green-500 to-emerald-400",
     subcategories: ["Bonsai Plant", "Artificial Plant"],
     products: [],
   },
   toys: {
     title: "Toys",
+    subtitle: "Joy for Kids",
+    image: "https://images.unsplash.com/photo-1532330393533-443990a51d10?q=80&w=1000&auto=format&fit=crop",
+    icon: "Baby",
+    color: "from-yellow-400 to-amber-500",
     subcategories: [],
     products: [],
   },
   cosmetic: {
     title: "Cosmetic",
+    subtitle: "Beauty & Care",
+    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1000&auto=format&fit=crop",
+    icon: "Sparkles",
+    color: "from-pink-400 to-rose-500",
     subcategories: ["Men", "Women", "Tshirt", "Fragrance"],
     products: [],
   },
   "dry-fruits": {
     title: "Dry Fruits",
+    subtitle: "Healthy Snacking",
+    image: "https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?q=80&w=1000&auto=format&fit=crop",
+    icon: "Nut",
+    color: "from-stone-500 to-orange-900",
     subcategories: [
       "Almonds",
       "Walnuts",
@@ -53,3 +84,4 @@ export const categories = {
     products: [],
   },
 };
+

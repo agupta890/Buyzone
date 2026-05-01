@@ -3,7 +3,38 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
 import { AuthContext } from "../context/AuthContext";
 import { categories } from "../data/categories";
-import { LogIn, UserPlus, LogOut, Heart } from "lucide-react"; // icons
+import { 
+  LogIn, 
+  UserPlus, 
+  LogOut, 
+  Heart, 
+  Home, 
+  Book, 
+  Paintbrush, 
+  Flower, 
+  Sprout, 
+  Baby, 
+  Sparkles, 
+  Nut,
+  Zap,
+  ShoppingBag,
+  Menu,
+  X,
+  Search,
+  ShoppingCart,
+  User
+} from "lucide-react"; // icons
+
+const iconMap = {
+  Home,
+  Book,
+  Paintbrush,
+  Flower,
+  Sprout,
+  Baby,
+  Sparkles,
+  Nut
+};
 
 export const Navbar = () => {
   const { cart, clearCart } = useContext(CartContext);
@@ -279,15 +310,19 @@ export const Navbar = () => {
         <NavLink to="/bestseller" className="hover:text-yellow-500">
           Best Sellers
         </NavLink>
-        {Object.entries(categories).map(([key, value]) => (
-          <NavLink
-            key={key}
-            to={`/category/${key}`}
-            className="capitalize hover:text-yellow-500"
-          >
-            {value.title}
-          </NavLink>
-        ))}
+        {Object.entries(categories).map(([key, value]) => {
+          const Icon = iconMap[value.icon];
+          return (
+            <NavLink
+              key={key}
+              to={`/category/${key}`}
+              className="capitalize hover:text-yellow-500 flex items-center gap-1.5 transition-colors"
+            >
+              {Icon && <Icon size={16} className="text-gray-400 group-hover:text-yellow-500" />}
+              {value.title}
+            </NavLink>
+          );
+        })}
       </div>
 
       {/* Mobile Dropdown */}
@@ -314,27 +349,31 @@ export const Navbar = () => {
           <div className="flex flex-col gap-2">
             <button
               onClick={() => handleNavClick("/bestseller")}
-              className="text-gray-700 hover:text-yellow-500 text-left"
+              className="text-gray-700 hover:text-yellow-500 text-left flex items-center gap-2"
             >
-              Best Sellers
+              <Zap size={18} /> Best Sellers
             </button>
 
             <button
               onClick={() => handleNavClick("/shop-all")}
-              className="text-pink-600 font-semibold text-left"
+              className="text-pink-600 font-semibold text-left flex items-center gap-2"
             >
-              Shop All
+              <ShoppingBag size={18} /> Shop All
             </button>
 
-            {Object.entries(categories).map(([key, value]) => (
-              <button
-                key={key}
-                onClick={() => handleNavClick(`/category/${key}`)}
-                className="capitalize text-gray-700 hover:text-yellow-500 text-left"
-              >
-                {value.title}
-              </button>
-            ))}
+            {Object.entries(categories).map(([key, value]) => {
+              const Icon = iconMap[value.icon];
+              return (
+                <button
+                  key={key}
+                  onClick={() => handleNavClick(`/category/${key}`)}
+                  className="capitalize text-gray-700 hover:text-yellow-500 text-left flex items-center gap-2"
+                >
+                  {Icon && <Icon size={18} />}
+                  {value.title}
+                </button>
+              );
+            })}
 
            
            {/* User / Auth Links */}
