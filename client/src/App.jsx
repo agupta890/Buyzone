@@ -9,7 +9,6 @@ const Login = lazy(() => import("./pages/Login").then(module => ({ default: modu
 const Register = lazy(() => import("./pages/Register").then(module => ({ default: module.Register })));
 const BestSeller = lazy(() => import("./pages/Prouducts-Pages/Bestseller").then(module => ({ default: module.BestSeller })));
 const Cart = lazy(() => import("./pages/Cart").then(module => ({ default: module.Cart })));
-const Wishlist = lazy(() => import("./pages/Wishlist").then(module => ({ default: module.Wishlist })));
 const MyOrders = lazy(() => import("./pages/Myorders").then(module => ({ default: module.MyOrders })));
 const Admin = lazy(() => import("./dashboard/Admin").then(module => ({ default: module.Admin })));
 const CategoryPage = lazy(() => import("./pages/Prouducts-Pages/categories"));
@@ -62,14 +61,6 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/wishlist"
-            element={
-              <ProtectedRoute>
-                <Wishlist />
               </ProtectedRoute>
             }
           />

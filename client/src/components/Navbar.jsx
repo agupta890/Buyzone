@@ -7,7 +7,6 @@ import {
   LogIn, 
   UserPlus, 
   LogOut, 
-  Heart, 
   Home, 
   Book, 
   Paintbrush, 
@@ -128,15 +127,6 @@ export const Navbar = () => {
               </NavLink>
             )}
 
-            {user && (
-              <NavLink
-                to="/wishlist"
-                className="text-gray-700 hover:text-pink-600 transition-colors"
-              >
-                <Heart size={20} />
-              </NavLink>
-            )}
-
             {/* Cart */}
             <button
               onClick={handleCartClick}
@@ -218,17 +208,6 @@ export const Navbar = () => {
       Go
     </button>
   </form>
-
-  {/* Wishlist */}
-  {user && (
-    <NavLink
-      to="/wishlist"
-      onClick={() => setMenuOpen(false)}
-      className="text-gray-700 hover:text-pink-600"
-    >
-      <Heart size={20} />
-    </NavLink>
-  )}
 
   {/* Cart */}
   <button onClick={handleCartClick} className="relative text-gray-700">
