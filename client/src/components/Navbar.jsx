@@ -119,115 +119,126 @@ export const Navbar = () => {
 
           {/* Right Section */}
           <div className="hidden md:flex items-center space-x-6">
-            {user ? (
-              <div className="flex items-center space-x-3">
-               {/* User Avatar */}
-  {user && (
-    <NavLink to="/profile">
-      <video
-        src="https://cdn-icons-mp4.flaticon.com/512/8121/8121295.mp4"
-        alt="profile"
-        autoPlay
-        loop
-        muted
-        className="w-6 h-6 rounded-full border-green-500 border-2"
-      />
-    </NavLink>
-  )}
-                
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-gray-800">
-                    {user.name}
-                  </span>
-                  <button
-                    onClick={handleLogout}
-                    className="text-xs text-gray-500 hover:text-yellow-500"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-4">
-                <NavLink
-                  to="/login"
-                  className="text-sm font-medium text-gray-700 hover:text-yellow-500"
-                >
-                  Login
-                </NavLink>
-                <NavLink
-                  to="/register"
-                  className="text-sm font-medium text-gray-700 hover:text-yellow-500"
-                >
-                  Signup
-                </NavLink>
-              </div>
-            )}
-
             {user && (
               <NavLink
                 to="/orders"
-                className="text-sm font-medium text-gray-700 hover:text-yellow-500"
+                className="text-sm font-medium text-gray-700 hover:text-yellow-500 transition-colors"
               >
                 Orders
               </NavLink>
             )}
 
-           {/* ✅ Add Wishlist in mobile menu */}
-    {user && (
-      <NavLink
-        to="/wishlist"
-        onClick={() => setMenuOpen(false)}
-        className="flex items-center gap-2 text-gray-700 hover:text-pink-600"
-      >
-        <Heart/>
-      </NavLink>
-    )}
+            {user && (
+              <NavLink
+                to="/wishlist"
+                className="text-gray-700 hover:text-pink-600 transition-colors"
+              >
+                <Heart size={20} />
+              </NavLink>
+            )}
+
             {/* Cart */}
             <button
               onClick={handleCartClick}
-              className="relative flex items-center text-gray-700 hover:text-yellow-500"
+              className="relative flex items-center text-gray-700 hover:text-yellow-500 transition-colors"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.293 2.293a1 1 0 00.217 1.32l.09.077a1 1 0 001.32-.217L9 15h6l1.293 2.293a1 1 0 001.32.217l.09-.077a1 1 0 00.217-1.32L17 13M9 21h6"
-                />
-              </svg>
+              <ShoppingCart size={20} />
               {cart.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs px-2 py-0.5 rounded-full">
+                <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                   {cart.length}
                 </span>
               )}
             </button>
+
+            {/* Divider */}
+            <div className="h-6 w-px bg-gray-200 mx-1" />
+
+            {user ? (
+              <div className="flex items-center space-x-4">
+                {/* Profile Link */}
+                <NavLink 
+                  to="/profile" 
+                  className="flex items-center space-x-2 group hover:opacity-80 transition-opacity"
+                >
+                  <video
+                    src="https://cdn-icons-mp4.flaticon.com/512/8121/8121295.mp4"
+                    alt="profile"
+                    autoPlay
+                    loop
+                    muted
+                    className="w-8 h-8 rounded-full border-yellow-500 border-2 shadow-sm"
+                  />
+                  <span className="text-sm font-bold text-gray-800">
+                    {user.name}
+                  </span>
+                </NavLink>
+
+                {/* Redesigned Logout Button */}
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-gray-600 hover:text-red-600 bg-white hover:bg-red-50 border border-gray-200 hover:border-red-200 rounded-full transition-all duration-300 shadow-sm active:scale-95"
+                >
+                  Logout
+                </button>
+                </div>
+                ) : (
+              <div className="flex items-center space-x-3">
+                <NavLink
+                  to="/login"
+                  className="px-4 py-2 text-sm font-bold text-gray-700 hover:text-yellow-600 transition-colors"
+                >
+                  Login
+                </NavLink>
+                <NavLink
+                  to="/register"
+                  className="px-6 py-2 text-sm font-bold text-white bg-yellow-500 rounded-full hover:bg-yellow-600 shadow-md transition-all active:scale-95 flex items-center gap-2"
+                >
+                  Signup
+                </NavLink>
+              </div>
+            )}
           </div>
 
           {/* Mobile Toggle */}
           
 <div className="md:hidden flex items-center space-x-3">
   {/* Mobile Search Bar */}
-  <form onSubmit={handleSearch} className="flex flex-1 max-w-[140px]">
+  <form onSubmit={handleSearch} className="flex flex-1 max-w-[120px]">
     <input
       type="text"
       placeholder="Search..."
       value={searchQuery}
       onChange={(e) => setSearchQuery(e.target.value)}
-      className="w-full px-2 py-1 rounded-l-md border border-gray-300 text-xs focus:outline-none focus:ring-1 focus:ring-yellow-400"
+      className="w-full px-2 py-1 rounded-l-md border border-gray-300 text-[10px] focus:outline-none focus:ring-1 focus:ring-yellow-400"
     />
     <button
       type="submit"
-      className="px-2 bg-yellow-500 text-white rounded-r-md hover:bg-yellow-600 text-xs"
+      className="px-2 bg-yellow-500 text-white rounded-r-md hover:bg-yellow-600 text-[10px]"
     >
       Go
     </button>
   </form>
+
+  {/* Wishlist */}
+  {user && (
+    <NavLink
+      to="/wishlist"
+      onClick={() => setMenuOpen(false)}
+      className="text-gray-700 hover:text-pink-600"
+    >
+      <Heart size={20} />
+    </NavLink>
+  )}
+
+  {/* Cart */}
+  <button onClick={handleCartClick} className="relative text-gray-700">
+    <ShoppingCart size={20} />
+    {cart.length > 0 && (
+      <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+        {cart.length}
+      </span>
+    )}
+  </button>
 
   {/* User Avatar */}
   {user && (
@@ -238,63 +249,18 @@ export const Navbar = () => {
         autoPlay
         loop
         muted
-        className="w-6 h-6 rounded-full border-green-500 border-2"
+        className="w-7 h-7 rounded-full border-yellow-500 border-2"
       />
     </NavLink>
   )}
-
-  {/* Wishlist */}
-  {user && (
-    <NavLink
-      to="/wishlist"
-      onClick={() => setMenuOpen(false)}
-      className="flex items-center text-gray-700 hover:text-pink-600"
-    >
-      <Heart />
-    </NavLink>
-  )}
-
-  {/* Cart */}
-  <button onClick={handleCartClick} className="relative">
-    <svg
-      className="w-6 h-6"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.293 2.293a1 1 0 00.217 1.32l.09.077a1 1 0 001.32-.217L9 15h6l1.293 2.293a1 1 0 001.32.217l.09-.077a1 1 0 00.217-1.32L17 13M9 21h6"
-      />
-    </svg>
-    {cart.length > 0 && (
-      <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs px-2 py-0.5 rounded-full">
-        {cart.length}
-      </span>
-    )}
-  </button>
 
   {/* Mobile Menu Toggle */}
   <button
     onClick={() => setMenuOpen(!menuOpen)}
-    className="focus:outline-none"
+    className="focus:outline-none text-gray-700"
     aria-label="Toggle menu"
   >
-    <svg
-      className="w-6 h-6"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="M4 6h16M4 12h16M4 18h16"
-      />
-    </svg>
+    {menuOpen ? <X size={24} /> : <Menu size={24} />}
   </button>
 </div>
 
@@ -387,28 +353,28 @@ export const Navbar = () => {
     </button>
     <button
       onClick={handleLogout}
-      className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 w-full"
+      className="mt-4 py-2.5 px-4 rounded-xl bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-all w-full text-center border border-red-100 shadow-sm active:scale-95"
     >
-      <LogOut size={18} /> Logout
+      Logout
     </button>
   </>
 ) : (
-  <>
+  <div className="pt-4 border-t border-gray-100 flex flex-col gap-3">
     <NavLink
       to="/login"
       onClick={() => setMenuOpen(false)}
-      className="flex items-center gap-2 text-gray-700 hover:text-yellow-500"
+      className="w-full py-3 text-center font-bold text-gray-700 bg-gray-50 rounded-xl border border-gray-200 active:scale-95 transition-all"
     >
-      <LogIn size={18} /> Login
+      Login
     </NavLink>
     <NavLink
       to="/register"
       onClick={() => setMenuOpen(false)}
-      className="flex items-center gap-2 text-gray-700 hover:text-yellow-500"
+      className="w-full py-3 text-center font-bold text-white bg-yellow-500 rounded-xl shadow-sm active:scale-95 transition-all"
     >
-      <UserPlus size={18} /> Signup
+      Signup
     </NavLink>
-  </>
+  </div>
 )}
 
           </div>
