@@ -11,6 +11,7 @@ const ProductCard = React.forwardRef(({ product }, ref) => {
 
   const handleAdd = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!auth?.user?._id) {
       navigate("/login");
       return;
@@ -18,60 +19,88 @@ const ProductCard = React.forwardRef(({ product }, ref) => {
     addToCart(product);
   };
 
+  const originalPrice = product.price + 500;
+  const discountPercent = Math.round(((originalPrice - product.price) / originalPrice) * 100);
+
   return (
     <div 
       ref={ref} 
-      className="group relative bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 flex flex-col overflow-hidden"
+      className="group relative bg-white rounded-xl border border-gray-100 flex flex-col overflow-hidden hover:shadow-[0_15px_30px_rgba(0,0,0,0.05)] transition-all duration-500"
     >
       <Link to={`/product/${product._id}`} className="flex-1 flex flex-col">
         {/* Image Area */}
-        <div className="relative aspect-square w-full bg-slate-50 flex items-center justify-center p-8 overflow-hidden">
+        <div className="relative aspect-[4/5] w-full bg-[#F8F8F8] flex items-center justify-center p-10 overflow-hidden">
           <img
             src={product.image}
             alt={product.name}
             loading="lazy"
-            className="max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-110"
+            className="max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
           />
           
-          {/* Overlay Actions */}
-          <div className="absolute inset-0 bg-slate-900/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-             <div className="bg-white/90 backdrop-blur-md p-3 rounded-full shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                <Eye size={20} className="text-slate-900" />
-             </div>
+          {/* Badge Section */}
+          <div className="absolute top-2 left-2 flex flex-col gap-1.5">
+            {product.isBestsellers && (
+              <span className="bg-yellow-400 text-gray-900 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm uppercase tracking-wider">
+                Best
+              </span>
+            )}
+            <span className="bg-white text-red-600 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm uppercase tracking-wider">
+              {discountPercent}% OFF
+            </span>
           </div>
 
-          {/* Tag */}
-          {product.isBestsellers && (
-            <div className="absolute top-4 left-4 bg-amber-500 text-black text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
-              Bestseller
-            </div>
-          )}
+          {/* Quick Actions Overlay */}
+          <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+             <div className="bg-white p-2 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 hover:bg-yellow-500 hover:text-white transition-colors">
+                <Eye size={16} />
+             </div>
+             <div 
+               onClick={handleAdd}
+               className="bg-gray-900 text-white p-2 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75 hover:bg-yellow-500 transition-colors"
+             >
+                <ShoppingCart size={16} />
+             </div>
+          </div>
         </div>
 
         {/* Content Area */}
-        <div className="p-6 flex flex-col flex-1">
-          <div className="flex-1">
-            <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1 opacity-80">
-              {product.category || "Premium Edit"}
-            </p>
-            <h3 className="font-bold text-slate-900 leading-tight line-clamp-2 transition-colors group-hover:text-amber-600">
+        <div className="p-3 flex flex-col flex-1">
+          <div className="flex-1 mb-2">
+            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">
+              {product.category || "Premium"}
+            </span>
+            <h3 className="font-semibold text-gray-800 text-xs leading-tight line-clamp-2 transition-colors group-hover:text-yellow-600">
               {product.name}
             </h3>
           </div>
           
-          <div className="mt-4 flex items-center justify-between">
-            <div>
-              <p className="text-xl font-black text-slate-900">₹{product.price}</p>
-              <p className="text-[10px] text-slate-400 font-bold line-through italic opacity-60">₹{product.price + 500}</p>
+          <div className="flex items-center justify-between mt-auto">
+            <div className="flex flex-col">
+              <span className="text-base font-bold text-gray-900 leading-none">
+                ₹{product.price.toLocaleString()}
+              </span>
+              <span className="text-[10px] text-gray-400 line-through mt-0.5 font-medium">
+                ₹{originalPrice.toLocaleString()}
+              </span>
             </div>
             
-            <button
-              onClick={handleAdd}
-              className="bg-slate-900 text-white p-3 rounded-2xl hover:bg-amber-500 transition-all active:scale-90 shadow-xl shadow-slate-200 active:shadow-none group/btn"
-              title="Add to Cart"
-            >
-              <ShoppingCart size={18} className="group-hover/btn:animate-bounce" />
-            </button>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-0.5 bg-green-50 px-1.5 py-0.5 rounded">
+                <span className="text-[10px] font-bold text-green-700">4.5</span>
+                <svg className="w-2 h-2 fill-green-700 text-green-700" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              </div>
+
+              {/* Permanent Mobile-Friendly Add to Cart Button */}
+              <button
+                onClick={handleAdd}
+                className="bg-yellow-500 text-white p-2 rounded-lg shadow-sm hover:bg-yellow-600 transition-all active:scale-90"
+                aria-label="Add to Cart"
+              >
+                <ShoppingCart size={15} />
+              </button>
+            </div>
           </div>
         </div>
       </Link>
