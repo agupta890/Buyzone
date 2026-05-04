@@ -39,7 +39,6 @@ export const Navbar = () => {
   const { cart, clearCart } = useContext(CartContext);
   const { auth, logout } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   const user = auth?.user || null;
@@ -60,16 +59,6 @@ export const Navbar = () => {
       navigate("/login");
     } else {
       navigate("/cart");
-    }
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const query = searchQuery.trim();
-    if (query) {
-      navigate(`/search?query=${encodeURIComponent(query)}`);
-      setSearchQuery("");
-      setMenuOpen(false);
     }
   };
 
@@ -96,25 +85,6 @@ export const Navbar = () => {
           >
             Buy<span className="text-yellow-500">Zone</span>
           </NavLink>
-
-          {/* Desktop Search */}
-          <div className="hidden md:flex flex-1 mx-6">
-            <form onSubmit={handleSearch} className="flex flex-1">
-              <input
-                type="text"
-                placeholder="Search for products, brands and more..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 rounded-l-md border  border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
-              />
-              <button
-                type="submit"
-                className="px-4 bg-yellow-500 text-white rounded-r-md hover:bg-yellow-600 transition"
-              >
-                Search
-              </button>
-            </form>
-          </div>
 
           {/* Right Section */}
           <div className="hidden md:flex items-center space-x-6">
@@ -192,23 +162,6 @@ export const Navbar = () => {
           {/* Mobile Toggle */}
           
 <div className="md:hidden flex items-center space-x-3">
-  {/* Mobile Search Bar */}
-  <form onSubmit={handleSearch} className="flex flex-1 max-w-[120px]">
-    <input
-      type="text"
-      placeholder="Search..."
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-      className="w-full px-2 py-1 rounded-l-md border border-gray-300 text-[10px] focus:outline-none focus:ring-1 focus:ring-yellow-400"
-    />
-    <button
-      type="submit"
-      className="px-2 bg-yellow-500 text-white rounded-r-md hover:bg-yellow-600 text-[10px]"
-    >
-      Go
-    </button>
-  </form>
-
   {/* Cart */}
   <button onClick={handleCartClick} className="relative text-gray-700">
     <ShoppingCart size={20} />
@@ -273,23 +226,6 @@ export const Navbar = () => {
       {/* Mobile Dropdown */}
       {menuOpen && (
         <div className="md:hidden px-4 pt-3 pb-4 space-y-4 bg-white shadow-md border-t">
-          {/* Mobile Search */}
-          <form onSubmit={handleSearch} className="flex">
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
-            />
-            <button
-              type="submit"
-              className="px-3 bg-yellow-500 text-white rounded-r-md hover:bg-yellow-600"
-            >
-              Go
-            </button>
-          </form>
-
           {/* Mobile Categories */}
           <div className="flex flex-col gap-2">
             <button
