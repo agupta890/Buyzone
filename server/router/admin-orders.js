@@ -28,7 +28,7 @@ router.patch("/:id", protectAdmin, async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  if (!["Pending", "Packing", "Dispatched", "Delivered", "Cancelled"].includes(status)) {
+  if (!["Pending", "Paid", "Packing", "Dispatched", "Delivered", "Cancelled"].includes(status)) {
     return res.status(400).json({ message: "Invalid status value" });
   }
 

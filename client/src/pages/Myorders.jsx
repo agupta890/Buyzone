@@ -16,14 +16,17 @@ const OrderSkeleton = () => (
 );
 
 const OrderTracking = ({ status }) => {
-  const steps = ["Ordered", "Packed", "Shipped", "Delivered"];
+  const steps = ["Ordered", "Packed", "Dispatched", "Delivered"];
   
   const getActiveStep = () => {
     if (status === "Cancelled") return -1;
     switch (status) {
       case "Delivered": return 3;
-      case "Shipped": return 2;
-      case "Processing": return 1;
+      case "Dispatched": return 2;
+      case "Packing": return 1;
+      case "Pending": 
+      case "Paid":
+        return 0;
       default: return 0;
     }
   };
@@ -134,9 +137,12 @@ export const MyOrders = () => {
   const getStatusStyles = (status) => {
     switch (status) {
       case "Delivered": return "text-green-600 bg-green-50 border-green-100";
-      case "Shipped": return "text-blue-600 bg-blue-50 border-blue-100";
-      case "Processing": return "text-orange-600 bg-orange-50 border-orange-100";
+      case "Dispatched": return "text-blue-600 bg-blue-50 border-blue-100";
+      case "Packing": return "text-orange-600 bg-orange-50 border-orange-100";
       case "Cancelled": return "text-red-600 bg-red-50 border-red-100";
+      case "Pending":
+      case "Paid":
+        return "text-yellow-600 bg-yellow-50 border-yellow-100";
       default: return "text-gray-600 bg-gray-50 border-gray-100";
     }
   };

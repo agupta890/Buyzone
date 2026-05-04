@@ -424,7 +424,7 @@ export const Admin = () => {
                           onChange={(e) => handleUpdateOrder(order._id, e.target.value)}
                           className="border rounded p-1"
                         >
-                          {["Packing", "Dispatched", "Delivered"].map((status) => (
+                          {["Pending", "Paid", "Packing", "Dispatched", "Delivered", "Cancelled"].map((status) => (
                             <option key={status} value={status}>
                               {status}
                             </option>
@@ -466,18 +466,18 @@ export const Admin = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {order.items?.map((item) => (
                         <div
-                          key={item.product._id}
+                          key={item.product?._id}
                           className="border p-2 rounded flex items-center gap-2 hover:shadow-md transition-shadow"
                         >
                           <img
-                            src={item.product.image}
-                            alt={item.product.name}
+                            src={item.product?.image}
+                            alt={item.product?.name}
                             className="w-16 h-16 object-cover rounded"
                           />
                           <div>
-                            <p className="font-semibold">{item.product.name}</p>
+                            <p className="font-semibold">{item.product?.name}</p>
                             <p className="text-sm">Qty: {item.quantity}</p>
-                            <p className="text-yellow-600 font-bold">₹{item.product.price}</p>
+                            <p className="text-yellow-600 font-bold">₹{item.product?.price}</p>
                           </div>
                         </div>
                       ))}
