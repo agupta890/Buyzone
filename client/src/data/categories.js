@@ -60,7 +60,7 @@ export const categories = {
     image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1000&auto=format&fit=crop",
     icon: "Sparkles",
     color: "from-pink-400 to-rose-500",
-    subcategories: ["Men", "Women", "Tshirt", "Fragrance"],
+    subcategories: ["Men", "Women", "Fragrance"],
     products: [],
   },
   "dry-fruits": {

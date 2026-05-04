@@ -3,12 +3,15 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { categories } from "../../data/categories";
 import { CartContext } from "../../context/Cart-context";
 import { AuthContext } from "../../context/AuthContext";
+import { 
+  ChevronRight, 
+  LayoutGrid, 
+  ChevronDown,
+  Filter
+} from "lucide-react";
+
 const API_URL = import.meta.env.VITE_API_URL;
-
-
-
 const API_PRODUCTS = `${API_URL}/api/products`;
-
 
 import ProductCard from "../../components/ProductCard";
 import { ProductSkeleton, TopProgressBar } from "../../components/LoadingComponents";
@@ -40,7 +43,7 @@ const CategoryPage = () => {
     setLoading(true);
     setError(null);
     try {
-      let url = `${API_PRODUCTS}?category=${category}&page=${currentPage}&limit=6`;
+      let url = `${API_PRODUCTS}?category=${category}&page=${currentPage}&limit=12`;
       if (subcategory) {
         url += `&subCategory=${subcategory.replace("-", " ")}`;
       }
@@ -81,12 +84,11 @@ const CategoryPage = () => {
 
   // ✅ If invalid category
   if (!categoryData) {
-    return <h1 className="p-6 text-xl text-red-500">Category not found</h1>;
+    return <div className="p-20 text-center font-black text-red-500">CATEGORY NOT FOUND</div>;
   }
 
-  const { title, subcategories, image, subtitle, color } = categoryData;
+  const { title, subcategories, image } = categoryData;
 
-  // ✅ Format title nicely
   const formattedTitle = subcategory
     ? subcategory
         .replace(/-/g, " ")
@@ -94,119 +96,114 @@ const CategoryPage = () => {
     : title;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12">
-      {loading && <TopProgressBar />}
+    <div className="min-h-screen bg-white pb-20">
+      {loading && page === 1 && <TopProgressBar />}
       
-      {/* Category Hero Banner */}
-      {!subcategory && (
-        <div className="relative w-full h-64 sm:h-80 md:h-[400px] overflow-hidden mb-8">
-          <img 
-            src={image} 
-            alt={title} 
-            className="w-full h-full object-cover transform scale-105 transition-transform duration-700 hover:scale-100"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-8 md:p-16">
-            <div className="max-w-7xl mx-auto w-full">
-              <span className={`inline-block px-4 py-1 rounded-full text-white text-xs font-black uppercase tracking-widest mb-4 bg-gradient-to-r ${color || 'from-amber-500 to-orange-400'} shadow-lg`}>
-                {subtitle || "Premium Collection"}
-              </span>
-              <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter leading-none mb-2">
-                {title}
-              </h1>
-            </div>
+      {/* 1. Category Hero Banner - KEPT EXACTLY AS PLACED */}
+      <div className="relative w-full h-64 sm:h-80 md:h-[400px] overflow-hidden">
+        <img 
+          src={image} 
+          alt={title} 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-8 md:p-16">
+          <div className="max-w-7xl mx-auto w-full">
+            <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter uppercase italic drop-shadow-lg">
+              {title}
+            </h1>
           </div>
         </div>
-      )}
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-8">
-        {/* Categories Sidebar */}
-        <aside className="w-full lg:w-1/4">
-          <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 p-6 sticky top-24 border border-slate-100">
-            <h2 className="font-black text-slate-900 text-xl mb-6 flex items-center gap-2">
-              <span className="w-2 h-6 bg-amber-500 rounded-full"></span>
-              Collections
-            </h2>
+      {/* 2. Breadcrumbs - Logical Position */}
+      <div className="max-w-7xl mx-auto px-6 pt-6">
+        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-300">
+           <Link to="/" className="hover:text-black transition-colors">Home</Link>
+           <ChevronRight size={10} />
+           <span>{title}</span>
+           {subcategory && (
+             <>
+               <ChevronRight size={10} />
+               <span className="text-gray-900">{formattedTitle}</span>
+             </>
+           )}
+        </div>
+      </div>
 
-            <ul className="flex flex-wrap lg:flex-col gap-2">
-              <li>
-                <Link
-                  to={`/category/${category}`}
-                  className={`w-full px-6 py-3 rounded-2xl transition-all duration-300 font-bold text-sm flex items-center justify-between group ${
-                    !subcategory
-                      ? "bg-slate-900 text-white shadow-xl shadow-slate-900/20 translate-x-2"
-                      : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:translate-x-1"
-                  }`}
-                >
-                  All {title}
-                  <span className={`w-2 h-2 rounded-full ${!subcategory ? 'bg-amber-400 animate-pulse' : 'bg-transparent group-hover:bg-slate-300'}`}></span>
-                </Link>
-              </li>
+      {/* 3. Professional Subcategory Ribbon (Improved UI & Static Position) */}
+      <div className="bg-white border-b border-gray-100 mt-6">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between h-14 md:h-16">
+            <div className="flex items-center gap-8 overflow-x-auto no-scrollbar h-full flex-1 mr-4">
+              <Link
+                to={`/category/${category}`}
+                className={`h-full flex items-center text-[10px] md:text-xs font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all relative group ${
+                  !subcategory ? "text-black" : "text-gray-400 hover:text-gray-900"
+                }`}
+              >
+                All {title}
+                {!subcategory && <span className="absolute bottom-0 left-0 w-full h-1 bg-yellow-500"></span>}
+              </Link>
 
               {subcategories?.map((sub) => {
                 const subSlug = sub.toLowerCase().replace(/\s+/g, "-");
                 const isActive = subSlug === subcategory;
                 return (
-                  <li key={sub} className="w-full">
-                    <Link
-                      to={`/category/${category}/${subSlug}`}
-                      className={`w-full px-6 py-3 rounded-2xl transition-all duration-300 font-bold text-sm flex items-center justify-between group ${
-                        isActive
-                          ? "bg-slate-900 text-white shadow-xl shadow-slate-900/20 translate-x-2"
-                          : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:translate-x-1"
-                      }`}
-                    >
-                      {sub}
-                      <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-amber-400 animate-pulse' : 'bg-transparent group-hover:bg-slate-300'}`}></span>
-                    </Link>
-                  </li>
+                  <Link
+                    key={sub}
+                    to={`/category/${category}/${subSlug}`}
+                    className={`h-full flex items-center text-[10px] md:text-xs font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all relative group ${
+                      isActive ? "text-black" : "text-gray-400 hover:text-gray-900"
+                    }`}
+                  >
+                    {sub}
+                    {isActive && <span className="absolute bottom-0 left-0 w-full h-1 bg-yellow-500"></span>}
+                  </Link>
                 );
               })}
-            </ul>
-          </div>
-        </aside>
+            </div>
 
-        {/* Main Content Area */}
-        <main className="w-full lg:w-3/4">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-              {formattedTitle}
-              <span className="text-sm font-medium text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
-                {products.length} Products
-              </span>
-            </h1>
+            <div className="hidden sm:flex items-center gap-2 border-l border-gray-100 pl-6 text-gray-400">
+               <span className="text-[10px] font-black uppercase tracking-widest">{products.length} Products</span>
+            </div>
           </div>
+        </div>
+      </div>
 
-        {loading && (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <ProductSkeleton key={i} />
-            ))}
-          </div>
+      {/* 4. Main Content Area */}
+      <div className="max-w-7xl mx-auto px-6 pt-10">
+        {error && (
+          <div className="text-center py-20 text-red-500 font-bold">{error}</div>
         )}
 
-        {error && <p className="text-red-500">{error}</p>}
-
-        {!loading && !error && products.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
-            {products.map((p, index) => {
-              const isLastElement = products.length === index + 1;
-              return (
-                <ProductCard 
-                  key={p._id} 
-                  product={p} 
-                  ref={isLastElement ? lastProductElementRef : null} 
-                />
-              );
-            })}
-          </div>
-        )}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
+          {products.map((p, index) => {
+            const isLastElement = products.length === index + 1;
+            return (
+              <ProductCard 
+                key={p._id} 
+                product={p} 
+                ref={isLastElement ? lastProductElementRef : null} 
+              />
+            );
+          })}
+          
+          {loading && (
+            <>
+              {[...Array(8)].map((_, i) => (
+                <ProductSkeleton key={`skeleton-${i}`} />
+              ))}
+            </>
+          )}
+        </div>
 
         {!loading && !error && products.length === 0 && (
-          <p className="text-gray-500">No products available yet.</p>
+          <div className="text-center py-40 border-2 border-dashed border-gray-100 rounded-[2rem]">
+             <h3 className="text-gray-400 font-black uppercase tracking-widest text-xs">Collection is being updated.</h3>
+          </div>
         )}
-      </main>
+      </div>
     </div>
-  </div>
   );
 };
 
