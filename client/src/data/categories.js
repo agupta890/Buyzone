@@ -15,7 +15,7 @@ export const categories = {
     image: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=1000&auto=format&fit=crop",
     icon: "Book",
     color: "from-amber-500 to-orange-400",
-    subcategories: ["Fiction", "Non-Fiction"],
+    subcategories: ["Fiction", "Non Fiction"],
     products: [],
   },
   "handy-craft": {
@@ -30,10 +30,10 @@ export const categories = {
   "pooja-path-item": {
     title: "Pooja Path Item",
     subtitle: "Spiritual Essentials",
-    image: "https://images.unsplash.com/photo-1561059488-916d69792237?q=80&w=1000&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1609151523412-f04b1274092b?q=80&w=1000&auto=format&fit=crop",
     icon: "Flower",
     color: "from-red-500 to-orange-400",
-    subcategories: ["Home Temples", "Pooja Ki Thali", "Poshak"],
+    subcategories: ["Home Temples", "Poshak"],
     products: [],
   },
   plants: {
@@ -69,19 +69,7 @@ export const categories = {
     image: "https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?q=80&w=1000&auto=format&fit=crop",
     icon: "Nut",
     color: "from-stone-500 to-orange-900",
-    subcategories: [
-      "Almonds",
-      "Walnuts",
-      "Cashews",
-      "Raisins",
-      "Pistachios",
-      "Dates",
-      "Apricots",
-      "Figs",
-      "Prunes",
-      "Peanuts",
-    ],
+    subcategories: [],
     products: [],
   },
 };
-

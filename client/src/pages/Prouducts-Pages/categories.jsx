@@ -45,7 +45,7 @@ const CategoryPage = () => {
     try {
       let url = `${API_PRODUCTS}?category=${category}&page=${currentPage}&limit=12`;
       if (subcategory) {
-        url += `&subCategory=${subcategory.replace("-", " ")}`;
+        url += `&subCategory=${subcategory.replace(/-/g, " ")}`;
       }
 
       const res = await fetch(url);
