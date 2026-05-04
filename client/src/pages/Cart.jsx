@@ -3,11 +3,12 @@ import { CartContext } from "../context/Cart-context";
 import { AddressPage } from "./AddressPage"; //
 import { useNavigate } from "react-router-dom";
 import RecentlyViewed from "./RecentlyViewed";
+import { toast } from "react-toastify";
 const API_URL = import.meta.env.VITE_API_URL;
 
 
 export const Cart = () => {
-  const { cart, removeFromCart, increaseQty, decreaseQty, getTotal } =
+  const { cart, removeFromCart, increaseQty, decreaseQty, getTotal, clearCart } =
     useContext(CartContext);
 
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -159,7 +160,7 @@ export const Cart = () => {
             <button
               onClick={async () => {
                 if (!selectedAddressId) {
-                  alert("⚠️ Please select an address before checkout");
+                  toast.warn("⚠️ Please select an address before checkout");
                   return;
                 }
 
@@ -170,7 +171,7 @@ export const Cart = () => {
                     script.onload = resolve;
                     script.onerror = reject;
                     document.body.appendChild(script);
-                  }).catch(() => alert("Failed to load Razorpay SDK"));
+                  }).catch(() => toast.error("Failed to load Razorpay SDK"));
                 }
 
                 try {
@@ -213,18 +214,22 @@ export const Cart = () => {
                       );
                       const verifyData = await verifyRes.json();
                       if (verifyRes.ok && verifyData.verified) {
-                        alert("Payment successful! Order placed.");
-                        window.location.href = "/orders";
+                        toast.success("🎉 Payment successful! Order placed.");
+                        
+                        // ✅ Clear local cart state (backend already cleared DB)
+                        await clearCart(); 
+                        
+                        navigate("/orders");
                       } else {
-                        alert(
-                          "Payment could not be verified: " +
+                        toast.error(
+                          "❌ Payment could not be verified: " +
                             (verifyData.error || "Unknown error")
                         );
                       }
                     },
                     modal: {
                       ondismiss: function () {
-                        alert("Payment cancelled");
+                        toast.info("Payment cancelled");
                       },
                     },
                   };
@@ -232,12 +237,12 @@ export const Cart = () => {
                   const rzp = new window.Razorpay(options);
                   rzp.on("payment.failed", function (resp) {
                     console.error("Payment failed", resp);
-                    alert("Payment failed or was cancelled.");
+                    toast.error("Payment failed or was cancelled.");
                   });
                   rzp.open();
                 } catch (err) {
                   console.error(err);
-                  alert(err.message || "Checkout failed");
+                  toast.error(err.message || "Checkout failed");
                 }
               }}
               className="mt-6 w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded-lg shadow-md transition"
@@ -250,3 +255,4 @@ export const Cart = () => {
     </div>
   );
 };
+

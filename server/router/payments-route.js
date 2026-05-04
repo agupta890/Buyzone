@@ -82,6 +82,18 @@ router.post('/verify',protectUser, async (req, res) => {
     });
 
     await newOrder.save();
+
+    // 🛒 Clear user's cart after successful order - using a more robust update
+    try {
+      const Cart = require('../models/cartSchema');
+      await Cart.updateOne(
+        { user: req.user._id },
+        { $set: { items: [] } }
+      );
+    } catch (cartErr) {
+      console.error("Error clearing cart in verify route:", cartErr);
+    }
+
     res.json({ verified: true, orderId: newOrder._id });
   } catch (err) {
     console.error('Verify error:', err);

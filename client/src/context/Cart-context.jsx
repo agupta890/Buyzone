@@ -23,7 +23,9 @@ export const CartProvider = ({ children }) => {
       });
       if (!res.ok) throw new Error("Failed to load cart");
       const data = await res.json();
-      setCart(data.items || []);
+      // Filter out items where product is null (e.g., deleted from DB)
+      const validItems = (data.items || []).filter((item) => item.product !== null);
+      setCart(validItems);
     } catch (err) {
       console.error("Error loading cart:", err);
       setCart([]);
@@ -105,7 +107,18 @@ export const CartProvider = ({ children }) => {
   const getTotal = () =>
     cart.reduce((sum, i) => sum + (i.product?.price || 0) * i.quantity, 0);
 
-  const clearCart = () => setCart([]);
+  const clearCart = async () => {
+    setCart([]); // 🚀 Clear local state immediately for instant UI feedback
+    if (!auth?.user?._id) return;
+    try {
+      await fetch(`${API_URL}/api/cart/${auth.user._id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Error clearing cart:", err);
+    }
+  };
 
   const goToCart = () => {
     if (!auth?.user?._id) navigate("/login");

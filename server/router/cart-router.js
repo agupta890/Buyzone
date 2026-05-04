@@ -8,6 +8,9 @@ const router = express.Router();
 router.get('/:userId', protectUser, async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: req.params.userId }).populate('items.product');
+    if (cart) {
+      cart.items = cart.items.filter(item => item.product !== null);
+    }
     res.json(cart || { user: req.params.userId, items: [] });
   } catch (err) {
     console.error(err);
@@ -35,6 +38,9 @@ router.post('/:userId/add', protectUser, async (req, res) => {
 
     await cart.save();
     const populatedCart = await cart.populate('items.product');
+    if (populatedCart) {
+      populatedCart.items = populatedCart.items.filter(item => item.product !== null);
+    }
     res.json(populatedCart);
   } catch (err) {
     console.error(err);
@@ -52,6 +58,9 @@ router.delete('/:userId/remove/:productId', protectUser, async (req, res) => {
     await cart.save();
 
     const populatedCart = await cart.populate('items.product');
+    if (populatedCart) {
+      populatedCart.items = populatedCart.items.filter(item => item.product !== null);
+    }
     res.json(populatedCart);
   } catch (err) {
     console.error(err);
@@ -72,10 +81,28 @@ router.patch('/:userId/update/:productId', protectUser, async (req, res) => {
 
     await cart.save();
     const populatedCart = await cart.populate('items.product');
+    if (populatedCart) {
+      populatedCart.items = populatedCart.items.filter(item => item.product !== null);
+    }
     res.json(populatedCart);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to update quantity' });
+  }
+});
+
+// ✅ Clear cart
+router.delete('/:userId', protectUser, async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ user: req.params.userId });
+    if (cart) {
+      cart.items = [];
+      await cart.save();
+    }
+    res.json({ message: 'Cart cleared successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to clear cart' });
   }
 });
 
