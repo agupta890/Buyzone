@@ -30,7 +30,7 @@ export const categories = {
   "pooja-path-item": {
     title: "Pooja Path Item",
     subtitle: "Spiritual Essentials",
-    image: "https://images.unsplash.com/photo-1609151523412-f04b1274092b?q=80&w=1000&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1666170263113-b2daf844f352?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cG9vamElMjBpdGVtfGVufDB8fDB8fHww",
     icon: "Flower",
     color: "from-red-500 to-orange-400",
     subcategories: ["Home Temples", "Poshak"],
