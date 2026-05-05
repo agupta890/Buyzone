@@ -31,7 +31,7 @@ export const Admin = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch(API_PRODUCTS);
+      const res = await fetch(`${API_PRODUCTS}?limit=1000`);
       const data = await res.json();
       setProducts(data.products || []);
     } catch (err) {
@@ -169,7 +169,20 @@ export const Admin = () => {
             ➕ Create Product
           </button>
           <div>
-            <p className="px-4 py-2 font-semibold text-gray-700">📦 All Products</p>
+            <button
+              onClick={() => {
+                setActiveTab("products");
+                setSelectedCategory(null);
+                setSelectedSubcategory(null);
+              }}
+              className={`block w-full text-left px-4 py-2 rounded font-semibold ${
+                activeTab === "products" && !selectedCategory
+                  ? "bg-yellow-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              📦 All Products
+            </button>
             {Object.keys(categories).map((catKey) => (
               <button
                 key={catKey}
