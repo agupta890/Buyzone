@@ -27,6 +27,22 @@ export const Admin = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [uploadKey, setUploadKey] = useState(Date.now());
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        alert("File is too large. Please select an image under 5MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Fetch Products
   const fetchProducts = async () => {
@@ -80,6 +96,7 @@ export const Admin = () => {
         stock: 0,
         isBestsellers: false,
       });
+      setUploadKey(Date.now());
       fetchProducts();
       setActiveTab("products");
     } catch (err) {
@@ -239,14 +256,35 @@ export const Admin = () => {
               className="border p-2 rounded w-full"
               required
             />
-            <input
-              type="text"
-              placeholder="Image URL"
-              value={formData.image}
-              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-              className="border p-2 rounded w-full"
-              required
-            />
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-gray-700">Product Image</label>
+              <div className="flex items-center gap-4">
+                <input
+                  key={uploadKey}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="border p-2 rounded w-full text-sm"
+                  required={!formData.image}
+                />
+                {formData.image && (
+                  <div className="relative group">
+                    <img
+                      src={formData.image}
+                      alt="Preview"
+                      className="h-12 w-12 object-cover rounded border-2 border-yellow-500 shadow-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, image: "" })}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-md hover:bg-red-600"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
             <select
               value={formData.category}
               onChange={(e) =>
