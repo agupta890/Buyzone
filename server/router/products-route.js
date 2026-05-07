@@ -31,6 +31,11 @@ router.get('/', async (req, res) => {
       .limit(parseInt(limit))
       .lean();
 
+    if (products.length > 0) {
+      console.log("GET /api/products - Sample product keys:", Object.keys(products[0]));
+      console.log("GET /api/products - Sample product description exists:", !!products[0].description);
+    }
+
     const total = await Product.countDocuments(query);
 
     res.json({ 
@@ -48,7 +53,9 @@ router.get('/', async (req, res) => {
 // POST new product
 router.post('/', async (req, res) => {
   try {
-    const { name, price, image, category, subcategory, stock, isBestsellers } = req.body;
+    console.log("POST /api/products - Incoming body keys:", Object.keys(req.body));
+    const { name, price, image, category, subcategory, stock, isBestsellers, description } = req.body;
+    console.log("Description received:", description ? `Yes (${description.length} chars)` : "No");
 
     const newProduct = new Product({
       name,
@@ -57,10 +64,12 @@ router.post('/', async (req, res) => {
       category,
       subcategory, 
       stock,
+      description: description || "",
       isBestsellers: isBestsellers || false, // ✅ ensure default
     });
 
     await newProduct.save();
+    console.log("✅ Successfully saved product with description length:", newProduct.description?.length);
     res.status(201).json({ message: 'Product added', product: newProduct });
   } catch (err) {
     console.error(err);
@@ -98,10 +107,11 @@ router.delete('/:id', async (req, res) => {
 // GET single product
 router.get('/:id', async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id).lean();
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
+    console.log("Fetching product:", product._id, "Description length:", product.description?.length);
     res.json(product);
   } catch (err) {
     console.error(err);

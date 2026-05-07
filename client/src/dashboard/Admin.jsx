@@ -20,6 +20,7 @@ export const Admin = () => {
     image: "",
     category: "",
     subcategory: "",
+    description: "",
     stock: 0,
     isBestsellers: false,
   });
@@ -75,6 +76,7 @@ export const Admin = () => {
         image: "",
         category: "",
         subcategory: "",
+        description: "",
         stock: 0,
         isBestsellers: false,
       });
@@ -285,6 +287,13 @@ export const Admin = () => {
               className="border p-2 rounded w-full"
               required
             />
+            <textarea
+              placeholder="Product Description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="border p-2 rounded w-full col-span-full h-24"
+              required
+            ></textarea>
             <label className="flex items-center gap-2 col-span-full">
               <input
                 type="checkbox"
@@ -359,6 +368,7 @@ export const Admin = () => {
                     <h3 className="text-lg font-medium mt-2">{product.name}</h3>
                     <p className="text-yellow-600 font-bold">₹{product.price}</p>
                     <p className="text-sm text-gray-500">Stock: {product.stock}</p>
+                    <p className="text-xs text-gray-400 mt-1 line-clamp-2">{product.description || "No description"}</p>
                     {product.isBestsellers && (
                       <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
                         Bestseller

@@ -21,6 +21,7 @@ export const ProductDetail = () => {
         if (!res.ok) throw new Error("Failed to fetch product details");
         const data = await res.json();
         setProduct(data);
+        console.log(data)
       } catch (err) {
         setError(err.message);
       } finally {
@@ -142,8 +143,8 @@ export const ProductDetail = () => {
           <div className="space-y-8 mb-12">
             <div>
               <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-4">The Detail</h3>
-              <p className="text-slate-600 text-lg leading-relaxed font-medium">
-                {product.description || "Crafted with the highest quality materials and designed for durability and style. This piece represents our commitment to premium craftsmanship and timeless aesthetic."}
+              <p className="text-slate-600 text-lg leading-relaxed font-medium whitespace-pre-wrap">
+                {product.description || "No specific description provided for this product. Crafted with the highest quality materials and designed for durability and style."}
               </p>
             </div>
 
