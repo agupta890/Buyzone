@@ -1,25 +1,87 @@
-import { useContext, useState } from "react";
+import { useContext, useState, memo, useMemo } from "react";
 import { CartContext } from "../context/Cart-context";
-import { AddressPage } from "./AddressPage"; //
+import { AddressPage } from "./AddressPage";
 import { useNavigate } from "react-router-dom";
 import RecentlyViewed from "./RecentlyViewed";
 import { toast } from "react-toastify";
 const API_URL = import.meta.env.VITE_API_URL;
 
+const CartItem = memo(({ item, increaseQty, decreaseQty, removeFromCart }) => {
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b pb-6 last:border-0">
+      {/* Product Info */}
+      <div className="flex items-center gap-4 w-full sm:w-1/2">
+        <img
+          src={item.product.image}
+          alt={item.product.name}
+          className="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-lg bg-gray-100 shadow-md"
+          loading="lazy"
+        />
+        <div className="flex flex-col">
+          <h2 className="font-semibold text-gray-800 text-base sm:text-lg line-clamp-2">
+            {item.product.name}
+          </h2>
+          <p className="text-gray-600 text-sm">₹{item.product.price}</p>
+        </div>
+      </div>
+
+      {/* Quantity + Price */}
+      <div className="flex items-center justify-between sm:justify-end w-full sm:w-1/2 gap-6">
+        <div className="flex items-center gap-3">
+          <button
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 transition"
+            onClick={() => decreaseQty(item.product._id)}
+          >
+            −
+          </button>
+          <span className="font-medium min-w-[20px] text-center">
+            {item.quantity}
+          </span>
+          <button
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 transition"
+            onClick={() => increaseQty(item.product._id)}
+          >
+            +
+          </button>
+        </div>
+
+        <div className="text-right min-w-[90px]">
+          <p className="font-semibold text-gray-800">
+            ₹{item.product.price * item.quantity}
+          </p>
+          <button
+            className="text-sm text-red-500 hover:text-red-700 mt-1"
+            onClick={() => removeFromCart(item.product._id)}
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+});
 
 export const Cart = () => {
-  const { cart, removeFromCart, increaseQty, decreaseQty, getTotal, clearCart } =
+  const { cart, loading, removeFromCart, increaseQty, decreaseQty, getTotal, clearCart } =
     useContext(CartContext);
 
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const navigate = useNavigate();
 
+  const totalAmount = useMemo(() => getTotal(), [getTotal]);
+
+  if (loading && cart.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-100 min-h-screen py-10 px-4 sm:px-6 lg:px-10">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Section - Cart Items */}
         <div className="lg:col-span-2 space-y-10">
-          {/* Cart Items */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h1 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">
               Your Cart
@@ -44,90 +106,37 @@ export const Cart = () => {
               </div>
             ) : (
               <div className="space-y-6">
-  {cart.map((item) => (
-    <div
-      key={item.product._id}
-      className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b pb-6 last:border-0"
-    >
-      {/* Product Info */}
-      <div className="flex items-center gap-4 w-full sm:w-1/2">
-        <img
-          src={item.product.image}
-          alt={item.product.name}
-  className="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-lg bg-gray-100 shadow-md"
-        />
-        <div className="flex flex-col">
-          <h2 className="font-semibold text-gray-800 text-base sm:text-lg line-clamp-2">
-            {item.product.name}
-          </h2>
-          <p className="text-gray-600 text-sm">₹{item.product.price}</p>
-        </div>
-      </div>
+                {cart.map((item) => (
+                  <CartItem
+                    key={item.product._id}
+                    item={item}
+                    increaseQty={increaseQty}
+                    decreaseQty={decreaseQty}
+                    removeFromCart={removeFromCart}
+                  />
+                ))}
 
-      {/* Quantity + Price */}
-      <div className="flex items-center justify-between sm:justify-end w-full sm:w-1/2 gap-6">
-        {/* Quantity Controls */}
-        <div className="flex items-center gap-3">
-          <button
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 transition"
-            onClick={() => decreaseQty(item.product._id)}
-          >
-            −
-          </button>
-          <span className="font-medium min-w-[20px] text-center">
-            {item.quantity}
-          </span>
-          <button
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 transition"
-            onClick={() => increaseQty(item.product._id)}
-          >
-            +
-          </button>
-        </div>
-
-        {/* Price + Remove */}
-        <div className="text-right min-w-[90px]">
-          <p className="font-semibold text-gray-800">
-            ₹{item.product.price * item.quantity}
-          </p>
-          <button
-            className="text-sm text-red-500 hover:text-red-700 mt-1"
-            onClick={() => removeFromCart(item.product._id)}
-          >
-            Remove
-          </button>
-        </div>
-      </div>
-    </div>
-  ))}
-
-  {/* Shop More Button */}
-  <div className="text-center">
-    <button
-      onClick={() => navigate("/shop-all")}
-      className="mt-6 px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-500 transition"
-    >
-      Shop More
-    </button>
-  </div>
-</div>
-
+                <div className="text-center">
+                  <button
+                    onClick={() => navigate("/shop-all")}
+                    className="mt-6 px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-500 transition"
+                  >
+                    Shop More
+                  </button>
+                </div>
+              </div>
             )}
           </div>
-{/* Recently Viewed Items */}
-<div className="mt-2">
-  <RecentlyViewed/>
-</div>
 
+          <div className="mt-2">
+            <RecentlyViewed />
+          </div>
 
-
-          {/* ✅ Address Section */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <AddressPage onSelectAddress={setSelectedAddressId} />
           </div>
         </div>
 
-        {/* Right Section - Summary */}
         {cart.length > 0 && (
           <div className="bg-white rounded-2xl shadow-lg p-6 h-fit lg:sticky lg:top-10">
             <h2 className="text-xl font-bold text-gray-800 mb-6 border-b pb-4">
@@ -135,28 +144,17 @@ export const Cart = () => {
             </h2>
 
             <div className="space-y-4">
-              {cart.map((item) => (
-                <div
-                  key={item.product._id}
-                  className="flex justify-between text-gray-700 text-sm sm:text-base"
-                >
-                  <span className="font-medium text-gray-800 text-sm sm:text-lg line-clamp-3">
-                    {item.product.name} × {item.quantity}
-                  </span>
-                  <span>₹{item.product.price * item.quantity}</span>
-                </div>
-              ))}
-
-              <hr className="my-4" />
-
               <div className="flex justify-between font-bold text-lg text-gray-800">
-                <span>Total</span>
-                <span className="text-green-600">₹{getTotal()}</span>
+                <span>Total Items</span>
+                <span>{cart.reduce((acc, item) => acc + item.quantity, 0)}</span>
+              </div>
+              
+              <div className="flex justify-between font-bold text-xl text-gray-800 border-t pt-4">
+                <span>Grand Total</span>
+                <span className="text-green-600">₹{totalAmount}</span>
               </div>
             </div>
 
-            {/* Checkout button (Razorpay etc) can go here */}
-            {/* 🚀 Razorpay Logic - untouched */}
             <button
               onClick={async () => {
                 if (!selectedAddressId) {
@@ -175,7 +173,7 @@ export const Cart = () => {
                 }
 
                 try {
-                  const amount = getTotal();
+                  const amount = totalAmount;
                   const res = await fetch(
                     `${API_URL}/api/payments/create-order`,
                     {
@@ -215,10 +213,7 @@ export const Cart = () => {
                       const verifyData = await verifyRes.json();
                       if (verifyRes.ok && verifyData.verified) {
                         toast.success("🎉 Payment successful! Order placed.");
-                        
-                        // ✅ Clear local cart state (backend already cleared DB)
                         await clearCart(); 
-                        
                         navigate("/orders");
                       } else {
                         toast.error(
@@ -235,10 +230,6 @@ export const Cart = () => {
                   };
 
                   const rzp = new window.Razorpay(options);
-                  rzp.on("payment.failed", function (resp) {
-                    console.error("Payment failed", resp);
-                    toast.error("Payment failed or was cancelled.");
-                  });
                   rzp.open();
                 } catch (err) {
                   console.error(err);
@@ -255,4 +246,3 @@ export const Cart = () => {
     </div>
   );
 };
-

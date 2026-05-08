@@ -8,15 +8,18 @@ const ProductCard = React.forwardRef(({ product }, ref) => {
   const { addToCart } = useContext(CartContext);
   const { auth } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [isAdding, setIsAdding] = React.useState(false);
 
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!auth?.user?._id) {
       navigate("/login");
       return;
     }
-    addToCart(product);
+    setIsAdding(true);
+    await addToCart(product);
+    setTimeout(() => setIsAdding(false), 2000);
   };
 
   const originalPrice = product.price + 500;
@@ -54,12 +57,21 @@ const ProductCard = React.forwardRef(({ product }, ref) => {
              <div className="bg-white p-2 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 hover:bg-yellow-500 hover:text-white transition-colors">
                 <Eye size={16} />
              </div>
-             <div 
+             <button 
                onClick={handleAdd}
-               className="bg-gray-900 text-white p-2 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75 hover:bg-yellow-500 transition-colors"
+               disabled={isAdding}
+               className={`${
+                 isAdding ? "bg-green-500" : "bg-gray-900 hover:bg-yellow-500"
+               } text-white p-2 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-75 active:scale-95`}
              >
-                <ShoppingCart size={16} />
-             </div>
+                {isAdding ? (
+                  <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <ShoppingCart size={16} />
+                )}
+             </button>
           </div>
         </div>
 
@@ -95,10 +107,19 @@ const ProductCard = React.forwardRef(({ product }, ref) => {
               {/* Permanent Mobile-Friendly Add to Cart Button */}
               <button
                 onClick={handleAdd}
-                className="bg-yellow-500 text-white p-2 rounded-lg shadow-sm hover:bg-yellow-600 transition-all active:scale-90"
+                disabled={isAdding}
+                className={`${
+                  isAdding ? "bg-green-500" : "bg-yellow-500 hover:bg-yellow-600"
+                } text-white p-2 rounded-lg shadow-sm transition-all active:scale-90 flex items-center justify-center`}
                 aria-label="Add to Cart"
               >
-                <ShoppingCart size={15} />
+                {isAdding ? (
+                  <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <ShoppingCart size={15} />
+                )}
               </button>
             </div>
           </div>

@@ -11,6 +11,13 @@ export const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAdding, setIsAdding] = useState(false);
+
+  const handleAddToCart = async () => {
+    setIsAdding(true);
+    await addToCart(product);
+    setTimeout(() => setIsAdding(false), 2000);
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -169,10 +176,19 @@ export const ProductDetail = () => {
           {/* Actions: Grid layout */}
           <div className="hidden lg:grid grid-cols-2 gap-4">
             <button
-              onClick={() => addToCart(product)}
-              className="flex items-center justify-center gap-3 bg-slate-900 text-white font-black px-8 py-5 rounded-2xl hover:bg-amber-500 transition-all shadow-2xl shadow-slate-900/10 active:scale-95 group uppercase tracking-widest text-xs"
+              onClick={handleAddToCart}
+              disabled={isAdding}
+              className={`flex items-center justify-center gap-3 font-black px-8 py-5 rounded-2xl transition-all shadow-2xl active:scale-95 group uppercase tracking-widest text-xs ${
+                isAdding ? "bg-amber-500 text-black" : "bg-slate-900 text-white hover:bg-amber-500 shadow-slate-900/10"
+              }`}
             >
-              <ShoppingCart size={18} className="group-hover:animate-bounce" /> Add to Cart
+              {isAdding ? (
+                <>Adding...</>
+              ) : (
+                <>
+                  <ShoppingCart size={18} className="group-hover:animate-bounce" /> Add to Cart
+                </>
+              )}
             </button>
             <BuyButton product={product}/>
           </div>
@@ -182,10 +198,13 @@ export const ProductDetail = () => {
       {/* Sticky Mobile Actions */}
       <div className="lg:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-xl border-t border-gray-100 p-5 flex gap-4 z-[1000] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
         <button
-          onClick={() => addToCart(product)}
-          className="flex-1 flex items-center justify-center gap-2 bg-slate-100 text-slate-900 font-black px-6 py-4 rounded-2xl text-[11px] uppercase tracking-widest active:scale-95 transition-all"
+          onClick={handleAddToCart}
+          disabled={isAdding}
+          className={`flex-1 flex items-center justify-center gap-2 font-black px-6 py-4 rounded-2xl text-[11px] uppercase tracking-widest active:scale-95 transition-all ${
+            isAdding ? "bg-amber-500 text-black" : "bg-slate-100 text-slate-900"
+          }`}
         >
-          <ShoppingCart size={16} /> Cart
+          {isAdding ? "Adding..." : <><ShoppingCart size={16} /> Cart</>}
         </button>
         <div className="flex-[1.5]">
            <BuyButton product={product}/>
