@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
 import { AuthContext } from "../context/AuthContext";
 import { categories } from "../data/categories";
@@ -21,7 +21,8 @@ import {
   X,
   Search,
   ShoppingCart,
-  User
+  User,
+  ArrowLeft
 } from "lucide-react"; // icons
 
 const iconMap = {
@@ -40,6 +41,7 @@ export const Navbar = () => {
   const { auth, logout } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const user = auth?.user || null;
 
@@ -78,13 +80,24 @@ export const Navbar = () => {
       {/* Top Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <NavLink
-            to="/"
-            className="text-xl lg:text-2xl sm:text-xl font-extrabold tracking-wide text-gray-900"
-          >
-            Buy<span className="text-yellow-500">Zone</span>
-          </NavLink>
+          {/* Logo & Back Button */}
+          <div className="flex items-center gap-3">
+            {location.pathname !== "/" && (
+              <button
+                onClick={() => navigate(-1)}
+                className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors text-gray-600 active:scale-90"
+                aria-label="Go back"
+              >
+                <ArrowLeft size={20} />
+              </button>
+            )}
+            <NavLink
+              to="/"
+              className="text-xl lg:text-2xl sm:text-xl font-extrabold tracking-wide text-gray-900"
+            >
+              Buy<span className="text-yellow-500">Zone</span>
+            </NavLink>
+          </div>
 
           {/* Right Section */}
           <div className="hidden md:flex items-center space-x-6">
