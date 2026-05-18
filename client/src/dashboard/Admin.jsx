@@ -23,11 +23,16 @@ export const Admin = () => {
     description: "",
     stock: 0,
     isBestsellers: false,
+    returnDays: 7,
   });
 
   const [loading, setLoading] = useState(false);
+  const [ordersLoading, setOrdersLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [ordersError, setOrdersError] = useState(null);
   const [uploadKey, setUploadKey] = useState(Date.now());
+  const [editProduct, setEditProduct] = useState(null); // product being edited
+  const [editSaving, setEditSaving] = useState(false);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -59,14 +64,18 @@ export const Admin = () => {
 
   // Fetch Orders
   const fetchOrders = async () => {
+    setOrdersLoading(true);
+    setOrdersError(null);
     try {
       const res = await fetch(API_ORDERS, { credentials: "include" });
       const data = await res.json();
       if (res.ok) setOrders(data.orders || []);
-      else setError(data.message || "Failed to fetch orders");
+      else setOrdersError(data.message || "Failed to fetch orders");
     } catch (err) {
-      setError("Failed to fetch orders");
+      setOrdersError("Failed to fetch orders. Is the server running?");
       console.error(err);
+    } finally {
+      setOrdersLoading(false);
     }
   };
 
@@ -95,6 +104,7 @@ export const Admin = () => {
         description: "",
         stock: 0,
         isBestsellers: false,
+        returnDays: 7,
       });
       setUploadKey(Date.now());
       fetchProducts();
@@ -126,6 +136,26 @@ export const Admin = () => {
       fetchProducts();
     } catch (err) {
       setError(err.message);
+    }
+  };
+
+  // Save edited product
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    setEditSaving(true);
+    try {
+      const res = await fetch(`${API_PRODUCTS}/${editProduct._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editProduct),
+      });
+      if (!res.ok) throw new Error("Failed to update product");
+      setEditProduct(null);
+      fetchProducts();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setEditSaving(false);
     }
   };
 
@@ -175,6 +205,98 @@ export const Admin = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
+
+      {/* Edit Product Modal */}
+      {editProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Edit Product</h2>
+              <button onClick={() => setEditProduct(null)} className="text-gray-400 hover:text-black text-2xl font-bold leading-none">&times;</button>
+            </div>
+            <form onSubmit={handleSaveEdit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input
+                type="text" placeholder="Product Name" required
+                value={editProduct.name}
+                onChange={e => setEditProduct({ ...editProduct, name: e.target.value })}
+                className="border p-2 rounded w-full"
+              />
+              <input
+                type="number" placeholder="Price" required
+                value={editProduct.price}
+                onChange={e => setEditProduct({ ...editProduct, price: e.target.value })}
+                className="border p-2 rounded w-full"
+              />
+              <input
+                type="number" min="0" placeholder="Stock" required
+                value={editProduct.stock}
+                onChange={e => setEditProduct({ ...editProduct, stock: e.target.value })}
+                className="border p-2 rounded w-full"
+              />
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-gray-700">Return Policy</label>
+                <select
+                  value={editProduct.returnDays ?? 7}
+                  onChange={e => setEditProduct({ ...editProduct, returnDays: Number(e.target.value) })}
+                  className="border p-2 rounded w-full"
+                >
+                  <option value={0}>No Returns</option>
+                  <option value={7}>7 Days Return</option>
+                  <option value={10}>10 Days Return</option>
+                  <option value={15}>15 Days Return</option>
+                  <option value={30}>30 Days Return</option>
+                </select>
+              </div>
+              <select
+                value={editProduct.category}
+                onChange={e => setEditProduct({ ...editProduct, category: e.target.value, subcategory: "" })}
+                className="border p-2 rounded w-full"
+                required
+              >
+                <option value="">Select Category</option>
+                {Object.keys(categories).map(k => (
+                  <option key={k} value={k}>{categories[k].title}</option>
+                ))}
+              </select>
+              <select
+                value={editProduct.subcategory || ""}
+                onChange={e => setEditProduct({ ...editProduct, subcategory: e.target.value })}
+                className="border p-2 rounded w-full"
+                disabled={!editProduct.category}
+              >
+                <option value="">Select Subcategory</option>
+                {editProduct.category && categories[editProduct.category]?.subcategories?.map(sub => (
+                  <option key={sub} value={sub}>{sub}</option>
+                ))}
+              </select>
+              <textarea
+                placeholder="Product Description"
+                value={editProduct.description || ""}
+                onChange={e => setEditProduct({ ...editProduct, description: e.target.value })}
+                className="border p-2 rounded w-full col-span-full h-24"
+              />
+              <div className="flex items-center gap-2 col-span-full">
+                <input
+                  type="checkbox"
+                  checked={editProduct.isBestsellers || false}
+                  onChange={e => setEditProduct({ ...editProduct, isBestsellers: e.target.checked })}
+                  id="edit-bestseller"
+                />
+                <label htmlFor="edit-bestseller" className="text-sm font-semibold">Mark as Bestseller</label>
+              </div>
+              {error && <p className="text-red-500 text-sm col-span-full">{error}</p>}
+              <div className="col-span-full flex gap-3 mt-2">
+                <button type="button" onClick={() => setEditProduct(null)} className="flex-1 border border-gray-300 py-2 rounded font-semibold hover:bg-gray-50">
+                  Cancel
+                </button>
+                <button type="submit" disabled={editSaving} className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded font-semibold disabled:opacity-60">
+                  {editSaving ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {/* Sidebar */}
       <aside className="w-full md:w-64 bg-white shadow-md p-6 space-y-4 md:min-h-screen">
         <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
@@ -325,6 +447,20 @@ export const Admin = () => {
               className="border p-2 rounded w-full"
               required
             />
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-gray-700">Return Policy</label>
+              <select
+                value={formData.returnDays}
+                onChange={(e) => setFormData({ ...formData, returnDays: Number(e.target.value) })}
+                className="border p-2 rounded w-full"
+              >
+                <option value={0}>No Returns</option>
+                <option value={7}>7 Days Return</option>
+                <option value={10}>10 Days Return</option>
+                <option value={15}>15 Days Return</option>
+                <option value={30}>30 Days Return</option>
+              </select>
+            </div>
             <textarea
               placeholder="Product Description"
               value={formData.description}
@@ -414,9 +550,13 @@ export const Admin = () => {
                     )}
                     <div className="flex flex-wrap gap-2 mt-2">
                       <button
-                        onClick={() =>
-                          handleToggleBestseller(product._id, product.isBestsellers)
-                        }
+                        onClick={() => setEditProduct({ ...product })}
+                        className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleToggleBestseller(product._id, product.isBestsellers)}
                         className={`text-sm px-3 py-1 rounded ${
                           product.isBestsellers
                             ? "bg-gray-400 hover:bg-gray-500 text-white"
@@ -460,15 +600,31 @@ export const Admin = () => {
               ))}
             </div>
 
-            {filteredOrders.length === 0 ? (
+            {ordersLoading && <p className="text-gray-500">Loading orders...</p>}
+            {ordersError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 text-sm font-semibold">
+                ⚠️ {ordersError}
+              </div>
+            )}
+            {!ordersLoading && !ordersError && filteredOrders.length === 0 ? (
               <p>No orders for selected date.</p>
-            ) : (
+            ) : !ordersLoading && !ordersError && (
               <div className="flex flex-col gap-4">
                 {filteredOrders.map((order) => (
                   <div
                     key={order._id}
-                    className="bg-white shadow-md rounded-lg p-4 border border-gray-200"
+                    className={`bg-white shadow-md rounded-lg p-4 border ${
+                      order.status === "Return_Requested"
+                        ? "border-orange-300 ring-1 ring-orange-200"
+                        : "border-gray-200"
+                    }`}
                   >
+                    {order.status === "Return_Requested" && (
+                      <div className="mb-3 flex items-center gap-2 text-xs font-bold text-orange-600 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
+                        <span>⚠️</span>
+                        <span>Return Requested{order.return_reason ? ` — "${order.return_reason}"` : ""}</span>
+                      </div>
+                    )}
                     {/* Header */}
                     <div className="flex justify-between items-center mb-4">
                       <div>
@@ -483,11 +639,16 @@ export const Admin = () => {
                         <select
                           value={order.status}
                           onChange={(e) => handleUpdateOrder(order._id, e.target.value)}
-                          className="border rounded p-1"
+                          className={`border rounded p-1 font-semibold text-sm ${
+                            order.status === "Return_Requested" ? "border-orange-400 text-orange-600 bg-orange-50" :
+                            order.status === "Returned" ? "border-purple-400 text-purple-600 bg-purple-50" :
+                            order.status === "Cancelled" ? "border-red-300 text-red-600 bg-red-50" :
+                            order.status === "Delivered" ? "border-green-300 text-green-600 bg-green-50" : ""
+                          }`}
                         >
-                          {["Pending", "Paid", "Packing", "Dispatched", "Delivered", "Cancelled"].map((status) => (
+                          {["Pending", "Paid", "Packing", "Dispatched", "Delivered", "Cancelled", "Return_Requested", "Returned"].map((status) => (
                             <option key={status} value={status}>
-                              {status}
+                              {status === "Return_Requested" ? "Return Requested" : status}
                             </option>
                           ))}
                         </select>

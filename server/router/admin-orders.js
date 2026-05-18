@@ -8,7 +8,7 @@ router.get("/", protectAdmin, async (req, res) => {
   try {
     const orders = await Order.find()
       .populate("user", "name email role")          // ensure user exists
-      .populate("items.product", "name image price") 
+      .populate("items.product", "name image price returnDays") 
       .populate("address_id")                       // make sure address exists in DB
       .sort({ createdAt: -1 });
 
@@ -28,7 +28,7 @@ router.patch("/:id", protectAdmin, async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  if (!["Pending", "Paid", "Packing", "Dispatched", "Delivered", "Cancelled"].includes(status)) {
+  if (!["Pending", "Paid", "Packing", "Dispatched", "Delivered", "Cancelled", "Return_Requested", "Returned"].includes(status)) {
     return res.status(400).json({ message: "Invalid status value" });
   }
 
@@ -39,7 +39,7 @@ router.patch("/:id", protectAdmin, async (req, res) => {
       { new: true }
     )
       .populate("user", "name email")
-      .populate("items.product", "name image price")
+      .populate("items.product", "name image price returnDays")
       .populate("address_id");
 
     if (!updatedOrder) {

@@ -21,9 +21,11 @@ const orderSchema = new mongoose.Schema(
     address_id: { type: mongoose.Schema.Types.ObjectId, ref: "Address", required: true },
     status: {
       type: String,
-      enum: ['Pending', 'Paid', 'Packing', 'Dispatched', 'Delivered', 'Cancelled'],
+      enum: ['Pending', 'Paid', 'Packing', 'Dispatched', 'Delivered', 'Cancelled', 'Return_Requested', 'Returned'],
       default: 'Pending',
     },
+    cancellation_reason: { type: String, default: '' },
+    return_reason: { type: String, default: '' },
   },
   { timestamps: true }
 );

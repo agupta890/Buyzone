@@ -8,7 +8,8 @@ const productSchema = new mongoose.Schema({
   subcategory: { type: String, index: true }, // Added index
   stock: { type: Number, default: 0 },
   description: { type: String, default: "" },
-  isBestsellers: { type: Boolean, default: false, index: true } // Added index
+  isBestsellers: { type: Boolean, default: false, index: true }, // Added index
+  returnDays: { type: Number, default: 7 }
 }, { 
   strict: false, // Allows saving fields not explicitly in the schema
   timestamps: true 
