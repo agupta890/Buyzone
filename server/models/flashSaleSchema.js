@@ -14,6 +14,7 @@ const flashSaleSchema = new mongoose.Schema(
   {
     isActive: { type: Boolean, default: false },
     label: { type: String, default: "Flash Sale" },
+    startsAt: { type: Date, default: null },
     endsAt: { type: Date, default: null },
     rules: [ruleSchema],
   },

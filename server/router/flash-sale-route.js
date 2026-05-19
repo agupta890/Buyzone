@@ -19,12 +19,13 @@ router.get("/", async (req, res) => {
 // PUT admin — upsert entire flash sale config
 router.put("/", protectAdmin, async (req, res) => {
   try {
-    const { isActive, label, endsAt, rules } = req.body;
+    const { isActive, label, startsAt, endsAt, rules } = req.body;
     let sale = await FlashSale.findOne().sort({ updatedAt: -1 });
     if (!sale) sale = new FlashSale();
 
     if (isActive !== undefined) sale.isActive = isActive;
     if (label !== undefined) sale.label = label;
+    if (startsAt !== undefined) sale.startsAt = startsAt || null;
     if (endsAt !== undefined) sale.endsAt = endsAt || null;
     if (rules !== undefined) sale.rules = rules;
 
