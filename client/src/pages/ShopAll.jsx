@@ -1,35 +1,45 @@
-import { useContext, useEffect, useState, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { CartContext } from "../context/Cart-context";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ProductSkeleton, TopProgressBar } from "../components/LoadingComponents";
 import ProductCard from "../components/ProductCard";
-import { ShoppingBag, Zap, ArrowRight } from "lucide-react";
+import { ShoppingBag, X, SlidersHorizontal, ChevronDown } from "lucide-react";
 const API_URL = import.meta.env.VITE_API_URL;
+
+const SORT_OPTIONS = [
+  { value: "newest", label: "Newest First" },
+  { value: "price_asc", label: "Price: Low to High" },
+  { value: "price_desc", label: "Price: High to Low" },
+];
 
 const ShopAll = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  
+  const [sort, setSort] = useState("newest");
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get("q") || "";
+
   const observer = useRef();
   const lastProductElementRef = useCallback(node => {
     if (loading) return;
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasMore) {
-        setPage(prevPage => prevPage + 1);
+        setPage(prev => prev + 1);
       }
     });
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
 
-  const fetchProducts = async (currentPage) => {
+  const fetchProducts = async (currentPage, query, sortBy) => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/products?page=${currentPage}&limit=6`);
+      const params = new URLSearchParams({ page: currentPage, limit: 9, sort: sortBy });
+      if (query) params.set("search", query);
+      const res = await fetch(`${API_URL}/api/products?${params}`);
       const data = await res.json();
-
       const newProducts = data.products || [];
       setProducts(prev => currentPage === 1 ? newProducts : [...prev, ...newProducts]);
       setHasMore(data.currentPage < data.totalPages);
@@ -40,64 +50,117 @@ const ShopAll = () => {
     }
   };
 
+  // Reset + fetch on search or sort change
   useEffect(() => {
-    fetchProducts(page);
+    setPage(1);
+    setProducts([]);
+    fetchProducts(1, searchQuery, sort);
+  }, [searchQuery, sort]);
+
+  useEffect(() => {
+    if (page > 1) fetchProducts(page, searchQuery, sort);
   }, [page]);
+
+  const displayed = inStockOnly ? products.filter(p => p.stock > 0) : products;
 
   return (
     <div className="bg-[#FBFBFB] min-h-screen pb-20">
       {loading && page === 1 && <TopProgressBar />}
-      
-      {/* Hero Section */}
-      <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden mb-12">
-        <img 
-          src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2000&auto=format&fit=crop" 
-          alt="Shop All" 
+
+      {/* Hero */}
+      <div className="relative w-full h-[200px] sm:h-[300px] overflow-hidden mb-8">
+        <img
+          src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2000&auto=format&fit=crop"
+          alt="Shop All"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col justify-end p-8 md:p-16">
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col justify-end p-6 md:p-12">
           <div className="max-w-7xl mx-auto w-full">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="h-[2px] w-8 bg-amber-500 rounded-full"></span>
-              <span className="text-amber-400 font-black uppercase tracking-[0.3em] text-[10px] sm:text-xs">
-                Premium Selection
-              </span>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="h-[2px] w-6 bg-amber-500 rounded-full"></span>
+              <span className="text-amber-400 font-black uppercase tracking-[0.3em] text-[10px]">Premium Selection</span>
             </div>
-            <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter leading-none mb-4">
+            <h1 className="text-3xl md:text-6xl font-black text-white tracking-tighter leading-none">
               The <span className="text-amber-500">Collection</span>
             </h1>
-            <p className="text-gray-200 text-sm sm:text-lg max-w-xl font-medium leading-relaxed">
-              Explore our complete range of high-end essentials, curated for those who demand excellence in every detail.
-            </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 relative">
-        {products.length === 0 && !loading ? (
-          <div className="text-center py-20 bg-white rounded-[3rem] shadow-sm border border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        {/* Filter / Sort Toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          {/* Left: active filters */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {searchQuery && (
+              <span className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-full">
+                "{searchQuery}"
+                <button onClick={() => setSearchParams({})} className="hover:text-amber-900 transition-colors">
+                  <X size={12} />
+                </button>
+              </span>
+            )}
+            <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+              <div
+                onClick={() => setInStockOnly(v => !v)}
+                className={`w-9 h-5 rounded-full transition-colors relative ${inStockOnly ? "bg-amber-500" : "bg-gray-200"}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${inStockOnly ? "translate-x-4" : ""}`} />
+              </div>
+              <span className="text-xs font-bold text-gray-600">In Stock Only</span>
+            </label>
+            {!loading && (
+              <span className="text-xs text-gray-400 font-medium">{displayed.length} products</span>
+            )}
+          </div>
+
+          {/* Right: sort */}
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal size={14} className="text-gray-400" />
+            <div className="relative">
+              <select
+                value={sort}
+                onChange={e => setSort(e.target.value)}
+                className="appearance-none text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-full px-4 py-1.5 pr-8 focus:outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer"
+              >
+                {SORT_OPTIONS.map(o => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        {/* Grid */}
+        {displayed.length === 0 && !loading ? (
+          <div className="text-center py-20 bg-white rounded-[2rem] shadow-sm border border-gray-100">
             <ShoppingBag size={48} className="mx-auto text-gray-200 mb-4" />
-            <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">No products available at the moment.</p>
+            <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">
+              {searchQuery ? `No results for "${searchQuery}"` : "No products available at the moment."}
+            </p>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchParams({})}
+                className="mt-4 text-sm font-bold text-amber-600 hover:underline"
+              >
+                Clear search
+              </button>
+            )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-6">
-            {products.map((product, index) => {
-              const isLastElement = products.length === index + 1;
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayed.map((product, index) => {
+              const isLast = displayed.length === index + 1;
               return (
                 <ProductCard
                   key={product._id}
                   product={product}
-                  ref={isLastElement ? lastProductElementRef : null}
+                  ref={isLast && !inStockOnly ? lastProductElementRef : null}
                 />
               );
             })}
-            {loading && (
-              <>
-                {[...Array(3)].map((_, i) => (
-                  <ProductSkeleton key={`skeleton-${i}`} />
-                ))}
-              </>
-            )}
+            {loading && [...Array(3)].map((_, i) => <ProductSkeleton key={`sk-${i}`} />)}
           </div>
         )}
       </div>

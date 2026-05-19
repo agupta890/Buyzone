@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Package, Truck, CheckCircle, Clock, XCircle, ChevronRight, MapPin, RotateCcw, AlertCircle } from "lucide-react";
+import React, { useEffect, useState, useContext } from "react";
+import { Package, Truck, CheckCircle, Clock, XCircle, ChevronRight, MapPin, RotateCcw, AlertCircle, RefreshCw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { CartContext } from "../context/Cart-context";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const OrderSkeleton = () => (
@@ -192,9 +194,46 @@ export const MyOrders = () => {
   const [modal, setModal] = useState(null); // { type: 'cancel'|'return', orderId, pickupDays }
   const [actionLoading, setActionLoading] = useState(false);
   const [successInfo, setSuccessInfo] = useState(null); // shown inside modal after action
+  const [expandedOrders, setExpandedOrders] = useState(new Set());
+  const [reorderingId, setReorderingId] = useState(null);
+  const { addToCart } = useContext(CartContext);
+  const navigate = useNavigate();
 
+  const toggleExpand = (orderId) => {
+    setExpandedOrders(prev => {
+      const next = new Set(prev);
+      next.has(orderId) ? next.delete(orderId) : next.add(orderId);
+      return next;
+    });
+  };
+
+  const handleReorder = async (orderId, items) => {
+    setReorderingId(orderId);
+    try {
+      for (const item of items) {
+        if (item.product) await addToCart(item.product);
+      }
+      navigate("/cart");
+    } finally {
+      setReorderingId(null);
+    }
+  };
+
+  const [activeFilter, setActiveFilter] = useState("All");
   const [visibleCount, setVisibleCount] = useState(5);
   const loaderRef = React.useRef(null);
+
+  const FILTERS = ["All", "Active", "Delivered", "Cancelled", "Returns"];
+
+  const filteredOrders = orders.filter(o => {
+    switch (activeFilter) {
+      case "Active": return ["Pending", "Paid", "Packing", "Dispatched"].includes(o.status);
+      case "Delivered": return o.status === "Delivered";
+      case "Cancelled": return o.status === "Cancelled";
+      case "Returns": return ["Return_Requested", "Returned"].includes(o.status);
+      default: return true;
+    }
+  });
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -221,7 +260,7 @@ export const MyOrders = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && visibleCount < orders.length) {
+        if (entries[0].isIntersecting && visibleCount < filteredOrders.length) {
           setVisibleCount((prev) => prev + 5);
         }
       },
@@ -230,7 +269,7 @@ export const MyOrders = () => {
 
     if (loaderRef.current) observer.observe(loaderRef.current);
     return () => { if (loaderRef.current) observer.unobserve(loaderRef.current); };
-  }, [orders.length, visibleCount]);
+  }, [filteredOrders.length, visibleCount]);
 
   const handleAction = async (reason) => {
     if (!modal) return;
@@ -308,12 +347,40 @@ export const MyOrders = () => {
       )}
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <header className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">My Orders</h1>
-            <p className="text-gray-500 text-sm">{orders.length} orders found</p>
+        <header className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">My Orders</h1>
+              <p className="text-gray-400 text-sm">{orders.length} total orders</p>
+            </div>
+            <a href="/shop-all" className="text-sm font-bold text-amber-600 hover:underline">Continue Shopping</a>
           </div>
-          <a href="/shop-all" className="text-sm font-bold text-blue-600 hover:underline">Continue Shopping</a>
+          {/* Filter Tabs */}
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {FILTERS.map(f => (
+              <button
+                key={f}
+                onClick={() => { setActiveFilter(f); setVisibleCount(5); }}
+                className={`flex-shrink-0 text-xs font-bold px-4 py-2 rounded-full border transition-all ${
+                  activeFilter === f
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                {f}
+                {f !== "All" && (() => {
+                  const count = orders.filter(o => {
+                    if (f === "Active") return ["Pending", "Paid", "Packing", "Dispatched"].includes(o.status);
+                    if (f === "Delivered") return o.status === "Delivered";
+                    if (f === "Cancelled") return o.status === "Cancelled";
+                    if (f === "Returns") return ["Return_Requested", "Returned"].includes(o.status);
+                    return false;
+                  }).length;
+                  return count > 0 ? <span className="ml-1.5 bg-gray-100 text-gray-600 text-[9px] px-1.5 py-0.5 rounded-full">{count}</span> : null;
+                })()}
+              </button>
+            ))}
+          </div>
         </header>
 
         {loading ? (
@@ -321,15 +388,19 @@ export const MyOrders = () => {
             <OrderSkeleton />
             <OrderSkeleton />
           </div>
-        ) : orders.length === 0 ? (
+        ) : filteredOrders.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-gray-200">
             <Package size={64} className="mx-auto text-gray-100 mb-4" />
-            <h3 className="text-xl font-bold text-gray-800">No orders placed yet</h3>
-            <a href="/shop-all" className="inline-block mt-6 bg-blue-600 text-white px-8 py-3 rounded-lg font-bold shadow-md">Shop Now</a>
+            <h3 className="text-xl font-bold text-gray-800">
+              {orders.length === 0 ? "No orders placed yet" : `No ${activeFilter.toLowerCase()} orders`}
+            </h3>
+            {orders.length === 0 && (
+              <a href="/shop-all" className="inline-block mt-6 bg-amber-500 text-white px-8 py-3 rounded-full font-bold shadow-md">Shop Now</a>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
-            {orders.slice(0, visibleCount).map((order) => {
+            {filteredOrders.slice(0, visibleCount).map((order) => {
               const { _id, items, total, status, createdAt, address_id } = order;
 
               return (
@@ -402,16 +473,88 @@ export const MyOrders = () => {
                           <RotateCcw size={11} /> Return Order
                         </button>
                       )}
-                      <button className="text-blue-600 font-bold hover:underline flex items-center gap-1">
-                        View Details <ChevronRight size={12} />
+                      {status === "Delivered" && (
+                        <button
+                          onClick={() => handleReorder(_id, items)}
+                          disabled={reorderingId === _id}
+                          className="font-bold text-green-600 border border-green-200 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-lg transition-colors flex items-center gap-1 disabled:opacity-60"
+                        >
+                          <RefreshCw size={11} className={reorderingId === _id ? "animate-spin" : ""} />
+                          {reorderingId === _id ? "Adding..." : "Buy Again"}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => toggleExpand(_id)}
+                        className="text-blue-600 font-bold hover:underline flex items-center gap-1"
+                      >
+                        {expandedOrders.has(_id) ? "Hide Details" : "View Details"}
+                        <ChevronRight size={12} className={`transition-transform ${expandedOrders.has(_id) ? "rotate-90" : ""}`} />
                       </button>
                     </div>
                   </div>
+
+                  {/* Expanded Details Panel */}
+                  {expandedOrders.has(_id) && (
+                    <div className="border-t border-gray-100 px-6 py-4 bg-gray-50/30 space-y-4">
+                      {/* All Items */}
+                      <div>
+                        <h5 className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3">Order Items</h5>
+                        <div className="space-y-2">
+                          {items.map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-3 bg-white rounded-lg p-3 border border-gray-100">
+                              <div className="w-12 h-12 bg-gray-50 rounded border border-gray-100 flex items-center justify-center p-1 flex-shrink-0">
+                                <img src={item.product?.image} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-bold text-gray-800 line-clamp-1">{item.product?.name}</p>
+                                <p className="text-[10px] text-gray-500 mt-0.5">Qty: {item.quantity} × ₹{item.price?.toLocaleString()}</p>
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 flex-shrink-0">₹{(item.quantity * item.price)?.toLocaleString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Address + Payment */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {address_id && (
+                          <div className="bg-white rounded-lg p-3 border border-gray-100">
+                            <h5 className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2">Delivery Address</h5>
+                            <p className="text-xs font-bold text-gray-800">{address_id.name}</p>
+                            {(address_id.house_no || address_id.street) && (
+                              <p className="text-[11px] text-gray-500 mt-0.5">
+                                {[address_id.house_no, address_id.street].filter(Boolean).join(", ")}
+                              </p>
+                            )}
+                            {address_id.city && <p className="text-[11px] text-gray-500">{address_id.city}{address_id.state ? `, ${address_id.state}` : ''} — {address_id.pincode}</p>}
+                            {address_id.phone && <p className="text-[11px] text-gray-500 mt-1">📞 {address_id.phone}</p>}
+                          </div>
+                        )}
+                        <div className="bg-white rounded-lg p-3 border border-gray-100">
+                          <h5 className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2">Order Summary</h5>
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[11px]">
+                              <span className="text-gray-500">Payment Method</span>
+                              <span className="font-bold text-gray-800">{order.payment_method || "—"}</span>
+                            </div>
+                            <div className="flex justify-between text-[11px]">
+                              <span className="text-gray-500">Order Total</span>
+                              <span className="font-bold text-gray-900">₹{total?.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between text-[11px]">
+                              <span className="text-gray-500">Placed On</span>
+                              <span className="font-bold text-gray-800">{new Date(createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
 
-            {visibleCount < orders.length && (
+            {visibleCount < filteredOrders.length && (
               <div ref={loaderRef} className="py-8 flex justify-center">
                 <div className="flex items-center gap-3 text-gray-400 font-medium text-sm">
                   <div className="w-5 h-5 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>

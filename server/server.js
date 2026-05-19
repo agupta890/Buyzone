@@ -47,16 +47,24 @@ const paymentRoutes = require('./router/payments-route');
 const ordersRouter = require('./router/orders-route');
 const cartRouter = require('./router/cart-router');
 const adminOrdersRoutes = require('./router/admin-orders');
+const adminStatsRoutes = require('./router/admin-stats');
+const categoriesRoutes = require('./router/categories-route');
 const addressRoutes = require("./router/address-route");
+const sliderRoutes = require("./router/slider-route");
+const flashSaleRoutes = require("./router/flash-sale-route");
 
 // ✅ Routes
 app.use('/api/auth', authRouter);
 app.use('/api/products', productRoutes);
-app.use('/api/payments', paymentRoutes); 
+app.use('/api/payments', paymentRoutes);
 app.use('/api/orders', ordersRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/admin/orders", adminOrdersRoutes);
+app.use("/api/admin/stats", adminStatsRoutes);
+app.use("/api/categories", categoriesRoutes);
 app.use("/api/address", addressRoutes);
+app.use("/api/slider", sliderRoutes);
+app.use("/api/flash-sale", flashSaleRoutes);
 
 // ✅ Health Check Route
 app.get('/', (req, res) => {

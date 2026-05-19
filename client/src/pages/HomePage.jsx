@@ -21,15 +21,7 @@ import FlashSale from "../components/FlashSale";
 import TrendingSection from "../components/TrendingSection";
 import WelcomePopup from "../components/WelcomePopup";
 
-// Import your slider images
-import img3 from "../assets/slide3.jpg";
-import img1 from "../assets/slide1.jpg";
-import img2 from "../assets/slide2.jpg";
-import img4 from "../assets/slide4.jpg";
-import img5 from "../assets/slide5.jpg";
-
-const images = [img1, img2, img3, img4, img5];
-
+const API_URL = import.meta.env.VITE_API_URL;
 const featureImg = "https://res.cloudinary.com/project01/image/upload/v1757774635/rgirblwu1mv1rh89xqgl.jpg";
 
 // ✅ Custom Hook for Scroll Reveal
@@ -56,8 +48,16 @@ const useReveal = () => {
 };
 
 export const HomePage = () => {
+  const [slides, setSlides] = useState([]);
   const [current, setCurrent] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/slider`)
+      .then((r) => r.json())
+      .then((data) => setSlides(Array.isArray(data) ? data : []))
+      .catch(() => setSlides([]));
+  }, []);
   const [uspRef, uspVisible] = useReveal();
   const [categoriesRef, categoriesVisible] = useReveal();
   const [promoRef, promoVisible] = useReveal();
@@ -66,9 +66,10 @@ export const HomePage = () => {
   const [trendingRef, trendingVisible] = useReveal();
 
   useEffect(() => {
+    if (slides.length === 0) return;
     const interval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % images.length);
-    }, 5000); 
+      setCurrent((prev) => (prev + 1) % slides.length);
+    }, 5000);
     
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 1000);
@@ -81,8 +82,8 @@ export const HomePage = () => {
     };
   }, []);
 
-  const goToPrev = () => setCurrent((prev) => (prev - 1 + images.length) % images.length);
-  const goToNext = () => setCurrent((prev) => (prev + 1) % images.length);
+  const goToPrev = () => setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
+  const goToNext = () => setCurrent((prev) => (prev + 1) % slides.length);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -101,39 +102,47 @@ export const HomePage = () => {
               className="flex w-full h-full transition-transform duration-1000 cubic-bezier(0.4, 0, 0.2, 1)"
               style={{ transform: `translateX(-${current * 100}%)` }}
             >
-              {images.map((img, index) => (
-                <div key={index} className="w-full h-full flex-shrink-0 relative">
+              {slides.map((slide, index) => (
+                <div key={slide._id || index} className="w-full h-full flex-shrink-0 relative">
                   <img
-                    src={img}
-                    alt={`Slide ${index + 1}`}
+                    src={slide.imageUrl}
+                    alt={slide.title || `Slide ${index + 1}`}
                     className="w-full h-full object-cover object-center"
                     loading={index === 0 ? "eager" : "lazy"}
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent"></div>
-                  
-                  {/* Content with per-slide animation */}
+
+                  {/* Per-slide content */}
                   <div className={`absolute top-1/2 left-6 sm:left-20 -translate-y-1/2 text-white max-w-[85%] sm:max-w-2xl space-y-4 sm:space-y-8 transition-all duration-1000 ${current === index ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"}`}>
-                    <div className="inline-flex items-center gap-2 bg-amber-500 text-black text-[10px] sm:text-xs font-black px-4 py-2 rounded-full uppercase tracking-[0.2em] shadow-lg animate-pulse">
-                      <Sparkles size={14} /> Seasonal Collection
-                    </div>
-                    <h2 className="text-4xl sm:text-7xl lg:text-9xl font-black leading-[0.9] drop-shadow-2xl tracking-tighter">
-                      Elevate Your <br />
-                      <span className="text-amber-400 italic">Everyday.</span>
-                    </h2>
-                    <p className="text-gray-200 text-sm sm:text-xl lg:text-2xl line-clamp-2 sm:line-clamp-none drop-shadow-md font-medium max-w-xl">
-                      Experience the perfect blend of artisan craftsmanship and modern aesthetics.
-                    </p>
+                    {slide.subtitle && (
+                      <div className="inline-flex items-center gap-2 bg-amber-500 text-black text-[10px] sm:text-xs font-black px-4 py-2 rounded-full uppercase tracking-[0.2em] shadow-lg animate-pulse">
+                        <Sparkles size={14} /> {slide.subtitle}
+                      </div>
+                    )}
+                    {slide.title && (
+                      <h2 className="text-4xl sm:text-7xl lg:text-9xl font-black leading-[0.9] drop-shadow-2xl tracking-tighter">
+                        {slide.title}
+                      </h2>
+                    )}
                     <div className="pt-4 sm:pt-6 flex flex-wrap gap-4">
-                      <Link to="/shop-all" className="inline-flex items-center gap-3 bg-white text-black px-8 sm:px-12 py-4 sm:py-5 rounded-full text-sm sm:text-lg font-black hover:bg-amber-400 transition-all transform hover:scale-105 active:scale-95 shadow-2xl">
+                      <Link
+                        to={slide.linkUrl || "/shop-all"}
+                        className="inline-flex items-center gap-3 bg-white text-black px-8 sm:px-12 py-4 sm:py-5 rounded-full text-sm sm:text-lg font-black hover:bg-amber-400 transition-all transform hover:scale-105 active:scale-95 shadow-2xl"
+                      >
                         Shop Now <ArrowRight size={22} />
                       </Link>
-                      <Link to="/categories" className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 sm:px-12 py-4 sm:py-5 rounded-full text-sm sm:text-lg font-black hover:bg-white hover:text-black transition-all">
+                      <Link to="/shop-all" className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 sm:px-12 py-4 sm:py-5 rounded-full text-sm sm:text-lg font-black hover:bg-white hover:text-black transition-all">
                         Categories
                       </Link>
                     </div>
                   </div>
                 </div>
               ))}
+
+              {/* Placeholder while loading */}
+              {slides.length === 0 && (
+                <div className="w-full h-full flex-shrink-0 bg-gray-200 animate-pulse" />
+              )}
             </div>
 
             <button
@@ -150,7 +159,7 @@ export const HomePage = () => {
             </button>
 
             <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 sm:gap-4">
-              {images.map((_, idx) => (
+              {slides.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setCurrent(idx)}

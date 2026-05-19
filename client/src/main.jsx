@@ -6,16 +6,22 @@ import 'react-toastify/dist/ReactToastify.css'; // make sure toast styles load
 import './index.css';
 import App from './App.jsx';
 import { CartProvider } from './context/Cart-context.jsx';
-import { AuthProvider } from './context/AuthContext.jsx'; // ⬅️ new
+import { AuthProvider } from './context/AuthContext.jsx';
+import { CategoriesProvider } from './context/CategoriesContext.jsx';
+import { FlashSaleProvider } from './context/FlashSaleContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <CartProvider>
-          <App />
-          <ToastContainer />
-        </CartProvider>
+        <CategoriesProvider>
+          <CartProvider>
+            <FlashSaleProvider>
+              <App />
+              <ToastContainer />
+            </FlashSaleProvider>
+          </CartProvider>
+        </CategoriesProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useRef, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { categories } from "../../data/categories";
+import { useCategories } from "../../context/CategoriesContext";
 import { CartContext } from "../../context/Cart-context";
 import { AuthContext } from "../../context/AuthContext";
 import { 
@@ -18,6 +18,7 @@ import { ProductSkeleton, TopProgressBar } from "../../components/LoadingCompone
 
 const CategoryPage = () => {
   const { category, subcategory } = useParams();
+  const { categories } = useCategories();
   const categoryData = categories[category];
 
   const [products, setProducts] = useState([]);

@@ -112,10 +112,30 @@ const logout = (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 };
 
+// Promote a user to admin (protected by ADMIN_SETUP_SECRET)
+const makeAdmin = async (req, res) => {
+  try {
+    const { email, secret } = req.body;
+    if (secret !== process.env.ADMIN_SETUP_SECRET) {
+      return res.status(403).json({ message: "Invalid secret" });
+    }
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (user.role === "admin") return res.status(400).json({ message: "User is already an admin" });
+    user.role = "admin";
+    await user.save();
+    res.json({ message: `${user.name} (${user.email}) is now an admin` });
+  } catch (err) {
+    console.error("makeAdmin error:", err);
+    res.status(500).json({ message: "Failed to promote user" });
+  }
+};
+
 module.exports = {
   home,
   getMe,
   register,
   login,
   logout,
+  makeAdmin,
 };

@@ -1,38 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { User, Mail, Shield, LogOut, Package, ArrowRight } from "lucide-react";
 const API_URL = import.meta.env.VITE_API_URL;
-
-
-const userProfileImage = "https://picsum.photos/200?random=2";
-const fallbackImage = "https://picsum.photos/200?random=3";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
-  const [formData, setFormData] = useState({ name: "", email: "", profilePhoto: null });
-  const [previewImage, setPreviewImage] = useState(null);
+  const [formData, setFormData] = useState({ name: "", email: "" });
+  const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/auth/me`, {
-          credentials: "include",
-        });
+        const res = await fetch(`${API_URL}/api/auth/me`, { credentials: "include" });
         const data = await res.json();
         if (res.ok) {
           setUser(data);
-          setFormData({
-            name: data.username || "",
-            email: data.email || "",
-            profilePhoto: null,
-          });
+          setFormData({ name: data.name || "", email: data.email || "" });
         } else {
-          toast.error("Failed to fetch user details", { position: "top-center" });
+          toast.error("Failed to fetch user details");
           navigate("/login");
         }
-      } catch (err) {
-        toast.error("Error fetching user details", { position: "top-center" });
+      } catch {
+        toast.error("Network error");
         navigate("/login");
       }
     };
@@ -41,143 +32,138 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch(`${API_URL}/api/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
-      toast.success("Logged out successfully", { position: "top-center" });
+      await fetch(`${API_URL}/api/auth/logout`, { method: "POST", credentials: "include" });
+      toast.success("Logged out successfully");
       navigate("/login?fromLogout=true");
-    } catch (err) {
-      toast.error("Error logging out", { position: "top-center" });
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "profilePhoto" && files[0]) {
-      setFormData({ ...formData, profilePhoto: files[0] });
-      setPreviewImage(URL.createObjectURL(files[0]));
-    } else {
-      setFormData({ ...formData, [name]: value });
+    } catch {
+      toast.error("Error logging out");
     }
   };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
+    setSaving(true);
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("username", formData.name);
-      formDataToSend.append("email", formData.email);
-      if (formData.profilePhoto) {
-        formDataToSend.append("profilePhoto", formData.profilePhoto);
-      }
-
       const res = await fetch(`${API_URL}/api/auth/update-profile`, {
         method: "PUT",
         credentials: "include",
-        body: formDataToSend,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: formData.name, email: formData.email }),
       });
-
       const data = await res.json();
       if (res.ok) {
         setUser(data);
-        toast.success("Profile updated successfully", { position: "top-center" });
-        setPreviewImage(null);
-        setFormData((prev) => ({ ...prev, profilePhoto: null }));
+        toast.success("Profile updated");
       } else {
-        toast.error(data.message || "Failed to update profile", { position: "top-center" });
+        toast.error(data.message || "Update failed");
       }
-    } catch (err) {
-      toast.error("Error updating profile: Network or server issue", { position: "top-center" });
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setSaving(false);
     }
   };
 
   if (!user) {
-    return <div className="w-10 h-10 bg-gray-300 rounded-full animate-pulse" />;
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-amber-500"></div>
+      </div>
+    );
   }
 
-  const profileImage = previewImage || user.profilePhoto || userProfileImage;
-  const displayName = user.name || "Guest";
-  const roleLabel = user.role
-    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
-    : "User";
+  const initials = (user.name || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+  const roleLabel = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "User";
 
   return (
-    <div className="flex flex-col items-center space-y-6 p-6">
-      {/* Profile Photo */}
-      <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-blue-600">
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/3177/3177465.png"
-          alt={displayName}
-          className="w-full h-full object-cover"
-          onError={(e) => (e.target.src = fallbackImage)}
-        />
+    <div className="min-h-screen bg-[#F8FAFC] py-10 px-4">
+      <div className="max-w-2xl mx-auto space-y-4">
+        {/* Header Card */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center gap-5">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500 flex items-center justify-center text-white text-2xl font-black flex-shrink-0 shadow-lg shadow-amber-500/20">
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl font-black text-gray-900">{user.name || "Guest"}</h2>
+            <p className="text-gray-400 text-sm truncate">{user.email}</p>
+            <span className={`inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${user.role === "admin" ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>
+              {roleLabel}
+            </span>
+          </div>
+          <Link
+            to="/orders"
+            className="flex-shrink-0 flex items-center gap-2 text-sm font-bold text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 px-4 py-2.5 rounded-xl transition-colors"
+          >
+            <Package size={15} /> My Orders
+          </Link>
+        </div>
+
+        {/* Edit Form */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Edit Profile</h3>
+          <form onSubmit={handleUpdateProfile} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-600 ml-1">Full Name</label>
+              <div className="relative">
+                <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={e => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full pl-9 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-400/20 focus:border-amber-400 transition-all"
+                  placeholder="Your full name"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-600 ml-1">Email Address</label>
+              <div className="relative">
+                <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={e => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full pl-9 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-400/20 focus:border-amber-400 transition-all"
+                  placeholder="your@email.com"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-600 ml-1">Role</label>
+              <div className="relative">
+                <Shield size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={roleLabel}
+                  disabled
+                  className="w-full pl-9 pr-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-sm font-medium text-gray-400 cursor-not-allowed"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="w-full bg-slate-900 hover:bg-amber-500 text-white font-black py-3 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+            >
+              {saving ? "Saving..." : "Save Changes"}
+              <ArrowRight size={16} />
+            </button>
+          </form>
+        </div>
+
+        {/* Logout */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 text-red-500 font-bold text-sm hover:bg-red-50 py-2.5 rounded-xl transition-colors"
+          >
+            <LogOut size={16} /> Logout
+          </button>
+        </div>
       </div>
-
-      {/* Role Badge */}
-      <span className="text-xs px-3 py-1 rounded-full bg-green-200 text-green-800">
-        {roleLabel}
-      </span>
-
-      {/* Details Form */}
-      <form onSubmit={handleUpdateProfile} className="w-full max-w-sm space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Profile Photo</label>
-          <input
-            type="file"
-            name="profilePhoto"
-            accept="image/jpeg,image/jpg,image/png"
-            onChange={handleChange}
-            className="w-full mt-1 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Username</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="Enter your username"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="Enter your email"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Role</label>
-          <input
-            type="text"
-            value={roleLabel}
-            disabled
-            className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md bg-gray-100"
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-        >
-          Save Changes
-        </button>
-      </form>
-
-      {/* Logout Button */}
-      <button
-        onClick={handleLogout}
-        className="mt-4 text-sm text-blue-600 hover:underline"
-      >
-        Logout
-      </button>
     </div>
   );
 };

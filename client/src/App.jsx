@@ -17,7 +17,7 @@ const AddressPage = lazy(() => import("./pages/AddressPage").then(module => ({ d
 const ShopAll = lazy(() => import("./pages/ShopAll"));
 const Profile = lazy(() => import("./components/profile/Profile"));
 
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute, { AdminRoute } from "./components/ProtectedRoute";
 
 // Loading component for Suspense
 const PageLoader = () => (
@@ -38,7 +38,14 @@ const App = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <Admin />
+              </AdminRoute>
+            }
+          />
 
           <Route path="/bestseller" element={<BestSeller />} />
           <Route path="/category/:category" element={<CategoryPage />} />
@@ -81,6 +88,21 @@ const App = () => {
               <ProtectedRoute>
                 <AddressPage />
               </ProtectedRoute>
+            }
+          />
+
+          {/* 404 */}
+          <Route
+            path="*"
+            element={
+              <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center gap-6 text-center px-4">
+                <div className="text-[120px] font-black text-slate-100 leading-none select-none">404</div>
+                <h1 className="text-3xl font-black text-slate-800 -mt-6">Page Not Found</h1>
+                <p className="text-slate-500 text-base max-w-md">The page you're looking for doesn't exist or has been moved.</p>
+                <a href="/" className="mt-2 px-8 py-3 bg-amber-500 text-white font-bold rounded-full hover:bg-amber-600 transition-all shadow-md">
+                  Back to Home
+                </a>
+              </div>
             }
           />
         </Routes>

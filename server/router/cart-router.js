@@ -1,5 +1,6 @@
 const express = require('express');
 const Cart = require('../models/cartSchema');
+const Product = require('../models/productSchema');
 const { protectUser } = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -22,6 +23,11 @@ router.get('/:userId', protectUser, async (req, res) => {
 router.post('/:userId/add', protectUser, async (req, res) => {
   try {
     const { productId, quantity } = req.body;
+
+    const product = await Product.findById(productId).lean();
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    if (product.stock <= 0) return res.status(400).json({ error: 'This product is out of stock' });
+
     let cart = await Cart.findOne({ user: req.params.userId });
 
     if (!cart) {

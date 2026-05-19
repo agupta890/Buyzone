@@ -1,13 +1,83 @@
 import { useEffect, useState } from "react";
-import { categories } from "../data/categories";
+import { useCategories } from "../context/CategoriesContext";
+import { useFlashSale } from "../context/FlashSaleContext";
+import { TrendingUp, TrendingDown, Package, ShoppingBag, Users, RotateCcw, AlertTriangle, BarChart2, Tag, Plus, Trash2, Edit2, X, Image, Zap, Clock, ChevronUp, ChevronDown } from "lucide-react";
 const API_URL = import.meta.env.VITE_API_URL;
 
 
 const API_PRODUCTS = `${API_URL}/api/products`;
-const API_ORDERS = `${API_URL}/api/admin/orders`; // admin route
+const API_ORDERS = `${API_URL}/api/admin/orders`;
+const API_STATS = `${API_URL}/api/admin/stats`;
+const API_SLIDER = `${API_URL}/api/slider`;
+const API_FLASH_SALE = `${API_URL}/api/flash-sale`;
+
+// ── KPI Card ──────────────────────────────────────────────
+const KpiCard = ({ title, value, sub, icon: Icon, color, change }) => (
+  <div className="bg-white rounded-xl border border-gray-100 p-5 flex items-start gap-4 shadow-sm">
+    <div className={`p-3 rounded-xl ${color}`}>
+      <Icon size={20} className="text-white" />
+    </div>
+    <div className="flex-1 min-w-0">
+      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{title}</p>
+      <p className="text-2xl font-black text-gray-900 leading-none">{value}</p>
+      {sub && <p className="text-xs text-gray-500 mt-1">{sub}</p>}
+    </div>
+    {change !== undefined && change !== null && (
+      <div className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full ${change >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"}`}>
+        {change >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+        {Math.abs(change)}%
+      </div>
+    )}
+  </div>
+);
+
+// ── Mini Bar Chart ─────────────────────────────────────────
+const MiniBarChart = ({ data, label }) => {
+  const max = Math.max(...data.map(d => d.revenue), 1);
+  const last7 = data.slice(-7);
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+      <h3 className="text-sm font-black text-gray-700 mb-4">{label}</h3>
+      <div className="flex items-end gap-1 h-24">
+        {last7.map((d, i) => (
+          <div key={i} className="flex-1 flex flex-col items-center gap-1">
+            <div
+              className="w-full bg-amber-400 rounded-t transition-all"
+              style={{ height: `${Math.max((d.revenue / max) * 80, 2)}px` }}
+              title={`₹${d.revenue.toLocaleString()}`}
+            />
+            <span className="text-[8px] text-gray-400 font-medium">{d.date.slice(5)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ── Status Badge ───────────────────────────────────────────
+const StatusBadge = ({ status }) => {
+  const map = {
+    Delivered: "bg-emerald-50 text-emerald-700",
+    Dispatched: "bg-blue-50 text-blue-700",
+    Packing: "bg-orange-50 text-orange-700",
+    Cancelled: "bg-red-50 text-red-700",
+    Return_Requested: "bg-orange-50 text-orange-700",
+    Returned: "bg-purple-50 text-purple-700",
+    Pending: "bg-yellow-50 text-yellow-700",
+    Paid: "bg-yellow-50 text-yellow-700",
+  };
+  const label = status === "Return_Requested" ? "Return Req." : status;
+  return (
+    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${map[status] || "bg-gray-50 text-gray-600"}`}>
+      {label}
+    </span>
+  );
+};
 
 export const Admin = () => {
-  const [activeTab, setActiveTab] = useState("create");
+  const { categories, catArray, setCatArray, setCategories } = useCategories();
+  const { setFlashSale: setGlobalFlashSale } = useFlashSale();
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -33,6 +103,178 @@ export const Admin = () => {
   const [uploadKey, setUploadKey] = useState(Date.now());
   const [editProduct, setEditProduct] = useState(null); // product being edited
   const [editSaving, setEditSaving] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  // ── Category management ──
+  const [catSaving, setCatSaving] = useState(false);
+  const [editCat, setEditCat] = useState(null);
+  const [newCatForm, setNewCatForm] = useState({ slug: "", title: "", subtitle: "", image: "", icon: "ShoppingBag", color: "from-amber-500 to-orange-400", subcategories: "" });
+  const [newSubInput, setNewSubInput] = useState("");
+  const API_CATS = `${API_URL}/api/categories`;
+
+  // ── Banners (slider) state ──
+  const [banners, setBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(false);
+  const [editBanner, setEditBanner] = useState(null);
+  const [bannerSaving, setBannerSaving] = useState(false);
+  const [newBannerForm, setNewBannerForm] = useState({ imageUrl: "", title: "", subtitle: "", linkUrl: "/shop-all", order: 0, isActive: true });
+
+  // ── Flash Sale state ──
+  const [localFlashSale, setLocalFlashSale] = useState(null);
+  const [flashSaving, setFlashSaving] = useState(false);
+  const [newRule, setNewRule] = useState({ type: "all", target: "", targetName: "", discount: 10 });
+
+  const refreshCats = async () => {
+    const res = await fetch(API_CATS);
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      setCatArray(data);
+      setCategories(data.reduce((acc, c) => { acc[c.slug] = c; return acc; }, {}));
+    }
+  };
+
+  const handleCreateCat = async (e) => {
+    e.preventDefault();
+    setCatSaving(true);
+    try {
+      const payload = { ...newCatForm, subcategories: newCatForm.subcategories.split(",").map(s => s.trim()).filter(Boolean) };
+      const res = await fetch(API_CATS, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to create");
+      await refreshCats();
+      setNewCatForm({ slug: "", title: "", subtitle: "", image: "", icon: "ShoppingBag", color: "from-amber-500 to-orange-400", subcategories: "" });
+    } catch (err) { alert(err.message); }
+    finally { setCatSaving(false); }
+  };
+
+  const handleSaveCat = async (e) => {
+    e.preventDefault();
+    setCatSaving(true);
+    try {
+      const res = await fetch(`${API_CATS}/${editCat.slug}`, { method: "PATCH", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(editCat) });
+      if (!res.ok) throw new Error("Failed to save");
+      await refreshCats();
+      setEditCat(null);
+    } catch (err) { alert(err.message); }
+    finally { setCatSaving(false); }
+  };
+
+  const handleDeleteCat = async (slug) => {
+    if (!window.confirm(`Delete category "${slug}"? Products in this category will not be deleted.`)) return;
+    try {
+      await fetch(`${API_CATS}/${slug}`, { method: "DELETE", credentials: "include" });
+      await refreshCats();
+    } catch { alert("Delete failed"); }
+  };
+
+  const handleAddSubcategory = async (cat, sub) => {
+    if (!sub.trim()) return;
+    const updated = [...(cat.subcategories || []), sub.trim()];
+    await fetch(`${API_CATS}/${cat.slug}`, { method: "PATCH", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subcategories: updated }) });
+    await refreshCats();
+  };
+
+  const handleRemoveSubcategory = async (cat, sub) => {
+    const updated = cat.subcategories.filter(s => s !== sub);
+    await fetch(`${API_CATS}/${cat.slug}`, { method: "PATCH", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subcategories: updated }) });
+    await refreshCats();
+  };
+
+  // ── Banner helpers ──────────────────────────────────────────
+  const fetchBanners = async () => {
+    setBannersLoading(true);
+    try {
+      const res = await fetch(`${API_SLIDER}/all`, { credentials: "include" });
+      const data = await res.json();
+      if (Array.isArray(data)) setBanners(data);
+    } catch { /* silently fail */ }
+    finally { setBannersLoading(false); }
+  };
+
+  const handleBannerImageFile = (e, setter) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert("Image must be under 5MB"); return; }
+    const reader = new FileReader();
+    reader.onloadend = () => setter(prev => ({ ...prev, imageUrl: reader.result }));
+    reader.readAsDataURL(file);
+  };
+
+  const handleCreateBanner = async (e) => {
+    e.preventDefault();
+    setBannerSaving(true);
+    try {
+      const res = await fetch(API_SLIDER, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newBannerForm) });
+      if (!res.ok) throw new Error("Failed to create");
+      await fetchBanners();
+      setNewBannerForm({ imageUrl: "", title: "", subtitle: "", linkUrl: "/shop-all", order: banners.length, isActive: true });
+    } catch (err) { alert(err.message); }
+    finally { setBannerSaving(false); }
+  };
+
+  const handleSaveBanner = async (e) => {
+    e.preventDefault();
+    setBannerSaving(true);
+    try {
+      const res = await fetch(`${API_SLIDER}/${editBanner._id}`, { method: "PATCH", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(editBanner) });
+      if (!res.ok) throw new Error("Failed to save");
+      await fetchBanners();
+      setEditBanner(null);
+    } catch (err) { alert(err.message); }
+    finally { setBannerSaving(false); }
+  };
+
+  const handleDeleteBanner = async (id) => {
+    if (!window.confirm("Delete this slide?")) return;
+    await fetch(`${API_SLIDER}/${id}`, { method: "DELETE", credentials: "include" });
+    await fetchBanners();
+  };
+
+  const handleToggleBannerActive = async (banner) => {
+    await fetch(`${API_SLIDER}/${banner._id}`, { method: "PATCH", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ isActive: !banner.isActive }) });
+    await fetchBanners();
+  };
+
+  const handleMoveBanner = async (banner, dir) => {
+    const newOrder = banner.order + dir;
+    await fetch(`${API_SLIDER}/${banner._id}`, { method: "PATCH", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order: newOrder }) });
+    await fetchBanners();
+  };
+
+  // ── Flash Sale helpers ───────────────────────────────────────
+  const fetchFlashSale = async () => {
+    try {
+      const res = await fetch(API_FLASH_SALE, { credentials: "include" });
+      const data = await res.json();
+      setLocalFlashSale(data);
+    } catch { /* silently fail */ }
+  };
+
+  const saveFlashSale = async (updates) => {
+    setFlashSaving(true);
+    try {
+      const merged = { ...localFlashSale, ...updates };
+      const res = await fetch(API_FLASH_SALE, { method: "PUT", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(merged) });
+      const data = await res.json();
+      setLocalFlashSale(data);
+      setGlobalFlashSale(data); // sync global context so ProductCard updates live
+    } catch (err) { alert("Failed to save flash sale"); }
+    finally { setFlashSaving(false); }
+  };
+
+  const handleAddRule = () => {
+    if (!newRule.discount || newRule.discount < 1) return;
+    if ((newRule.type !== "all") && !newRule.target.trim()) { alert("Please enter a target (category slug or product ID)"); return; }
+    const updated = [...(localFlashSale?.rules || []), { ...newRule }];
+    saveFlashSale({ rules: updated });
+    setNewRule({ type: "all", target: "", targetName: "", discount: 10 });
+  };
+
+  const handleRemoveRule = (idx) => {
+    const updated = localFlashSale.rules.filter((_, i) => i !== idx);
+    saveFlashSale({ rules: updated });
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -79,9 +321,26 @@ export const Admin = () => {
     }
   };
 
+  // Fetch Stats
+  const fetchStats = async () => {
+    setStatsLoading(true);
+    try {
+      const res = await fetch(API_STATS, { credentials: "include" });
+      const data = await res.json();
+      if (res.ok) setStats(data);
+    } catch (err) {
+      console.error("Stats fetch error:", err);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
     fetchOrders();
+    fetchStats();
+    fetchBanners();
+    fetchFlashSale();
   }, []);
 
   // Add Product
@@ -254,8 +513,8 @@ export const Admin = () => {
                 required
               >
                 <option value="">Select Category</option>
-                {Object.keys(categories).map(k => (
-                  <option key={k} value={k}>{categories[k].title}</option>
+                {catArray.map(c => (
+                  <option key={c.slug} value={c.slug}>{c.title}</option>
                 ))}
               </select>
               <select
@@ -299,11 +558,19 @@ export const Admin = () => {
       )}
       {/* Sidebar */}
       <aside className="w-full md:w-64 bg-white shadow-md p-6 space-y-4 md:min-h-screen">
-        <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
+        <h2 className="text-2xl font-bold mb-6">BuyZone Admin</h2>
         <nav className="space-y-2">
           <button
+            className={`flex items-center gap-2 w-full text-left px-4 py-2 rounded font-semibold ${
+              activeTab === "dashboard" ? "bg-amber-500 text-white" : "hover:bg-gray-100"
+            }`}
+            onClick={() => setActiveTab("dashboard")}
+          >
+            <BarChart2 size={16} /> Dashboard
+          </button>
+          <button
             className={`block w-full text-left px-4 py-2 rounded ${
-              activeTab === "create" ? "bg-yellow-500 text-white" : "hover:bg-gray-100"
+              activeTab === "create" ? "bg-amber-500 text-white" : "hover:bg-gray-100"
             }`}
             onClick={() => setActiveTab("create")}
           >
@@ -318,43 +585,245 @@ export const Admin = () => {
               }}
               className={`block w-full text-left px-4 py-2 rounded font-semibold ${
                 activeTab === "products" && !selectedCategory
-                  ? "bg-yellow-500 text-white"
+                  ? "bg-amber-500 text-white"
                   : "text-gray-700 hover:bg-gray-100"
               }`}
             >
               📦 All Products
             </button>
-            {Object.keys(categories).map((catKey) => (
+            {catArray.map((cat) => (
               <button
-                key={catKey}
+                key={cat.slug}
                 onClick={() => {
                   setActiveTab("products");
-                  setSelectedCategory(catKey);
+                  setSelectedCategory(cat.slug);
                   setSelectedSubcategory(null);
                 }}
                 className={`block w-full text-left px-6 py-2 rounded mb-1 ${
-                  selectedCategory === catKey
-                    ? "bg-yellow-500 text-white font-bold"
+                  selectedCategory === cat.slug
+                    ? "bg-amber-500 text-white font-bold"
                     : "hover:bg-gray-100"
                 }`}
               >
-                {categories[catKey].title}
+                {cat.title}
               </button>
             ))}
           </div>
           <button
             className={`block w-full text-left px-4 py-2 rounded ${
-              activeTab === "orders" ? "bg-yellow-500 text-white" : "hover:bg-gray-100"
+              activeTab === "orders" ? "bg-amber-500 text-white" : "hover:bg-gray-100"
             }`}
             onClick={() => setActiveTab("orders")}
           >
             🧾 Orders
+          </button>
+          <button
+            className={`flex items-center gap-2 w-full text-left px-4 py-2 rounded font-semibold ${
+              activeTab === "categories" ? "bg-amber-500 text-white" : "hover:bg-gray-100"
+            }`}
+            onClick={() => setActiveTab("categories")}
+          >
+            <Tag size={16} /> Categories
+          </button>
+          <button
+            className={`flex items-center gap-2 w-full text-left px-4 py-2 rounded font-semibold ${
+              activeTab === "banners" ? "bg-amber-500 text-white" : "hover:bg-gray-100"
+            }`}
+            onClick={() => setActiveTab("banners")}
+          >
+            <Image size={16} /> Banners / Slider
+          </button>
+          <button
+            className={`flex items-center gap-2 w-full text-left px-4 py-2 rounded font-semibold ${
+              activeTab === "flashsale" ? "bg-amber-500 text-white" : "hover:bg-gray-100"
+            }`}
+            onClick={() => setActiveTab("flashsale")}
+          >
+            <Zap size={16} /> Flash Sale
           </button>
         </nav>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 p-4 sm:p-6 overflow-x-auto">
+        {/* Dashboard */}
+        {activeTab === "dashboard" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-black text-gray-900">Analytics Overview</h2>
+              <button onClick={fetchStats} className="text-xs font-bold text-amber-600 hover:underline">
+                Refresh
+              </button>
+            </div>
+
+            {statsLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-amber-500"></div>
+              </div>
+            ) : stats ? (
+              <>
+                {/* KPI Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                  <KpiCard
+                    title="Total Revenue"
+                    value={`₹${stats.kpi.totalRevenue.toLocaleString()}`}
+                    sub={`This month: ₹${stats.kpi.thisMonthRevenue.toLocaleString()}`}
+                    icon={TrendingUp}
+                    color="bg-amber-500"
+                    change={stats.kpi.revenueChange}
+                  />
+                  <KpiCard
+                    title="Total Orders"
+                    value={stats.kpi.totalOrders}
+                    sub={`Pending: ${stats.kpi.statusCounts['Pending'] || 0} · Delivered: ${stats.kpi.statusCounts['Delivered'] || 0}`}
+                    icon={ShoppingBag}
+                    color="bg-blue-500"
+                  />
+                  <KpiCard
+                    title="Active Customers"
+                    value={stats.kpi.activeCustomers}
+                    sub="Ordered this month"
+                    icon={Users}
+                    color="bg-emerald-500"
+                  />
+                  <KpiCard
+                    title="Return Requests"
+                    value={stats.kpi.returnRequestCount}
+                    sub="Awaiting review"
+                    icon={RotateCcw}
+                    color={stats.kpi.returnRequestCount > 0 ? "bg-orange-500" : "bg-gray-400"}
+                  />
+                </div>
+
+                {/* Charts Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <MiniBarChart data={stats.revenueChart} label="Revenue — Last 7 Days" />
+
+                  {/* Top Products */}
+                  <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                    <h3 className="text-sm font-black text-gray-700 mb-4">Top 5 Products by Units Sold</h3>
+                    <div className="space-y-3">
+                      {stats.topProducts.length === 0 && <p className="text-xs text-gray-400">No data yet</p>}
+                      {stats.topProducts.map((p, i) => {
+                        const max = stats.topProducts[0]?.units || 1;
+                        return (
+                          <div key={i} className="flex items-center gap-3">
+                            <span className="text-xs font-black text-gray-400 w-4">{i + 1}</span>
+                            <div className="flex-1">
+                              <div className="flex justify-between text-xs mb-1">
+                                <span className="font-bold text-gray-700 truncate max-w-[200px]">{p.name}</span>
+                                <span className="text-gray-500 font-medium">{p.units} units</span>
+                              </div>
+                              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-amber-400 rounded-full transition-all"
+                                  style={{ width: `${(p.units / max) * 100}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* Recent Orders */}
+                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div className="px-5 py-4 border-b border-gray-50">
+                      <h3 className="text-sm font-black text-gray-700">Recent Orders</h3>
+                    </div>
+                    <div className="divide-y divide-gray-50">
+                      {stats.recentOrders.map(o => (
+                        <div key={o._id} className="flex items-center gap-3 px-5 py-3">
+                          <div className="w-8 h-8 bg-gray-50 rounded border border-gray-100 flex-shrink-0 overflow-hidden">
+                            {o.firstItem?.image && (
+                              <img src={o.firstItem.image} alt="" className="w-full h-full object-contain mix-blend-multiply" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-gray-800 truncate">{o.user?.name || "—"}</p>
+                            <p className="text-[10px] text-gray-400">#{o._id.slice(-6).toUpperCase()} · {o.itemCount} item{o.itemCount !== 1 ? "s" : ""}</p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-xs font-bold text-gray-900">₹{o.total?.toLocaleString()}</p>
+                            <StatusBadge status={o.status} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Low Stock + Return Requests */}
+                  <div className="space-y-4">
+                    {/* Low Stock */}
+                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                      <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
+                        <AlertTriangle size={14} className="text-orange-500" />
+                        <h3 className="text-sm font-black text-gray-700">Low Stock Alerts</h3>
+                        <span className="ml-auto text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
+                          {stats.lowStockProducts.length} items
+                        </span>
+                      </div>
+                      <div className="divide-y divide-gray-50 max-h-48 overflow-y-auto">
+                        {stats.lowStockProducts.length === 0 ? (
+                          <p className="text-xs text-gray-400 px-5 py-4">All products are well-stocked</p>
+                        ) : stats.lowStockProducts.map(p => (
+                          <div key={p._id} className="flex items-center gap-3 px-5 py-3">
+                            <div className="w-8 h-8 bg-gray-50 rounded flex-shrink-0 overflow-hidden border border-gray-100">
+                              <img src={p.image} alt="" className="w-full h-full object-contain mix-blend-multiply" />
+                            </div>
+                            <p className="flex-1 text-xs font-bold text-gray-700 truncate">{p.name}</p>
+                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${p.stock === 0 ? "bg-red-50 text-red-600" : "bg-orange-50 text-orange-600"}`}>
+                              {p.stock === 0 ? "Out of stock" : `${p.stock} left`}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Return Requests */}
+                    {stats.returnRequests.length > 0 && (
+                      <div className="bg-white rounded-xl border border-orange-100 shadow-sm overflow-hidden">
+                        <div className="px-5 py-4 border-b border-orange-50 flex items-center gap-2">
+                          <RotateCcw size={14} className="text-orange-500" />
+                          <h3 className="text-sm font-black text-gray-700">Open Return Requests</h3>
+                          <span className="ml-auto text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
+                            {stats.returnRequests.length}
+                          </span>
+                        </div>
+                        <div className="divide-y divide-gray-50 max-h-40 overflow-y-auto">
+                          {stats.returnRequests.map(r => (
+                            <div key={r._id} className="flex items-center gap-3 px-5 py-3">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-bold text-gray-800">{r.user?.name || "—"}</p>
+                                {r.return_reason && <p className="text-[10px] text-gray-400 truncate">"{r.return_reason}"</p>}
+                              </div>
+                              <div className="text-right flex-shrink-0">
+                                <p className="text-xs font-bold text-gray-900">₹{r.total?.toLocaleString()}</p>
+                                <button
+                                  onClick={() => { setActiveTab("orders"); setDateFilter("All"); }}
+                                  className="text-[10px] text-orange-600 font-bold hover:underline"
+                                >
+                                  Review →
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <p className="text-gray-400 text-sm">Failed to load stats.</p>
+            )}
+          </div>
+        )}
+
         {/* Create Product */}
         {activeTab === "create" && (
           <form
@@ -416,9 +885,9 @@ export const Admin = () => {
               required
             >
               <option value="">Select Category</option>
-              {Object.keys(categories).map((catKey) => (
-                <option key={catKey} value={catKey}>
-                  {categories[catKey].title}
+              {catArray.map((cat) => (
+                <option key={cat.slug} value={cat.slug}>
+                  {cat.title}
                 </option>
               ))}
             </select>
@@ -426,13 +895,11 @@ export const Admin = () => {
               value={formData.subcategory}
               onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
               className="border p-2 rounded w-full"
-              disabled={
-                !formData.category || categories[formData.category]?.subcategories?.length === 0
-              }
+              disabled={!formData.category || !(categories[formData.category]?.subcategories?.length > 0)}
             >
               <option value="">Select Sub Category</option>
               {formData.category &&
-                categories[formData.category]?.subcategories?.map((sub) => (
+                (categories[formData.category]?.subcategories || []).map((sub) => (
                   <option key={sub} value={sub}>
                     {sub}
                   </option>
@@ -498,7 +965,7 @@ export const Admin = () => {
             {selectedCategory && (
               <div className="flex gap-2 mb-4 flex-wrap">
                 <span className="font-semibold mr-2">Subcategories:</span>
-                {categories[selectedCategory]?.subcategories?.map((sub) => (
+                {(categories[selectedCategory]?.subcategories || []).map((sub) => (
                   <button
                     key={sub}
                     onClick={() => setSelectedSubcategory(sub)}
@@ -574,6 +1041,112 @@ export const Admin = () => {
                     </div>
                   </div>
                 ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Categories ───────────────────────────────────────── */}
+        {activeTab === "categories" && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-black text-gray-900">Manage Categories</h2>
+
+            {/* Edit modal */}
+            {editCat && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-black">Edit "{editCat.title}"</h3>
+                    <button onClick={() => setEditCat(null)} className="text-gray-400 hover:text-black"><X size={20} /></button>
+                  </div>
+                  <form onSubmit={handleSaveCat} className="space-y-3">
+                    <input className="w-full border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Title *" required value={editCat.title} onChange={e => setEditCat({ ...editCat, title: e.target.value })} />
+                    <input className="w-full border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Subtitle" value={editCat.subtitle || ""} onChange={e => setEditCat({ ...editCat, subtitle: e.target.value })} />
+                    <input className="w-full border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Image URL" value={editCat.image || ""} onChange={e => setEditCat({ ...editCat, image: e.target.value })} />
+                    <input className="w-full border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Icon (lucide name e.g. Home, Sparkles)" value={editCat.icon || ""} onChange={e => setEditCat({ ...editCat, icon: e.target.value })} />
+                    <input className="w-full border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Tailwind gradient e.g. from-amber-500 to-orange-400" value={editCat.color || ""} onChange={e => setEditCat({ ...editCat, color: e.target.value })} />
+
+                    {/* Subcategories */}
+                    <div>
+                      <p className="text-xs font-bold text-gray-500 mb-2">Subcategories</p>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {(editCat.subcategories || []).map(s => (
+                          <span key={s} className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 text-xs font-bold px-2 py-1 rounded-full">
+                            {s}
+                            <button type="button" onClick={() => setEditCat({ ...editCat, subcategories: editCat.subcategories.filter(x => x !== s) })} className="text-gray-400 hover:text-red-500"><X size={10} /></button>
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <input id="editSubInput" className="flex-1 border border-gray-200 rounded-xl p-2 text-sm" placeholder="Add subcategory" onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); const v = e.target.value.trim(); if (v) { setEditCat({ ...editCat, subcategories: [...(editCat.subcategories || []), v] }); e.target.value = ""; }}}} />
+                        <button type="button" onClick={() => { const inp = document.getElementById("editSubInput"); const v = inp.value.trim(); if (v) { setEditCat({ ...editCat, subcategories: [...(editCat.subcategories || []), v] }); inp.value = ""; }}} className="bg-gray-100 hover:bg-gray-200 px-3 rounded-xl text-sm font-bold">Add</button>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                      <button type="button" onClick={() => setEditCat(null)} className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm font-bold hover:bg-gray-50">Cancel</button>
+                      <button type="submit" disabled={catSaving} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white rounded-xl py-2.5 text-sm font-bold disabled:opacity-60">
+                        {catSaving ? "Saving..." : "Save Changes"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* Create new category */}
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <h3 className="text-sm font-black text-gray-700 mb-4 flex items-center gap-2"><Plus size={15} /> Add New Category</h3>
+              <form onSubmit={handleCreateCat} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input required className="border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Slug (e.g. kitchen-items) *" value={newCatForm.slug} onChange={e => setNewCatForm({ ...newCatForm, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })} />
+                <input required className="border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Title (e.g. Kitchen Items) *" value={newCatForm.title} onChange={e => setNewCatForm({ ...newCatForm, title: e.target.value })} />
+                <input className="border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Subtitle" value={newCatForm.subtitle} onChange={e => setNewCatForm({ ...newCatForm, subtitle: e.target.value })} />
+                <input className="border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Image URL" value={newCatForm.image} onChange={e => setNewCatForm({ ...newCatForm, image: e.target.value })} />
+                <input className="border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Icon (Home, Sparkles, Book…)" value={newCatForm.icon} onChange={e => setNewCatForm({ ...newCatForm, icon: e.target.value })} />
+                <input className="border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Gradient (from-X-500 to-Y-400)" value={newCatForm.color} onChange={e => setNewCatForm({ ...newCatForm, color: e.target.value })} />
+                <input className="sm:col-span-2 border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Subcategories (comma-separated e.g. Pots, Pans, Cutlery)" value={newCatForm.subcategories} onChange={e => setNewCatForm({ ...newCatForm, subcategories: e.target.value })} />
+                <button type="submit" disabled={catSaving} className="sm:col-span-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl transition-colors disabled:opacity-60">
+                  {catSaving ? "Creating..." : "Create Category"}
+                </button>
+              </form>
+            </div>
+
+            {/* Existing categories */}
+            <div className="space-y-3">
+              {catArray.map(cat => (
+                <div key={cat.slug} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-start gap-4">
+                  {cat.image && (
+                    <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-gray-50">
+                      <img src={cat.image} alt={cat.title} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="font-black text-gray-900">{cat.title}</h4>
+                      <code className="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{cat.slug}</code>
+                    </div>
+                    {cat.subtitle && <p className="text-xs text-gray-400 mt-0.5">{cat.subtitle}</p>}
+
+                    {/* Subcategories inline */}
+                    <div className="flex flex-wrap gap-1.5 mt-2 items-center">
+                      {(cat.subcategories || []).map(s => (
+                        <span key={s} className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-100">
+                          {s}
+                          <button onClick={() => handleRemoveSubcategory(cat, s)} className="text-amber-400 hover:text-red-500 transition-colors"><X size={9} /></button>
+                        </span>
+                      ))}
+                      {/* Quick add subcategory */}
+                      <form onSubmit={e => { e.preventDefault(); const val = e.target.sub.value.trim(); if (val) { handleAddSubcategory(cat, val); e.target.reset(); }}} className="inline-flex items-center gap-1">
+                        <input name="sub" className="text-[10px] border border-dashed border-gray-300 rounded-full px-2 py-0.5 w-24 focus:outline-none focus:border-amber-400" placeholder="+ add sub" />
+                        <button type="submit" className="text-[10px] font-bold text-amber-600 hover:text-amber-700">Add</button>
+                      </form>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button onClick={() => setEditCat({ ...cat })} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 size={15} /></button>
+                    <button onClick={() => handleDeleteCat(cat.slug)} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={15} /></button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -708,6 +1281,296 @@ export const Admin = () => {
                 ))}
               </div>
             )}
+          </div>
+        )}
+        {/* ── Banners / Slider ─────────────────────────────────── */}
+        {activeTab === "banners" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-black text-gray-900">Banners / Slider</h2>
+              <button onClick={fetchBanners} className="text-xs font-bold text-amber-600 hover:underline">Refresh</button>
+            </div>
+
+            {/* Edit Banner Modal */}
+            {editBanner && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-black">Edit Slide</h3>
+                    <button onClick={() => setEditBanner(null)}><X size={20} className="text-gray-400" /></button>
+                  </div>
+                  <form onSubmit={handleSaveBanner} className="space-y-3">
+                    {/* Image preview + upload */}
+                    {editBanner.imageUrl && (
+                      <img src={editBanner.imageUrl} alt="preview" className="w-full h-36 object-cover rounded-xl" />
+                    )}
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-500">Image URL</label>
+                      <input className="w-full border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="https://..." value={editBanner.imageUrl} onChange={e => setEditBanner({ ...editBanner, imageUrl: e.target.value })} />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-500">Or upload image</label>
+                      <input type="file" accept="image/*" onChange={e => handleBannerImageFile(e, setEditBanner)} className="text-sm w-full" />
+                    </div>
+                    <input className="w-full border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Title (e.g. Elevate Your Everyday)" value={editBanner.title || ""} onChange={e => setEditBanner({ ...editBanner, title: e.target.value })} />
+                    <input className="w-full border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Subtitle / Badge text" value={editBanner.subtitle || ""} onChange={e => setEditBanner({ ...editBanner, subtitle: e.target.value })} />
+                    <input className="w-full border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Link URL (e.g. /shop-all)" value={editBanner.linkUrl || ""} onChange={e => setEditBanner({ ...editBanner, linkUrl: e.target.value })} />
+                    <div className="flex items-center gap-3">
+                      <input type="number" min="0" className="w-24 border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Order" value={editBanner.order ?? 0} onChange={e => setEditBanner({ ...editBanner, order: Number(e.target.value) })} />
+                      <label className="flex items-center gap-2 text-sm font-bold cursor-pointer">
+                        <input type="checkbox" checked={editBanner.isActive} onChange={e => setEditBanner({ ...editBanner, isActive: e.target.checked })} />
+                        Active
+                      </label>
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                      <button type="button" onClick={() => setEditBanner(null)} className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm font-bold hover:bg-gray-50">Cancel</button>
+                      <button type="submit" disabled={bannerSaving} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white rounded-xl py-2.5 text-sm font-bold disabled:opacity-60">
+                        {bannerSaving ? "Saving..." : "Save Slide"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* Add New Slide */}
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <h3 className="text-sm font-black text-gray-700 mb-4 flex items-center gap-2"><Plus size={15} /> Add New Slide</h3>
+              <form onSubmit={handleCreateBanner} className="space-y-3">
+                {newBannerForm.imageUrl && (
+                  <img src={newBannerForm.imageUrl} alt="preview" className="w-full h-36 object-cover rounded-xl" />
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="sm:col-span-2 space-y-1">
+                    <label className="text-xs font-bold text-gray-500">Image URL</label>
+                    <input required={!newBannerForm.imageUrl} className="w-full border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="https://..." value={newBannerForm.imageUrl} onChange={e => setNewBannerForm({ ...newBannerForm, imageUrl: e.target.value })} />
+                  </div>
+                  <div className="sm:col-span-2 space-y-1">
+                    <label className="text-xs font-bold text-gray-500">Or upload image (max 5MB)</label>
+                    <input type="file" accept="image/*" onChange={e => handleBannerImageFile(e, setNewBannerForm)} className="text-sm w-full" />
+                  </div>
+                  <input className="border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Title" value={newBannerForm.title} onChange={e => setNewBannerForm({ ...newBannerForm, title: e.target.value })} />
+                  <input className="border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Subtitle / Badge" value={newBannerForm.subtitle} onChange={e => setNewBannerForm({ ...newBannerForm, subtitle: e.target.value })} />
+                  <input className="border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Link URL (e.g. /shop-all)" value={newBannerForm.linkUrl} onChange={e => setNewBannerForm({ ...newBannerForm, linkUrl: e.target.value })} />
+                  <input type="number" min="0" className="border border-gray-200 rounded-xl p-2.5 text-sm" placeholder="Order" value={newBannerForm.order} onChange={e => setNewBannerForm({ ...newBannerForm, order: Number(e.target.value) })} />
+                </div>
+                <button type="submit" disabled={bannerSaving || !newBannerForm.imageUrl} className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl transition-colors disabled:opacity-60">
+                  {bannerSaving ? "Adding..." : "Add Slide"}
+                </button>
+              </form>
+            </div>
+
+            {/* Existing Slides */}
+            {bannersLoading ? (
+              <div className="flex justify-center py-10"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-amber-500"></div></div>
+            ) : (
+              <div className="space-y-3">
+                {banners.length === 0 && <p className="text-sm text-gray-400 text-center py-8">No slides yet. Add one above.</p>}
+                {banners.map((banner) => (
+                  <div key={banner._id} className={`bg-white rounded-xl border shadow-sm p-4 flex items-center gap-4 ${banner.isActive ? "border-gray-100" : "border-dashed border-gray-200 opacity-60"}`}>
+                    <div className="w-20 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                      {banner.imageUrl && <img src={banner.imageUrl} alt="" className="w-full h-full object-cover" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-black text-gray-900 text-sm truncate">{banner.title || <span className="text-gray-400 italic">No title</span>}</p>
+                      {banner.subtitle && <p className="text-xs text-gray-400">{banner.subtitle}</p>}
+                      <p className="text-[10px] text-amber-600 font-bold mt-0.5">{banner.linkUrl}</p>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      {/* Move order */}
+                      <button onClick={() => handleMoveBanner(banner, -1)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400"><ChevronUp size={14} /></button>
+                      <button onClick={() => handleMoveBanner(banner, 1)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400"><ChevronDown size={14} /></button>
+                      {/* Toggle active */}
+                      <button
+                        onClick={() => handleToggleBannerActive(banner)}
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-black border transition-colors ${banner.isActive ? "bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-red-50 hover:text-red-600 hover:border-red-100" : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-emerald-50 hover:text-emerald-600"}`}
+                      >
+                        {banner.isActive ? "Active" : "Inactive"}
+                      </button>
+                      <button onClick={() => setEditBanner({ ...banner })} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg"><Edit2 size={14} /></button>
+                      <button onClick={() => handleDeleteBanner(banner._id)} className="p-1.5 text-red-400 hover:bg-red-50 rounded-lg"><Trash2 size={14} /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Flash Sale ───────────────────────────────────────── */}
+        {activeTab === "flashsale" && localFlashSale && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-black text-gray-900 flex items-center gap-2"><Zap size={20} className="text-amber-500" /> Flash Sale</h2>
+              {flashSaving && <span className="text-xs text-amber-600 font-bold animate-pulse">Saving...</span>}
+            </div>
+
+            {/* Main toggle card */}
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-black text-gray-900">Flash Sale Status</p>
+                  <p className="text-xs text-gray-400 mt-0.5">When active, discounted prices show on all product cards and the banner bar appears.</p>
+                </div>
+                <button
+                  onClick={() => saveFlashSale({ isActive: !localFlashSale.isActive })}
+                  className={`relative w-14 h-7 rounded-full transition-colors duration-300 focus:outline-none ${localFlashSale.isActive ? "bg-amber-500" : "bg-gray-200"}`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-300 ${localFlashSale.isActive ? "translate-x-7" : "translate-x-0"}`} />
+                </button>
+              </div>
+
+              {/* Sale label */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500">Sale Label (shown in banner)</label>
+                <div className="flex gap-2">
+                  <input
+                    className="flex-1 border border-gray-200 rounded-xl p-2.5 text-sm"
+                    value={localFlashSale.label || ""}
+                    onChange={e => setLocalFlashSale({ ...localFlashSale, label: e.target.value })}
+                    placeholder="e.g. Summer Sale"
+                  />
+                  <button onClick={() => saveFlashSale({ label: localFlashSale.label })} className="px-4 bg-amber-500 text-white rounded-xl text-sm font-bold hover:bg-amber-600">Save</button>
+                </div>
+              </div>
+
+              {/* End date/time */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 flex items-center gap-1"><Clock size={11} /> Sale Ends At (leave blank = no countdown)</label>
+                <div className="flex gap-2">
+                  <input
+                    type="datetime-local"
+                    className="flex-1 border border-gray-200 rounded-xl p-2.5 text-sm"
+                    value={localFlashSale.endsAt ? new Date(localFlashSale.endsAt).toISOString().slice(0, 16) : ""}
+                    onChange={e => setLocalFlashSale({ ...localFlashSale, endsAt: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                  />
+                  <button onClick={() => saveFlashSale({ endsAt: localFlashSale.endsAt })} className="px-4 bg-amber-500 text-white rounded-xl text-sm font-bold hover:bg-amber-600">Save</button>
+                </div>
+              </div>
+            </div>
+
+            {/* Discount Rules */}
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
+              <h3 className="font-black text-gray-900 text-sm">Discount Rules</h3>
+              <p className="text-xs text-gray-400">Rules are applied in priority order: <strong>Product</strong> &gt; <strong>Category</strong> &gt; <strong>All Products</strong>. The most specific rule wins.</p>
+
+              {/* Add rule form */}
+              <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                <p className="text-xs font-black text-gray-600 uppercase tracking-wider">Add New Rule</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Apply To</label>
+                    <select
+                      className="w-full border border-gray-200 rounded-xl p-2.5 text-sm bg-white"
+                      value={newRule.type}
+                      onChange={e => setNewRule({ ...newRule, type: e.target.value, target: "", targetName: "" })}
+                    >
+                      <option value="all">All Products</option>
+                      <option value="category">Specific Category</option>
+                      <option value="product">Specific Product</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Discount %</label>
+                    <input
+                      type="number" min="1" max="99"
+                      className="w-full border border-gray-200 rounded-xl p-2.5 text-sm"
+                      placeholder="e.g. 20"
+                      value={newRule.discount}
+                      onChange={e => setNewRule({ ...newRule, discount: Number(e.target.value) })}
+                    />
+                  </div>
+
+                  {newRule.type === "category" && (
+                    <>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Category</label>
+                        <select
+                          className="w-full border border-gray-200 rounded-xl p-2.5 text-sm bg-white"
+                          value={newRule.target}
+                          onChange={e => {
+                            const cat = catArray.find(c => c.slug === e.target.value);
+                            setNewRule({ ...newRule, target: e.target.value, targetName: cat?.title || e.target.value });
+                          }}
+                        >
+                          <option value="">Select category</option>
+                          {catArray.map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}
+                        </select>
+                      </div>
+                    </>
+                  )}
+
+                  {newRule.type === "product" && (
+                    <>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Product ID</label>
+                        <input
+                          className="w-full border border-gray-200 rounded-xl p-2.5 text-sm"
+                          placeholder="MongoDB _id"
+                          value={newRule.target}
+                          onChange={e => setNewRule({ ...newRule, target: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Label (optional)</label>
+                        <input
+                          className="w-full border border-gray-200 rounded-xl p-2.5 text-sm"
+                          placeholder="Product name for display"
+                          value={newRule.targetName}
+                          onChange={e => setNewRule({ ...newRule, targetName: e.target.value })}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+                <button onClick={handleAddRule} className="w-full sm:w-auto px-6 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-sm transition-colors flex items-center gap-2">
+                  <Plus size={15} /> Add Rule
+                </button>
+              </div>
+
+              {/* Existing rules */}
+              <div className="space-y-2">
+                {(!localFlashSale.rules || localFlashSale.rules.length === 0) && (
+                  <p className="text-xs text-gray-400 text-center py-4">No rules yet. Add one above to start discounting.</p>
+                )}
+                {(localFlashSale.rules || []).map((rule, idx) => (
+                  <div key={rule._id || idx} className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3">
+                    <div className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${rule.type === "all" ? "bg-amber-100 text-amber-700" : rule.type === "category" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"}`}>
+                      {rule.type}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      {rule.type === "all" && <span className="text-sm font-bold text-gray-800">All Products</span>}
+                      {rule.type === "category" && <span className="text-sm font-bold text-gray-800">{rule.targetName || rule.target}</span>}
+                      {rule.type === "product" && (
+                        <span className="text-sm font-bold text-gray-800 truncate block">{rule.targetName || rule.target}</span>
+                      )}
+                    </div>
+                    <span className="text-lg font-black text-amber-600">{rule.discount}% OFF</span>
+                    <button onClick={() => handleRemoveRule(idx)} className="p-1.5 text-red-400 hover:bg-red-50 rounded-lg"><Trash2 size={14} /></button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Preview */}
+            <div className={`rounded-xl p-4 border-2 ${localFlashSale.isActive ? "border-amber-300 bg-amber-50" : "border-dashed border-gray-200 bg-gray-50"}`}>
+              <p className="text-xs font-black text-gray-500 uppercase tracking-wider mb-1">Preview</p>
+              {localFlashSale.isActive ? (
+                <p className="text-sm font-bold text-amber-700">
+                  ⚡ <strong>{localFlashSale.label}</strong> is <strong>LIVE</strong>
+                  {localFlashSale.endsAt && ` · ends ${new Date(localFlashSale.endsAt).toLocaleString()}`}
+                  {localFlashSale.rules?.length > 0 && ` · ${localFlashSale.rules.length} rule${localFlashSale.rules.length !== 1 ? "s" : ""} active`}
+                </p>
+              ) : (
+                <p className="text-sm text-gray-400">Flash sale is currently <strong>OFF</strong>. Toggle the switch above to activate.</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "flashsale" && !localFlashSale && (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-amber-500"></div>
           </div>
         )}
       </main>
