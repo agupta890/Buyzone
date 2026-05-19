@@ -34,7 +34,7 @@ router.post("/", protectUser, async (req, res) => {
 router.get("/", protectUser, async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user.id })
-     .populate("items.product", "name image price")
+     .populate("items.product", "name image price returnDays")
      .populate("address_id")
     .sort({ createdAt: -1 });
 
@@ -46,5 +46,47 @@ router.get("/", protectUser, async (req, res) => {
 });
 
 
+
+// Cancel order (user can cancel if Pending, Paid, or Packing)
+router.patch("/:id/cancel", protectUser, async (req, res) => {
+  try {
+    const order = await Order.findOne({ _id: req.params.id, user: req.user.id });
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    if (!['Pending', 'Paid', 'Packing'].includes(order.status)) {
+      return res.status(400).json({ error: "Order cannot be cancelled at this stage" });
+    }
+
+    order.status = 'Cancelled';
+    order.cancellation_reason = req.body.reason || '';
+    await order.save();
+
+    res.json({ message: "Order cancelled successfully", order });
+  } catch (err) {
+    console.error("Cancel order error:", err);
+    res.status(500).json({ error: "Failed to cancel order" });
+  }
+});
+
+// Request return (user can request return only for Delivered orders)
+router.patch("/:id/return", protectUser, async (req, res) => {
+  try {
+    const order = await Order.findOne({ _id: req.params.id, user: req.user.id });
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    if (order.status !== 'Delivered') {
+      return res.status(400).json({ error: "Only delivered orders can be returned" });
+    }
+
+    order.status = 'Return_Requested';
+    order.return_reason = req.body.reason || '';
+    await order.save();
+
+    res.json({ message: "Return requested successfully", order });
+  } catch (err) {
+    console.error("Return order error:", err);
+    res.status(500).json({ error: "Failed to request return" });
+  }
+});
 
 module.exports = router;

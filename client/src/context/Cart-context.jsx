@@ -43,6 +43,16 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (product) => {
     if (!auth?.user?._id) return navigate("/login");
+
+    // Optimistic update — instant UI feedback
+    const previousCart = [...cart];
+    const existing = cart.find(i => i.product._id === product._id);
+    if (existing) {
+      setCart(cart.map(i => i.product._id === product._id ? { ...i, quantity: i.quantity + 1 } : i));
+    } else {
+      setCart([...cart, { product, quantity: 1 }]);
+    }
+
     try {
       const res = await fetch(`${API_URL}/api/cart/${auth.user._id}/add`, {
         method: "POST",
@@ -51,10 +61,9 @@ export const CartProvider = ({ children }) => {
         body: JSON.stringify({ productId: product._id, quantity: 1 }),
       });
       if (!res.ok) throw new Error("Failed to add to cart");
-      await loadCart(true); // silent update
-      toast.success(`${product.name} added to cart!`);
     } catch (err) {
       console.error(err);
+      setCart(previousCart); // rollback on failure
       toast.error("Failed to add product to cart");
     }
   };

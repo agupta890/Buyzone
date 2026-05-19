@@ -1,22 +1,23 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
 import BuyButton from "./BuyButton";
-import { Star, ShieldCheck, Truck, RotateCcw, ChevronLeft, ShoppingCart, Sparkles } from "lucide-react";
+import { Star, ShieldCheck, Truck, RotateCcw, ChevronLeft, ShoppingCart, Sparkles, CheckCircle } from "lucide-react";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const ProductDetail = () => {
   const { id } = useParams();
-  const { addToCart } = useContext(CartContext);
+  const navigate = useNavigate();
+  const { addToCart, cart } = useContext(CartContext);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isAdding, setIsAdding] = useState(false);
+
+  const isInCart = product ? cart.some(i => i.product._id === product._id) : false;
 
   const handleAddToCart = async () => {
-    setIsAdding(true);
+    if (isInCart) { navigate("/cart"); return; }
     await addToCart(product);
-    setTimeout(() => setIsAdding(false), 2000);
   };
 
   useEffect(() => {
@@ -104,7 +105,9 @@ export const ProductDetail = () => {
              </div>
              <div className="bg-white p-4 rounded-2xl text-center border border-gray-100">
                <RotateCcw className="mx-auto text-amber-500 mb-2" size={20} />
-               <p className="text-[10px] font-black uppercase tracking-widest">Returns</p>
+               <p className="text-[10px] font-black uppercase tracking-widest">
+                 {product.returnDays > 0 ? `${product.returnDays}D Return` : "No Returns"}
+               </p>
              </div>
           </div>
         </div>
@@ -173,21 +176,34 @@ export const ProductDetail = () => {
             </div>
           </div>
 
+          {/* Return policy info */}
+          {product.returnDays > 0 && (
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-500 mb-6">
+              <RotateCcw size={15} className="text-amber-500" />
+              <span>{product.returnDays}-day easy return policy</span>
+            </div>
+          )}
+          {product.returnDays === 0 && (
+            <div className="flex items-center gap-2 text-sm font-bold text-rose-400 mb-6">
+              <RotateCcw size={15} />
+              <span>Non-returnable item</span>
+            </div>
+          )}
+
           {/* Actions: Grid layout */}
           <div className="hidden lg:grid grid-cols-2 gap-4">
             <button
               onClick={handleAddToCart}
-              disabled={isAdding}
               className={`flex items-center justify-center gap-3 font-black px-8 py-5 rounded-2xl transition-all shadow-2xl active:scale-95 group uppercase tracking-widest text-xs ${
-                isAdding ? "bg-amber-500 text-black" : "bg-slate-900 text-white hover:bg-amber-500 shadow-slate-900/10"
+                isInCart
+                  ? "bg-green-500 text-white shadow-green-200"
+                  : "bg-slate-900 text-white hover:bg-amber-500 shadow-slate-900/10"
               }`}
             >
-              {isAdding ? (
-                <>Adding...</>
+              {isInCart ? (
+                <><CheckCircle size={18} /> Go to Cart</>
               ) : (
-                <>
-                  <ShoppingCart size={18} className="group-hover:animate-bounce" /> Add to Cart
-                </>
+                <><ShoppingCart size={18} className="group-hover:animate-bounce" /> Add to Cart</>
               )}
             </button>
             <BuyButton product={product}/>
@@ -199,12 +215,11 @@ export const ProductDetail = () => {
       <div className="lg:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-xl border-t border-gray-100 p-5 flex gap-4 z-[1000] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
         <button
           onClick={handleAddToCart}
-          disabled={isAdding}
           className={`flex-1 flex items-center justify-center gap-2 font-black px-6 py-4 rounded-2xl text-[11px] uppercase tracking-widest active:scale-95 transition-all ${
-            isAdding ? "bg-amber-500 text-black" : "bg-slate-100 text-slate-900"
+            isInCart ? "bg-green-500 text-white" : "bg-slate-100 text-slate-900"
           }`}
         >
-          {isAdding ? "Adding..." : <><ShoppingCart size={16} /> Cart</>}
+          {isInCart ? <><CheckCircle size={16} /> Go to Cart</> : <><ShoppingCart size={16} /> Cart</>}
         </button>
         <div className="flex-[1.5]">
            <BuyButton product={product}/>

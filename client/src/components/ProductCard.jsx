@@ -2,32 +2,29 @@ import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
 import { AuthContext } from "../context/AuthContext";
-import { ShoppingCart, Eye } from "lucide-react";
+import { ShoppingCart, Eye, CheckCircle } from "lucide-react";
 
 const ProductCard = React.forwardRef(({ product }, ref) => {
-  const { addToCart } = useContext(CartContext);
+  const { addToCart, cart } = useContext(CartContext);
   const { auth } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [isAdding, setIsAdding] = React.useState(false);
+
+  const isInCart = cart.some(i => i.product._id === product._id);
 
   const handleAdd = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!auth?.user?._id) {
-      navigate("/login");
-      return;
-    }
-    setIsAdding(true);
+    if (!auth?.user?._id) { navigate("/login"); return; }
+    if (isInCart) { navigate("/cart"); return; }
     await addToCart(product);
-    setTimeout(() => setIsAdding(false), 2000);
   };
 
   const originalPrice = product.price + 500;
   const discountPercent = Math.round(((originalPrice - product.price) / originalPrice) * 100);
 
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       className="group relative bg-white rounded-xl border border-gray-100 flex flex-col overflow-hidden hover:shadow-[0_15px_30px_rgba(0,0,0,0.05)] transition-all duration-500"
     >
       <Link to={`/product/${product._id}`} className="flex-1 flex flex-col">
@@ -39,8 +36,8 @@ const ProductCard = React.forwardRef(({ product }, ref) => {
             loading="lazy"
             className="max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
           />
-          
-          {/* Badge Section */}
+
+          {/* Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1.5">
             {product.isBestsellers && (
               <span className="bg-yellow-400 text-gray-900 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm uppercase tracking-wider">
@@ -54,24 +51,20 @@ const ProductCard = React.forwardRef(({ product }, ref) => {
 
           {/* Quick Actions Overlay */}
           <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-             <div className="bg-white p-2 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 hover:bg-yellow-500 hover:text-white transition-colors">
-                <Eye size={16} />
-             </div>
-             <button 
-               onClick={handleAdd}
-               disabled={isAdding}
-               className={`${
-                 isAdding ? "bg-green-500" : "bg-gray-900 hover:bg-yellow-500"
-               } text-white p-2 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-75 active:scale-95`}
-             >
-                {isAdding ? (
-                  <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  <ShoppingCart size={16} />
-                )}
-             </button>
+            <div className="bg-white p-2 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 hover:bg-yellow-500 hover:text-white">
+              <Eye size={16} />
+            </div>
+            <button
+              onClick={handleAdd}
+              className={`${
+                isInCart ? "bg-green-500" : "bg-gray-900 hover:bg-yellow-500"
+              } text-white p-2 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-75 active:scale-95`}
+            >
+              {isInCart
+                ? <CheckCircle size={16} />
+                : <ShoppingCart size={16} />
+              }
+            </button>
           </div>
         </div>
 
@@ -85,7 +78,7 @@ const ProductCard = React.forwardRef(({ product }, ref) => {
               {product.name}
             </h3>
           </div>
-          
+
           <div className="flex items-center justify-between mt-auto">
             <div className="flex flex-col">
               <span className="text-base font-bold text-gray-900 leading-none">
@@ -95,7 +88,7 @@ const ProductCard = React.forwardRef(({ product }, ref) => {
                 ₹{originalPrice.toLocaleString()}
               </span>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-0.5 bg-green-50 px-1.5 py-0.5 rounded">
                 <span className="text-[10px] font-bold text-green-700">4.5</span>
@@ -104,25 +97,30 @@ const ProductCard = React.forwardRef(({ product }, ref) => {
                 </svg>
               </div>
 
-              {/* Permanent Mobile-Friendly Add to Cart Button */}
+              {/* Add to Cart / Go to Cart button */}
               <button
                 onClick={handleAdd}
-                disabled={isAdding}
                 className={`${
-                  isAdding ? "bg-green-500" : "bg-yellow-500 hover:bg-yellow-600"
+                  isInCart
+                    ? "bg-green-500 hover:bg-green-600"
+                    : "bg-yellow-500 hover:bg-yellow-600"
                 } text-white p-2 rounded-lg shadow-sm transition-all active:scale-90 flex items-center justify-center`}
-                aria-label="Add to Cart"
+                aria-label={isInCart ? "Go to Cart" : "Add to Cart"}
               >
-                {isAdding ? (
-                  <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  <ShoppingCart size={15} />
-                )}
+                {isInCart ? <CheckCircle size={15} /> : <ShoppingCart size={15} />}
               </button>
             </div>
           </div>
+
+          {/* Go to Cart label — shows below when item is in cart */}
+          {isInCart && (
+            <button
+              onClick={handleAdd}
+              className="mt-2 w-full text-[10px] font-bold text-green-600 bg-green-50 border border-green-200 rounded-lg py-1.5 hover:bg-green-100 transition-colors"
+            >
+              Go to Cart →
+            </button>
+          )}
         </div>
       </Link>
     </div>
