@@ -113,6 +113,8 @@ const App = () => {
         </Routes>
       </Suspense>
       {!hideFooter && <Footer />}
+      {/* Spacer for mobile bottom tab bar */}
+      <div className="md:hidden h-16" />
       <ToastContainer
         position="bottom-right"
         autoClose={3000}
