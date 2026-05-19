@@ -6,18 +6,28 @@ const router = express.Router();
 // GET products (filter by category, subCategory, bestseller, pagination)
 router.get('/', async (req, res) => {
   try {
-    const { category, subCategory, bestsellers, page = 1, limit = 12 } = req.query;
+    const { category, subCategory, bestsellers, search, sort, page = 1, limit = 12 } = req.query;
     const query = {};
 
     if (category) query.category = category;
     if (subCategory) query.subcategory = { $regex: new RegExp("^" + subCategory + "$", "i") };
     if (bestsellers) query.isBestsellers = bestsellers === "true";
+    if (search) {
+      const re = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      query.$or = [{ name: re }, { category: re }, { description: re }];
+    }
+
+    const sortMap = {
+      price_asc: { price: 1 },
+      price_desc: { price: -1 },
+      newest: { createdAt: -1 },
+    };
+    const sortOrder = sortMap[sort] || { createdAt: -1 };
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Run find and count in parallel instead of sequentially
     const [products, total] = await Promise.all([
-      Product.find(query).skip(skip).limit(parseInt(limit)).lean(),
+      Product.find(query).sort(sortOrder).skip(skip).limit(parseInt(limit)).lean(),
       Product.countDocuments(query),
     ]);
 

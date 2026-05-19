@@ -1,7 +1,8 @@
 import React, { Suspense, lazy } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
+import FlashSale from "./components/FlashSale";
 
 // Lazy load page components
 const HomePage = lazy(() => import("./pages/HomePage").then(module => ({ default: module.HomePage })));
@@ -17,7 +18,7 @@ const AddressPage = lazy(() => import("./pages/AddressPage").then(module => ({ d
 const ShopAll = lazy(() => import("./pages/ShopAll"));
 const Profile = lazy(() => import("./components/profile/Profile"));
 
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute, { AdminRoute } from "./components/ProtectedRoute";
 
 // Loading component for Suspense
 const PageLoader = () => (
@@ -30,15 +31,26 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
+  const { pathname } = useLocation();
+  const hideFooter = ["/login", "/register"].includes(pathname);
+
   return (
     <>
       <Navbar />
+      <FlashSale />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <Admin />
+              </AdminRoute>
+            }
+          />
 
           <Route path="/bestseller" element={<BestSeller />} />
           <Route path="/category/:category" element={<CategoryPage />} />
@@ -83,9 +95,24 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
+          {/* 404 */}
+          <Route
+            path="*"
+            element={
+              <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center gap-6 text-center px-4">
+                <div className="text-[120px] font-black text-slate-100 leading-none select-none">404</div>
+                <h1 className="text-3xl font-black text-slate-800 -mt-6">Page Not Found</h1>
+                <p className="text-slate-500 text-base max-w-md">The page you're looking for doesn't exist or has been moved.</p>
+                <a href="/" className="mt-2 px-8 py-3 bg-amber-500 text-white font-bold rounded-full hover:bg-amber-600 transition-all shadow-md">
+                  Back to Home
+                </a>
+              </div>
+            }
+          />
         </Routes>
       </Suspense>
-      <Footer />
+      {!hideFooter && <Footer />}
       <ToastContainer
         position="bottom-right"
         autoClose={3000}

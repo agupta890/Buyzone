@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
-import { categories } from "../data/categories";
+import { useCategories } from "../context/CategoriesContext";
 
 const HomeCardGrid = () => {
-  // Convert categories object to an array for easier mapping
-  const categoryEntries = Object.entries(categories).slice(0, 4); // Show first 4 on home
+  const { catArray } = useCategories();
+  const categoryEntries = catArray.slice(0, 4).map(c => [c.slug, c]);
 
   return (
     <section className="py-16 sm:py-28 px-6 max-w-7xl mx-auto overflow-hidden">

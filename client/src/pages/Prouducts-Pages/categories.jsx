@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useRef, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { categories } from "../../data/categories";
+import { useCategories } from "../../context/CategoriesContext";
 import { CartContext } from "../../context/Cart-context";
 import { AuthContext } from "../../context/AuthContext";
 import { 
@@ -18,6 +18,7 @@ import { ProductSkeleton, TopProgressBar } from "../../components/LoadingCompone
 
 const CategoryPage = () => {
   const { category, subcategory } = useParams();
+  const { categories } = useCategories();
   const categoryData = categories[category];
 
   const [products, setProducts] = useState([]);
@@ -96,110 +97,92 @@ const CategoryPage = () => {
     : title;
 
   return (
-    <div className="min-h-screen bg-white pb-20">
+    <div className="min-h-screen bg-slate-50 pb-20">
       {loading && page === 1 && <TopProgressBar />}
-      
-      {/* 1. Category Hero Banner - KEPT EXACTLY AS PLACED */}
-      <div className="relative w-full h-64 sm:h-80 md:h-[400px] overflow-hidden">
-        <img 
-          src={image} 
-          alt={title} 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-8 md:p-16">
+
+      {/* Hero */}
+      <div className="relative w-full h-56 sm:h-72 md:h-[380px] overflow-hidden">
+        <img src={image} alt={title} className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent flex flex-col justify-end p-8 md:p-14">
           <div className="max-w-7xl mx-auto w-full">
-            <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter uppercase italic drop-shadow-lg">
+            <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter uppercase leading-none drop-shadow-xl">
               {title}
             </h1>
           </div>
         </div>
       </div>
 
-      {/* 2. Breadcrumbs - Logical Position */}
-      <div className="max-w-7xl mx-auto px-6 pt-6">
-        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-300">
-           <Link to="/" className="hover:text-black transition-colors">Home</Link>
-           <ChevronRight size={10} />
-           <span>{title}</span>
-           {subcategory && (
-             <>
-               <ChevronRight size={10} />
-               <span className="text-gray-900">{formattedTitle}</span>
-             </>
-           )}
+      {/* Breadcrumbs */}
+      <div className="max-w-7xl mx-auto px-6 pt-5">
+        <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+          <Link to="/" className="hover:text-slate-700 transition-colors">Home</Link>
+          <ChevronRight size={10} />
+          <span>{title}</span>
+          {subcategory && (
+            <>
+              <ChevronRight size={10} />
+              <span className="text-slate-700">{formattedTitle}</span>
+            </>
+          )}
         </div>
       </div>
 
-      {/* 3. Professional Subcategory Ribbon (Improved UI & Static Position) */}
-      <div className="bg-white border-b border-gray-100 mt-6">
+      {/* Subcategory Ribbon */}
+      <div className="bg-white border-b border-slate-100 shadow-sm mt-4">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between h-14 md:h-16">
-            <div className="flex items-center gap-8 overflow-x-auto no-scrollbar h-full flex-1 mr-4">
+          <div className="flex items-center justify-between h-12 md:h-14">
+            <div className="flex items-center gap-6 overflow-x-auto no-scrollbar h-full flex-1 mr-4">
               <Link
                 to={`/category/${category}`}
-                className={`h-full flex items-center text-[10px] md:text-xs font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all relative group ${
-                  !subcategory ? "text-black" : "text-gray-400 hover:text-gray-900"
+                className={`h-full flex items-center text-[10px] md:text-xs font-bold uppercase tracking-[0.18em] whitespace-nowrap transition-all relative ${
+                  !subcategory ? "text-slate-900" : "text-slate-400 hover:text-slate-700"
                 }`}
               >
                 All {title}
-                {!subcategory && <span className="absolute bottom-0 left-0 w-full h-1 bg-yellow-500"></span>}
+                {!subcategory && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-600 rounded-full"></span>}
               </Link>
-
               {subcategories?.map((sub) => {
                 const subSlug = sub.toLowerCase().replace(/\s+/g, "-");
-                const isActive = subSlug === subcategory;
+                const active = subSlug === subcategory;
                 return (
                   <Link
                     key={sub}
                     to={`/category/${category}/${subSlug}`}
-                    className={`h-full flex items-center text-[10px] md:text-xs font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all relative group ${
-                      isActive ? "text-black" : "text-gray-400 hover:text-gray-900"
+                    className={`h-full flex items-center text-[10px] md:text-xs font-bold uppercase tracking-[0.18em] whitespace-nowrap transition-all relative ${
+                      active ? "text-slate-900" : "text-slate-400 hover:text-slate-700"
                     }`}
                   >
                     {sub}
-                    {isActive && <span className="absolute bottom-0 left-0 w-full h-1 bg-yellow-500"></span>}
+                    {active && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-600 rounded-full"></span>}
                   </Link>
                 );
               })}
             </div>
-
-            <div className="hidden sm:flex items-center gap-2 border-l border-gray-100 pl-6 text-gray-400">
-               <span className="text-[10px] font-black uppercase tracking-widest">{products.length} Products</span>
+            <div className="hidden sm:flex items-center border-l border-slate-100 pl-6">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{products.length} Products</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 4. Main Content Area */}
-      <div className="max-w-7xl mx-auto px-6 pt-10">
-        {error && (
-          <div className="text-center py-20 text-red-500 font-bold">{error}</div>
-        )}
+      {/* Grid */}
+      <div className="max-w-7xl mx-auto px-6 pt-8">
+        {error && <div className="text-center py-20 text-red-500 font-bold">{error}</div>}
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
-          {products.map((p, index) => {
-            const isLastElement = products.length === index + 1;
-            return (
-              <ProductCard 
-                key={p._id} 
-                product={p} 
-                ref={isLastElement ? lastProductElementRef : null} 
-              />
-            );
-          })}
-          
-          {loading && (
-            <>
-              {[...Array(8)].map((_, i) => (
-                <ProductSkeleton key={`skeleton-${i}`} />
-              ))}
-            </>
-          )}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {products.map((p, index) => (
+            <ProductCard
+              key={p._id}
+              product={p}
+              ref={products.length === index + 1 ? lastProductElementRef : null}
+            />
+          ))}
+          {loading && [...Array(8)].map((_, i) => <ProductSkeleton key={`sk-${i}`} />)}
         </div>
 
         {!loading && !error && products.length === 0 && (
-          <div className="text-center py-40 border-2 border-dashed border-gray-100 rounded-[2rem]">
-             <h3 className="text-gray-400 font-black uppercase tracking-widest text-xs">Collection is being updated.</h3>
+          <div className="text-center py-32 border-2 border-dashed border-slate-200 rounded-3xl">
+            <h3 className="text-slate-400 font-bold uppercase tracking-widest text-xs">Collection is being updated</h3>
           </div>
         )}
       </div>
