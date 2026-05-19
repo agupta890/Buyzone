@@ -8,10 +8,10 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Tag } from "lucide-react"
 const API_URL = import.meta.env.VITE_API_URL;
 
 const CartItem = memo(({ item, increaseQty, decreaseQty, removeFromCart }) => (
-  <div className="flex items-center gap-4 py-4 border-b border-gray-100 last:border-0 group">
+  <div className="flex items-center gap-4 py-4 border-b border-slate-100 last:border-0 group">
     {/* Image */}
     <Link to={`/product/${item.product._id}`} className="flex-shrink-0">
-      <div className="w-20 h-20 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-center p-2 overflow-hidden">
+      <div className="w-20 h-20 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center p-2 overflow-hidden">
         <img
           src={item.product.image}
           alt={item.product.name}
@@ -24,37 +24,37 @@ const CartItem = memo(({ item, increaseQty, decreaseQty, removeFromCart }) => (
     {/* Info */}
     <div className="flex-1 min-w-0">
       <Link to={`/product/${item.product._id}`}>
-        <h3 className="text-sm font-bold text-gray-800 line-clamp-2 hover:text-amber-600 transition-colors">
+        <h3 className="text-sm font-bold text-slate-800 line-clamp-2 hover:text-amber-600 transition-colors">
           {item.product.name}
         </h3>
       </Link>
-      <p className="text-xs text-gray-400 mt-0.5">{item.product.category || "Product"}</p>
-      <p className="text-base font-black text-gray-900 mt-1">₹{(item.product.price * item.quantity).toLocaleString()}</p>
+      <p className="text-xs text-slate-400 mt-0.5">{item.product.category || "Product"}</p>
+      <p className="text-base font-black text-slate-900 mt-1">₹{(item.product.price * item.quantity).toLocaleString()}</p>
       {item.quantity > 1 && (
-        <p className="text-[10px] text-gray-400">₹{item.product.price.toLocaleString()} each</p>
+        <p className="text-[10px] text-slate-400">₹{item.product.price.toLocaleString()} each</p>
       )}
     </div>
 
     {/* Controls */}
     <div className="flex items-center gap-3 flex-shrink-0">
-      <div className="flex items-center gap-1 bg-gray-50 rounded-full border border-gray-200 p-1">
+      <div className="flex items-center gap-1 bg-slate-50 rounded-full border border-slate-200 p-1">
         <button
           onClick={() => decreaseQty(item.product._id)}
-          className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white transition-colors text-gray-600 active:scale-90"
+          className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white transition-colors text-slate-600 active:scale-90"
         >
           <Minus size={12} />
         </button>
-        <span className="w-6 text-center text-sm font-black text-gray-800">{item.quantity}</span>
+        <span className="w-6 text-center text-sm font-black text-slate-800">{item.quantity}</span>
         <button
           onClick={() => increaseQty(item.product._id)}
-          className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white transition-colors text-gray-600 active:scale-90"
+          className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white transition-colors text-slate-600 active:scale-90"
         >
           <Plus size={12} />
         </button>
       </div>
       <button
         onClick={() => removeFromCart(item.product._id)}
-        className="w-8 h-8 flex items-center justify-center rounded-full text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
+        className="w-8 h-8 flex items-center justify-center rounded-full text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
       >
         <Trash2 size={15} />
       </button>
@@ -144,29 +144,29 @@ export const Cart = () => {
   };
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen py-8 sm:py-12">
+    <div className="bg-slate-50 min-h-screen py-8 sm:py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-black text-gray-900">Shopping Cart</h1>
-            <p className="text-gray-400 text-sm mt-0.5">
+            <h1 className="text-2xl font-black text-slate-900">Shopping Cart</h1>
+            <p className="text-slate-400 text-sm mt-0.5">
               {totalItems} {totalItems === 1 ? "item" : "items"} in your cart
             </p>
           </div>
-          <Link to="/shop-all" className="text-sm font-bold text-amber-600 hover:underline">
-            Continue Shopping
+          <Link to="/shop-all" className="text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors">
+            Continue Shopping →
           </Link>
         </div>
 
         {cart.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm text-center py-20 px-6">
-            <ShoppingBag size={56} className="mx-auto text-gray-100 mb-4" />
-            <h2 className="text-xl font-black text-gray-800 mb-2">Your cart is empty</h2>
-            <p className="text-gray-400 text-sm mb-6">Looks like you haven't added anything yet.</p>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm text-center py-20 px-6">
+            <ShoppingBag size={56} className="mx-auto text-slate-200 mb-4" />
+            <h2 className="text-xl font-black text-slate-800 mb-2">Your cart is empty</h2>
+            <p className="text-slate-400 text-sm mb-6">Looks like you haven't added anything yet.</p>
             <Link
               to="/shop-all"
-              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold px-8 py-3 rounded-full shadow-md transition-all"
+              className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg shadow-amber-600/20 transition-all active:scale-95"
             >
               Shop Now <ArrowRight size={16} />
             </Link>
@@ -176,12 +176,12 @@ export const Cart = () => {
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-4">
               {/* Cart Items */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6">
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <h2 className="font-black text-gray-800">Items</h2>
+                  <h2 className="font-black text-slate-800">Items</h2>
                   <button
                     onClick={() => { if (window.confirm("Clear all items from cart?")) clearCart(); }}
-                    className="text-xs font-bold text-gray-400 hover:text-red-500 transition-colors"
+                    className="text-xs font-semibold text-slate-400 hover:text-red-500 transition-colors"
                   >
                     Clear all
                   </button>
@@ -210,34 +210,34 @@ export const Cart = () => {
 
             {/* Order Summary Sidebar */}
             <div className="lg:sticky lg:top-24 h-fit space-y-3">
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                <h2 className="font-black text-gray-800 mb-4">Order Summary</h2>
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                <h2 className="font-black text-slate-800 mb-4">Order Summary</h2>
 
                 <div className="space-y-3 text-sm">
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-slate-600">
                     <span>Subtotal ({totalItems} items)</span>
-                    <span className="font-bold text-gray-900">₹{totalAmount.toLocaleString()}</span>
+                    <span className="font-bold text-slate-900">₹{totalAmount.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-slate-600">
                     <span>Delivery</span>
                     <span className="font-bold text-emerald-600">FREE</span>
                   </div>
-                  <div className="border-t border-gray-100 pt-3 flex justify-between">
-                    <span className="font-black text-gray-900">Total</span>
-                    <span className="font-black text-gray-900 text-lg">₹{totalAmount.toLocaleString()}</span>
+                  <div className="border-t border-slate-100 pt-3 flex justify-between">
+                    <span className="font-black text-slate-900">Total</span>
+                    <span className="font-black text-slate-900 text-lg">₹{totalAmount.toLocaleString()}</span>
                   </div>
                 </div>
 
                 {/* Coupon placeholder */}
-                <div className="mt-4 flex items-center gap-2 bg-gray-50 rounded-xl border border-gray-200 px-3 py-2">
-                  <Tag size={14} className="text-gray-400" />
+                <div className="mt-4 flex items-center gap-2 bg-slate-50 rounded-xl border border-slate-200 px-3 py-2">
+                  <Tag size={14} className="text-slate-400" />
                   <input
                     type="text"
                     placeholder="Coupon code"
-                    className="flex-1 bg-transparent text-sm text-gray-600 placeholder-gray-400 outline-none"
+                    className="flex-1 bg-transparent text-sm text-slate-600 placeholder-slate-400 outline-none"
                     disabled
                   />
-                  <button disabled className="text-xs font-bold text-gray-400">Apply</button>
+                  <button disabled className="text-xs font-bold text-slate-400">Apply</button>
                 </div>
 
                 <button

@@ -17,7 +17,6 @@ import {
 import { Link } from "react-router-dom";
 
 // New Components
-import FlashSale from "../components/FlashSale";
 import TrendingSection from "../components/TrendingSection";
 import WelcomePopup from "../components/WelcomePopup";
 
@@ -70,16 +69,13 @@ export const HomePage = () => {
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
     }, 5000);
-    
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 1000);
-    };
+    return () => clearInterval(interval);
+  }, [slides.length]);
 
+  useEffect(() => {
+    const handleScroll = () => setShowScrollTop(window.scrollY > 1000);
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const goToPrev = () => setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
@@ -92,7 +88,6 @@ export const HomePage = () => {
   return (
     <div className="bg-[#FBFBFB] min-h-screen font-sans text-[#1A1A1A] overflow-x-hidden">
       <WelcomePopup />
-      <FlashSale />
       
       {/* 1. Hero Section - Animated Entry */}
       <section className="relative group animate-fade-in">

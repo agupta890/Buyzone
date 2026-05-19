@@ -1,7 +1,8 @@
 import React, { Suspense, lazy } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
+import FlashSale from "./components/FlashSale";
 
 // Lazy load page components
 const HomePage = lazy(() => import("./pages/HomePage").then(module => ({ default: module.HomePage })));
@@ -30,9 +31,13 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
+  const { pathname } = useLocation();
+  const hideFooter = ["/login", "/register"].includes(pathname);
+
   return (
     <>
       <Navbar />
+      <FlashSale />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -107,7 +112,7 @@ const App = () => {
           />
         </Routes>
       </Suspense>
-      <Footer />
+      {!hideFooter && <Footer />}
       <ToastContainer
         position="bottom-right"
         autoClose={3000}

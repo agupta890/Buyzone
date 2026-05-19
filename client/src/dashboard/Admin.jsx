@@ -124,6 +124,7 @@ export const Admin = () => {
   const [localFlashSale, setLocalFlashSale] = useState(null);
   const [flashSaving, setFlashSaving] = useState(false);
   const [newRule, setNewRule] = useState({ type: "all", target: "", targetName: "", discount: 10 });
+  const [saleDuration, setSaleDuration] = useState(60); // minutes
 
   const refreshCats = async () => {
     const res = await fetch(API_CATS);
@@ -240,6 +241,14 @@ export const Admin = () => {
     const newOrder = banner.order + dir;
     await fetch(`${API_SLIDER}/${banner._id}`, { method: "PATCH", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order: newOrder }) });
     await fetchBanners();
+  };
+
+  // Formats a UTC ISO date string as a value for datetime-local input (local time)
+  const toLocalInput = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    const pad = n => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
   // ── Flash Sale helpers ───────────────────────────────────────
@@ -463,7 +472,7 @@ export const Admin = () => {
   });
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row min-h-screen bg-slate-50">
 
       {/* Edit Product Modal */}
       {editProduct && (
@@ -556,96 +565,58 @@ export const Admin = () => {
           </div>
         </div>
       )}
-      {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-white shadow-md p-6 space-y-4 md:min-h-screen">
-        <h2 className="text-2xl font-bold mb-6">BuyZone Admin</h2>
-        <nav className="space-y-2">
-          <button
-            className={`flex items-center gap-2 w-full text-left px-4 py-2 rounded font-semibold ${
-              activeTab === "dashboard" ? "bg-amber-500 text-white" : "hover:bg-gray-100"
-            }`}
-            onClick={() => setActiveTab("dashboard")}
-          >
-            <BarChart2 size={16} /> Dashboard
-          </button>
-          <button
-            className={`block w-full text-left px-4 py-2 rounded ${
-              activeTab === "create" ? "bg-amber-500 text-white" : "hover:bg-gray-100"
-            }`}
-            onClick={() => setActiveTab("create")}
-          >
-            ➕ Create Product
-          </button>
-          <div>
+      {/* ── Sidebar ── */}
+      <aside className="w-full md:w-60 bg-slate-900 text-slate-300 p-5 space-y-1 md:min-h-screen flex-shrink-0">
+        <div className="pb-5 mb-3 border-b border-slate-800">
+          <h2 className="text-lg font-black text-white tracking-tight">Buy<span className="text-amber-500">Zone</span></h2>
+          <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-widest mt-0.5">Admin Panel</p>
+        </div>
+        <nav className="space-y-0.5">
+          {[
+            { id: "dashboard", icon: <BarChart2 size={15} />, label: "Dashboard" },
+            { id: "create",    icon: <Plus size={15} />,     label: "Create Product" },
+            { id: "products",  icon: <Package size={15} />,  label: "All Products", onClick: () => { setActiveTab("products"); setSelectedCategory(null); setSelectedSubcategory(null); } },
+            { id: "orders",    icon: <ShoppingBag size={15} />, label: "Orders" },
+            { id: "categories",icon: <Tag size={15} />,      label: "Categories" },
+            { id: "banners",   icon: <Image size={15} />,    label: "Banners / Slider" },
+            { id: "flashsale", icon: <Zap size={15} />,      label: "Flash Sale" },
+          ].map(item => (
             <button
-              onClick={() => {
-                setActiveTab("products");
-                setSelectedCategory(null);
-                setSelectedSubcategory(null);
-              }}
-              className={`block w-full text-left px-4 py-2 rounded font-semibold ${
-                activeTab === "products" && !selectedCategory
-                  ? "bg-amber-500 text-white"
-                  : "text-gray-700 hover:bg-gray-100"
+              key={item.id}
+              onClick={item.onClick || (() => setActiveTab(item.id))}
+              className={`flex items-center gap-2.5 w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === item.id && (!item.id === "products" || !selectedCategory)
+                  ? "bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20"
+                  : "text-slate-400 hover:bg-slate-800 hover:text-slate-100"
               }`}
             >
-              📦 All Products
+              {item.icon} {item.label}
             </button>
-            {catArray.map((cat) => (
-              <button
-                key={cat.slug}
-                onClick={() => {
-                  setActiveTab("products");
-                  setSelectedCategory(cat.slug);
-                  setSelectedSubcategory(null);
-                }}
-                className={`block w-full text-left px-6 py-2 rounded mb-1 ${
-                  selectedCategory === cat.slug
-                    ? "bg-amber-500 text-white font-bold"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                {cat.title}
-              </button>
-            ))}
-          </div>
-          <button
-            className={`block w-full text-left px-4 py-2 rounded ${
-              activeTab === "orders" ? "bg-amber-500 text-white" : "hover:bg-gray-100"
-            }`}
-            onClick={() => setActiveTab("orders")}
-          >
-            🧾 Orders
-          </button>
-          <button
-            className={`flex items-center gap-2 w-full text-left px-4 py-2 rounded font-semibold ${
-              activeTab === "categories" ? "bg-amber-500 text-white" : "hover:bg-gray-100"
-            }`}
-            onClick={() => setActiveTab("categories")}
-          >
-            <Tag size={16} /> Categories
-          </button>
-          <button
-            className={`flex items-center gap-2 w-full text-left px-4 py-2 rounded font-semibold ${
-              activeTab === "banners" ? "bg-amber-500 text-white" : "hover:bg-gray-100"
-            }`}
-            onClick={() => setActiveTab("banners")}
-          >
-            <Image size={16} /> Banners / Slider
-          </button>
-          <button
-            className={`flex items-center gap-2 w-full text-left px-4 py-2 rounded font-semibold ${
-              activeTab === "flashsale" ? "bg-amber-500 text-white" : "hover:bg-gray-100"
-            }`}
-            onClick={() => setActiveTab("flashsale")}
-          >
-            <Zap size={16} /> Flash Sale
-          </button>
+          ))}
+
+          {/* Category sub-items */}
+          {activeTab === "products" && (
+            <div className="pl-3 mt-1 space-y-0.5">
+              {catArray.map((cat) => (
+                <button
+                  key={cat.slug}
+                  onClick={() => { setActiveTab("products"); setSelectedCategory(cat.slug); setSelectedSubcategory(null); }}
+                  className={`block w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                    selectedCategory === cat.slug
+                      ? "bg-amber-500/20 text-amber-400"
+                      : "text-slate-500 hover:bg-slate-800 hover:text-slate-300"
+                  }`}
+                >
+                  {cat.title}
+                </button>
+              ))}
+            </div>
+          )}
         </nav>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-4 sm:p-6 overflow-x-auto">
+      {/* ── Main Content ── */}
+      <main className="flex-1 p-4 sm:p-6 overflow-x-auto bg-slate-50 min-h-screen">
         {/* Dashboard */}
         {activeTab === "dashboard" && (
           <div className="space-y-6">
@@ -1407,19 +1378,6 @@ export const Admin = () => {
 
             {/* Main toggle card */}
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-black text-gray-900">Flash Sale Status</p>
-                  <p className="text-xs text-gray-400 mt-0.5">When active, discounted prices show on all product cards and the banner bar appears.</p>
-                </div>
-                <button
-                  onClick={() => saveFlashSale({ isActive: !localFlashSale.isActive })}
-                  className={`relative w-14 h-7 rounded-full transition-colors duration-300 focus:outline-none ${localFlashSale.isActive ? "bg-amber-500" : "bg-gray-200"}`}
-                >
-                  <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-300 ${localFlashSale.isActive ? "translate-x-7" : "translate-x-0"}`} />
-                </button>
-              </div>
-
               {/* Sale label */}
               <div className="space-y-1">
                 <label className="text-xs font-bold text-gray-500">Sale Label (shown in banner)</label>
@@ -1434,18 +1392,65 @@ export const Admin = () => {
                 </div>
               </div>
 
-              {/* End date/time */}
+              {/* Duration picker */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-500 flex items-center gap-1"><Clock size={11} /> Sale Ends At (leave blank = no countdown)</label>
-                <div className="flex gap-2">
-                  <input
-                    type="datetime-local"
-                    className="flex-1 border border-gray-200 rounded-xl p-2.5 text-sm"
-                    value={localFlashSale.endsAt ? new Date(localFlashSale.endsAt).toISOString().slice(0, 16) : ""}
-                    onChange={e => setLocalFlashSale({ ...localFlashSale, endsAt: e.target.value ? new Date(e.target.value).toISOString() : null })}
-                  />
-                  <button onClick={() => saveFlashSale({ endsAt: localFlashSale.endsAt })} className="px-4 bg-amber-500 text-white rounded-xl text-sm font-bold hover:bg-amber-600">Save</button>
+                <label className="text-xs font-bold text-gray-500 flex items-center gap-1"><Clock size={11} /> Sale Duration (starts immediately when toggled on)</label>
+                <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                  {[
+                    { label: "30m", value: 30 },
+                    { label: "1 hr", value: 60 },
+                    { label: "2 hr", value: 120 },
+                    { label: "4 hr", value: 240 },
+                    { label: "6 hr", value: 360 },
+                    { label: "12 hr", value: 720 },
+                    { label: "24 hr", value: 1440 },
+                  ].map(opt => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setSaleDuration(opt.value)}
+                      className={`py-2 rounded-xl text-xs font-bold border transition-all ${saleDuration === opt.value ? "bg-amber-500 text-white border-amber-500" : "bg-white text-gray-600 border-gray-200 hover:border-amber-400"}`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
                 </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-xs text-gray-400">Custom (minutes):</span>
+                  <input
+                    type="number" min="1"
+                    className="w-24 border border-gray-200 rounded-xl p-2 text-sm text-center"
+                    value={saleDuration}
+                    onChange={e => setSaleDuration(Number(e.target.value))}
+                  />
+                </div>
+                {localFlashSale.endsAt && (
+                  <p className="text-xs text-amber-600 font-semibold mt-1">
+                    ⏳ Currently ends: {new Date(localFlashSale.endsAt).toLocaleString()}
+                  </p>
+                )}
+              </div>
+
+              {/* Toggle */}
+              <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                <div>
+                  <p className="font-black text-gray-900">Flash Sale Status</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {localFlashSale.isActive ? "Sale is LIVE — toggle off to stop it." : `Toggle on to start a ${saleDuration >= 60 ? `${saleDuration/60} hr` : `${saleDuration} min`} sale immediately.`}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    if (!localFlashSale.isActive) {
+                      const endsAt = new Date(Date.now() + saleDuration * 60 * 1000).toISOString();
+                      saveFlashSale({ isActive: true, endsAt });
+                    } else {
+                      saveFlashSale({ isActive: false, endsAt: null });
+                    }
+                  }}
+                  className={`relative w-14 h-7 rounded-full transition-colors duration-300 focus:outline-none ${localFlashSale.isActive ? "bg-amber-500" : "bg-gray-200"}`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-300 ${localFlashSale.isActive ? "translate-x-7" : "translate-x-0"}`} />
+                </button>
               </div>
             </div>
 

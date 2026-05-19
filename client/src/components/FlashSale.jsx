@@ -9,10 +9,7 @@ const FlashSale = () => {
 
   // Compute countdown from endsAt
   useEffect(() => {
-    if (!flashSale?.endsAt) {
-      setTimeLeft({ hours: 24, minutes: 0, seconds: 0 });
-      return;
-    }
+    if (!flashSale?.endsAt) return;
     const tick = () => {
       const diff = Math.max(0, new Date(flashSale.endsAt) - new Date());
       const hours = Math.floor(diff / 3_600_000);
@@ -37,20 +34,22 @@ const FlashSale = () => {
           <span>{flashSale.label || "Flash Sale"} is Live</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          {[
-            { label: 'HRS', value: timeLeft.hours },
-            { label: 'MIN', value: timeLeft.minutes },
-            { label: 'SEC', value: timeLeft.seconds },
-          ].map((unit, i) => (
-            <div key={i} className="flex flex-col items-center">
-              <div className="bg-black text-white w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg text-lg sm:text-xl font-black shadow-lg transform group-hover:scale-110 transition-transform">
-                {unit.value.toString().padStart(2, '0')}
+        {flashSale?.endsAt && (
+          <div className="flex items-center gap-2">
+            {[
+              { label: 'HRS', value: timeLeft.hours },
+              { label: 'MIN', value: timeLeft.minutes },
+              { label: 'SEC', value: timeLeft.seconds },
+            ].map((unit, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <div className="bg-black text-white w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg text-lg sm:text-xl font-black shadow-lg transform group-hover:scale-110 transition-transform">
+                  {unit.value.toString().padStart(2, '0')}
+                </div>
+                <span className="text-[8px] sm:text-[10px] font-bold mt-1 opacity-70">{unit.label}</span>
               </div>
-              <span className="text-[8px] sm:text-[10px] font-bold mt-1 opacity-70">{unit.label}</span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         <div className="flex items-center gap-4">
           {maxDiscount > 0 && (
