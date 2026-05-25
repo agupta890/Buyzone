@@ -21,8 +21,14 @@ export const CategoriesProvider = ({ children }) => {
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
-          setCategories(arrayToObj(data));
-          setCatArray(data);
+          // Merge API data with static data to prioritize local image/config changes
+          const mergedData = data.map(cat => ({
+            ...cat,
+            // If the static file has an image for this slug, use it
+            image: staticCategories[cat.slug]?.image || cat.image
+          }));
+          setCategories(arrayToObj(mergedData));
+          setCatArray(mergedData);
         }
       })
       .catch(() => {});
