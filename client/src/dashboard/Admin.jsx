@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useCategories } from "../context/CategoriesContext";
 import { useFlashSale } from "../context/FlashSaleContext";
-import { TrendingUp, TrendingDown, Package, ShoppingBag, Users, RotateCcw, AlertTriangle, BarChart2, Tag, Plus, Trash2, Edit2, X, Image, Zap, Clock, ChevronUp, ChevronDown } from "lucide-react";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { TrendingUp, TrendingDown, Package, ShoppingBag, Users, RotateCcw, AlertTriangle, BarChart2, Tag, Plus, Trash2, Edit2, X, Image, Zap, Clock, ChevronUp, ChevronDown, LogOut } from "lucide-react";
 const API_URL = import.meta.env.VITE_API_URL;
 
 
@@ -77,6 +79,8 @@ const StatusBadge = ({ status }) => {
 export const Admin = () => {
   const { categories, catArray, setCatArray, setCategories } = useCategories();
   const { setFlashSale: setGlobalFlashSale } = useFlashSale();
+  const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -613,6 +617,20 @@ export const Admin = () => {
             </div>
           )}
         </nav>
+
+        <div className="pt-5 mt-auto border-t border-slate-800">
+          <button
+            onClick={async () => {
+              if (window.confirm("Are you sure you want to logout?")) {
+                await logout();
+                navigate("/");
+              }
+            }}
+            className="flex items-center gap-2.5 w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all"
+          >
+            <LogOut size={15} /> Logout
+          </button>
+        </div>
       </aside>
 
       {/* ── Main Content ── */}

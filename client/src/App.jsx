@@ -32,12 +32,15 @@ import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   const { pathname } = useLocation();
-  const hideFooter = ["/login", "/register"].includes(pathname);
+  const isAdminPath = pathname.startsWith("/admin");
+  const hideNavbar = isAdminPath;
+  const hideFooter = ["/login", "/register"].includes(pathname) || isAdminPath;
+  const hideFlashSale = isAdminPath;
 
   return (
     <>
-      <Navbar />
-      <FlashSale />
+      {!hideNavbar && <Navbar />}
+      {!hideFlashSale && <FlashSale />}
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -114,7 +117,7 @@ const App = () => {
       </Suspense>
       {!hideFooter && <Footer />}
       {/* Spacer for mobile bottom tab bar */}
-      <div className="md:hidden h-16" />
+      {!isAdminPath && <div className="md:hidden h-16" />}
       <ToastContainer
         position="bottom-right"
         autoClose={3000}
