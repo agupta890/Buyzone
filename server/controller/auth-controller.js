@@ -1,6 +1,10 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/userSchema");
+
+// Google OAuth client (used to validate that an access token was issued for our app)
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Home page controller
 const home = async (req, res) => {
@@ -73,6 +77,13 @@ const login = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Account created via Google has no local password
+    if (!existingUser.password) {
+      return res
+        .status(400)
+        .json({ message: "This account uses Google Sign-In. Please continue with Google." });
+    }
+
     // Check password
     const isPasswordValid = await bcrypt.compare(password, existingUser.password);
     if (!isPasswordValid) {
@@ -101,6 +112,100 @@ const login = async (req, res) => {
   }
 };
 
+
+// 🔹 Google Sign-In / Sign-Up
+// Frontend sends a Google access token. We verify it was issued for OUR app,
+// fetch the verified Google profile, then log the user in (creating the
+// account on first sign-in). Existing email/password accounts are linked.
+const googleAuth = async (req, res) => {
+  try {
+    const { access_token } = req.body;
+
+    if (!access_token) {
+      return res.status(400).json({ message: "Missing Google access token" });
+    }
+
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      console.error("GOOGLE_CLIENT_ID is not configured on the server");
+      return res.status(500).json({ message: "Google login is not configured" });
+    }
+
+    // 1. Verify the access token's audience matches our app (prevents token replay
+    //    from other Google apps), and that it hasn't expired.
+    let tokenInfo;
+    try {
+      tokenInfo = await googleClient.getTokenInfo(access_token);
+    } catch (err) {
+      console.error("Google token verification failed:", err.message);
+      return res.status(401).json({ message: "Invalid or expired Google token" });
+    }
+
+    if (tokenInfo.aud !== process.env.GOOGLE_CLIENT_ID) {
+      return res.status(401).json({ message: "Google token audience mismatch" });
+    }
+
+    // 2. Fetch the verified profile (name / picture) from Google's userinfo endpoint.
+    const profileRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+
+    if (!profileRes.ok) {
+      return res.status(401).json({ message: "Failed to fetch Google profile" });
+    }
+
+    const profile = await profileRes.json();
+    const email = (profile.email || tokenInfo.email || "").toLowerCase();
+    const googleId = profile.sub || tokenInfo.sub;
+
+    if (!email || !googleId) {
+      return res.status(400).json({ message: "Google account has no usable email" });
+    }
+
+    // 3. Find an existing user by email, or create a new Google-based account.
+    let user = await User.findOne({ email });
+
+    if (user) {
+      // Link Google to an existing (e.g. password-based) account if not linked yet.
+      let changed = false;
+      if (!user.googleId) {
+        user.googleId = googleId;
+        changed = true;
+      }
+      if (!user.avatar && profile.picture) {
+        user.avatar = profile.picture;
+        changed = true;
+      }
+      if (changed) await user.save();
+    } else {
+      user = await User.create({
+        name: profile.name || email.split("@")[0],
+        email,
+        googleId,
+        avatar: profile.picture || "",
+        authProvider: "google",
+        // no password — this account authenticates via Google
+      });
+    }
+
+    // 4. Issue the same JWT cookie used by the email/password flow.
+    const token = generateToken(user._id);
+    setTokenCookie(res, token);
+
+    res.status(200).json({
+      message: "Google login successful",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        role: user.role || "user",
+      },
+    });
+  } catch (error) {
+    console.error("Google auth error:", error);
+    res.status(500).json({ message: "Google login failed" });
+  }
+};
 
 // 🔹 Logout
 const logout = (req, res) => {
@@ -136,6 +241,7 @@ module.exports = {
   getMe,
   register,
   login,
+  googleAuth,
   logout,
   makeAdmin,
 };
