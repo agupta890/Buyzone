@@ -10,7 +10,17 @@ const WelcomePopup = () => {
       const timer = setTimeout(() => {
         setIsOpen(true);
       }, 3000);
-      return () => clearTimeout(timer);
+
+      // Auto-hide after 8 seconds
+      const autoHideTimer = setTimeout(() => {
+        setIsOpen(false);
+        localStorage.setItem('hasSeenWelcomePopup', 'true');
+      }, 11000); // 3s delay + 8s display
+
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(autoHideTimer);
+      };
     }
   }, []);
 

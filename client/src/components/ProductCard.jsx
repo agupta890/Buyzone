@@ -41,7 +41,7 @@ const ProductCard = React.forwardRef(({ product }, ref) => {
     >
       <Link to={`/product/${product._id}`} className="flex-1 flex flex-col">
         {/* Image */}
-        <div className="relative aspect-[4/5] w-full bg-slate-50 flex items-center justify-center p-8 overflow-hidden">
+        <div className="relative aspect-[4/5] w-full bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden">
           <img
             src={product.image}
             alt={product.name}
