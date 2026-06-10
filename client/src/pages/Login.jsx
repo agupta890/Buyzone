@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthContext } from "../context/AuthContext";
+import { useGoogleAuth } from "../hooks/useGoogleAuth";
 import { Mail, Lock, ArrowRight, User, Chrome, Eye, EyeOff } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -12,6 +13,7 @@ export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
+  const { googleLogin, isGoogleLoading } = useGoogleAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -138,9 +140,14 @@ export const Login = () => {
 
           {/* Social Login */}
           <div className="grid grid-cols-2 gap-4">
-            <button className="flex items-center justify-center gap-2 border border-slate-100 rounded-2xl py-3.5 font-bold text-slate-700 hover:bg-slate-50 transition-colors text-sm">
+            <button
+              type="button"
+              onClick={() => googleLogin()}
+              disabled={isGoogleLoading}
+              className="flex items-center justify-center gap-2 border border-slate-100 rounded-2xl py-3.5 font-bold text-slate-700 hover:bg-slate-50 transition-colors text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+            >
               <Chrome size={18} className="text-red-500" />
-              Google
+              {isGoogleLoading ? "Connecting..." : "Google"}
             </button>
             <button className="flex items-center justify-center gap-2 border border-slate-100 rounded-2xl py-3.5 font-bold text-slate-700 hover:bg-slate-50 transition-colors text-sm">
               <svg className="w-4 h-4 text-blue-600 fill-current" viewBox="0 0 24 24">
