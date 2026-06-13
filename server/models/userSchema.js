@@ -15,8 +15,22 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
     password: {
+      // Not required: users who sign in with Google won't have a local password.
+      // Email/password registration still always provides one.
       type: String,
-      required: true,
+    },
+    googleId: {
+      type: String,
+      default: null,
+    },
+    avatar: {
+      type: String,
+      default: "",
+    },
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
     },
     role: {
       type: String,
