@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
-  image: { type: String },
+  image: { type: String }, // primary/cover image — kept for backward compatibility (listings, cart, orders)
+  images: { type: [String], default: [] }, // full gallery; images[0] mirrors `image`
   category: { type: String, required: true, index: true }, // Added index
   subcategory: { type: String, index: true }, // Added index
   stock: { type: Number, default: 0 },
