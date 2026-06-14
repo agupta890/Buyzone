@@ -4,6 +4,7 @@ import { useFlashSale } from "../context/FlashSaleContext";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, TrendingDown, Package, ShoppingBag, Users, RotateCcw, AlertTriangle, BarChart2, Tag, Plus, Trash2, Edit2, X, Image, Zap, Clock, ChevronUp, ChevronDown, LogOut } from "lucide-react";
+import { PLACEHOLDER_IMAGE, onImageError } from "../utils/imageFallback";
 const API_URL = import.meta.env.VITE_API_URL;
 
 
@@ -12,6 +13,89 @@ const API_ORDERS = `${API_URL}/api/admin/orders`;
 const API_STATS = `${API_URL}/api/admin/stats`;
 const API_SLIDER = `${API_URL}/api/slider`;
 const API_FLASH_SALE = `${API_URL}/api/flash-sale`;
+
+// ── Product image gallery field (used by both Create & Edit) ──
+// `setter` is a state setter (setFormData / setEditProduct). Each handler
+// reads/writes the `images` array on that state object.
+const addImages = (setter) => (e) => {
+  const files = Array.from(e.target.files || []);
+  if (!files.length) return;
+  const MAX = 5 * 1024 * 1024; // 5MB per image
+  const readers = files
+    .filter((f) => {
+      if (f.size > MAX) { alert(`"${f.name}" is over 5MB and was skipped.`); return false; }
+      return true;
+    })
+    .map((file) => new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(file);
+    }));
+  Promise.all(readers).then((urls) => {
+    setter((prev) => ({ ...prev, images: [...(prev.images || []), ...urls] }));
+  });
+  e.target.value = ""; // allow re-selecting the same file again
+};
+
+const removeImage = (setter) => (idx) =>
+  setter((prev) => ({ ...prev, images: (prev.images || []).filter((_, i) => i !== idx) }));
+
+const makePrimaryImage = (setter) => (idx) =>
+  setter((prev) => {
+    const imgs = [...(prev.images || [])];
+    const [chosen] = imgs.splice(idx, 1);
+    return { ...prev, images: [chosen, ...imgs] };
+  });
+
+const ProductImagesField = ({ images = [], setter, required }) => (
+  <div className="flex flex-col gap-2 col-span-full">
+    <label className="text-sm font-semibold text-gray-700">
+      Product Images{" "}
+      <span className="text-xs font-normal text-gray-400">(first image is the cover • up to 5MB each)</span>
+    </label>
+    <input
+      type="file"
+      accept="image/*"
+      multiple
+      onChange={addImages(setter)}
+      className="border p-2 rounded w-full text-sm"
+      required={required && images.length === 0}
+    />
+    {images.length > 0 && (
+      <div className="flex flex-wrap gap-3 mt-1">
+        {images.map((src, idx) => (
+          <div key={idx} className="relative group">
+            <img
+              src={src}
+              alt={`Preview ${idx + 1}`}
+              className={`h-20 w-20 object-cover rounded-lg border-2 shadow-sm ${idx === 0 ? "border-yellow-500" : "border-gray-200"}`}
+            />
+            {idx === 0 ? (
+              <span className="absolute bottom-0 inset-x-0 bg-yellow-500 text-white text-[9px] font-bold text-center rounded-b-lg py-0.5">
+                COVER
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => makePrimaryImage(setter)(idx)}
+                className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] font-bold text-center rounded-b-lg py-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                Set cover
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => removeImage(setter)(idx)}
+              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-md hover:bg-red-600"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+);
 
 // ── KPI Card ──────────────────────────────────────────────
 const KpiCard = ({ title, value, sub, icon: Icon, color, change }) => (
@@ -92,6 +176,7 @@ export const Admin = () => {
     name: "",
     price: "",
     image: "",
+    images: [],
     category: "",
     subcategory: "",
     description: "",
@@ -289,21 +374,6 @@ export const Admin = () => {
     saveFlashSale({ rules: updated });
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        alert("File is too large. Please select an image under 5MB.");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, image: reader.result }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   // Fetch Products
   const fetchProducts = async () => {
     setLoading(true);
@@ -371,6 +441,7 @@ export const Admin = () => {
         name: "",
         price: "",
         image: "",
+        images: [],
         category: "",
         subcategory: "",
         description: "",
@@ -547,6 +618,7 @@ export const Admin = () => {
                 onChange={e => setEditProduct({ ...editProduct, description: e.target.value })}
                 className="border p-2 rounded w-full col-span-full h-24"
               />
+              <ProductImagesField images={editProduct.images || []} setter={setEditProduct} required />
               <div className="flex items-center gap-2 col-span-full">
                 <input
                   type="checkbox"
@@ -729,7 +801,7 @@ export const Admin = () => {
                         <div key={o._id} className="flex items-center gap-3 px-5 py-3">
                           <div className="w-8 h-8 bg-gray-50 rounded border border-gray-100 flex-shrink-0 overflow-hidden">
                             {o.firstItem?.image && (
-                              <img src={o.firstItem.image} alt="" className="w-full h-full object-contain mix-blend-multiply" />
+                              <img src={o.firstItem.image || PLACEHOLDER_IMAGE} onError={onImageError} alt="" className="w-full h-full object-contain mix-blend-multiply" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -762,7 +834,7 @@ export const Admin = () => {
                         ) : stats.lowStockProducts.map(p => (
                           <div key={p._id} className="flex items-center gap-3 px-5 py-3">
                             <div className="w-8 h-8 bg-gray-50 rounded flex-shrink-0 overflow-hidden border border-gray-100">
-                              <img src={p.image} alt="" className="w-full h-full object-contain mix-blend-multiply" />
+                              <img src={p.image || PLACEHOLDER_IMAGE} onError={onImageError} alt="" className="w-full h-full object-contain mix-blend-multiply" />
                             </div>
                             <p className="flex-1 text-xs font-bold text-gray-700 truncate">{p.name}</p>
                             <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${p.stock === 0 ? "bg-red-50 text-red-600" : "bg-orange-50 text-orange-600"}`}>
@@ -836,35 +908,7 @@ export const Admin = () => {
               className="border p-2 rounded w-full"
               required
             />
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-gray-700">Product Image</label>
-              <div className="flex items-center gap-4">
-                <input
-                  key={uploadKey}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="border p-2 rounded w-full text-sm"
-                  required={!formData.image}
-                />
-                {formData.image && (
-                  <div className="relative group">
-                    <img
-                      src={formData.image}
-                      alt="Preview"
-                      className="h-12 w-12 object-cover rounded border-2 border-yellow-500 shadow-sm"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, image: "" })}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-md hover:bg-red-600"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+            <ProductImagesField images={formData.images} setter={setFormData} required />
             <select
               value={formData.category}
               onChange={(e) =>
@@ -991,7 +1035,8 @@ export const Admin = () => {
                 .map((product) => (
                   <div key={product._id} className="bg-white rounded shadow p-4 relative">
                     <img
-                      src={product.image}
+                      src={product.image || PLACEHOLDER_IMAGE}
+                      onError={onImageError}
                       alt={product.name}
                       className="h-32 w-full object-cover rounded"
                     />
@@ -1006,7 +1051,7 @@ export const Admin = () => {
                     )}
                     <div className="flex flex-wrap gap-2 mt-2">
                       <button
-                        onClick={() => setEditProduct({ ...product })}
+                        onClick={() => setEditProduct({ ...product, images: product.images?.length ? product.images : (product.image ? [product.image] : []) })}
                         className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
                       >
                         Edit
@@ -1254,7 +1299,8 @@ export const Admin = () => {
                           className="border p-2 rounded flex items-center gap-2 hover:shadow-md transition-shadow"
                         >
                           <img
-                            src={item.product?.image}
+                            src={item.product?.image || PLACEHOLDER_IMAGE}
+                            onError={onImageError}
                             alt={item.product?.name}
                             className="w-16 h-16 object-cover rounded"
                           />

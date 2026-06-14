@@ -1,7 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import 'react-toastify/dist/ReactToastify.css'; // make sure toast styles load
 import './index.css';
@@ -22,7 +21,6 @@ createRoot(document.getElementById('root')).render(
             <CartProvider>
               <FlashSaleProvider>
                 <App />
-                <ToastContainer />
               </FlashSaleProvider>
             </CartProvider>
           </CategoriesProvider>

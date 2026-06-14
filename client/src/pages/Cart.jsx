@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import RecentlyViewed from "./RecentlyViewed";
 import { toast } from "react-toastify";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Tag } from "lucide-react";
+import { PLACEHOLDER_IMAGE, onImageError } from "../utils/imageFallback";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const CartItem = memo(({ item, increaseQty, decreaseQty, removeFromCart }) => (
@@ -14,7 +15,8 @@ const CartItem = memo(({ item, increaseQty, decreaseQty, removeFromCart }) => (
       <Link to={`/product/${item.product._id}`} className="flex-shrink-0">
         <div className="w-20 h-20 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center p-2 overflow-hidden">
           <img
-            src={item.product.image}
+            src={item.product.image || PLACEHOLDER_IMAGE}
+            onError={onImageError}
             alt={item.product.name}
             className="max-h-full max-w-full object-contain mix-blend-multiply"
             loading="lazy"
