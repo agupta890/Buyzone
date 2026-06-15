@@ -303,9 +303,6 @@ export const Navbar = () => {
           </button>
         </div>
       </div>
-
-      {/* Spacer for bottom tab */}
-      <div className="md:hidden h-16" />
     </>
   );
 };

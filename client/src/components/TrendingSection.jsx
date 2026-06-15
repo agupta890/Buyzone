@@ -47,7 +47,7 @@ const TrendingSection = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
         {loading ? (
           [...Array(4)].map((_, i) => <ProductSkeleton key={i} />)
         ) : (

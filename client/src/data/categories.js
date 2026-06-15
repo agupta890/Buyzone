@@ -12,7 +12,7 @@ export const categories = {
   books: {
     title: "Books",
     subtitle: "Knowledge Hub",
-    image: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=1000&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1526243741027-444d633d7365?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mjh8fGJvb2tzfGVufDB8fDB8fHww",
     icon: "Book",
     color: "from-amber-500 to-orange-400",
     subcategories: ["Fiction", "Non Fiction"],
@@ -21,7 +21,7 @@ export const categories = {
   "handy-craft": {
     title: "Handy Craft",
     subtitle: "Artisan Made",
-    image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=1000&auto=format&fit=crop",
+    image:"https://images.unsplash.com/photo-1667089980864-f95d4dcc5a90?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     icon: "Paintbrush",
     color: "from-purple-500 to-pink-400",
     subcategories: [],
@@ -39,7 +39,7 @@ export const categories = {
   plants: {
     title: "Plants",
     subtitle: "Green Life",
-    image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=1000&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1728450136818-f1f180a22cfc?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGFydGlmaWNhbCUyMHBsYW50cyUyMGl0ZW1zfGVufDB8fDB8fHww",
     icon: "Sprout",
     color: "from-green-500 to-emerald-400",
     subcategories: ["Bonsai Plant", "Artificial Plant"],
@@ -48,7 +48,7 @@ export const categories = {
   toys: {
     title: "Toys",
     subtitle: "Joy for Kids",
-    image: "https://images.unsplash.com/photo-1532330393533-443990a51d10?q=80&w=1000&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1741389544696-0750a7ac6bbb?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8dG95cyUyMGl0ZW1zfGVufDB8fDB8fHww",
     icon: "Baby",
     color: "from-yellow-400 to-amber-500",
     subcategories: [],
@@ -57,7 +57,7 @@ export const categories = {
   cosmetic: {
     title: "Cosmetic",
     subtitle: "Beauty & Care",
-    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1000&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1600634999623-864991678406?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGNvc21ldGljJTIwaXRlbXN8ZW58MHx8MHx8fDA%3D",
     icon: "Sparkles",
     color: "from-pink-400 to-rose-500",
     subcategories: ["Men", "Women", "Fragrance"],
@@ -66,7 +66,7 @@ export const categories = {
   "dry-fruits": {
     title: "Dry Fruits",
     subtitle: "Healthy Snacking",
-    image: "https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?q=80&w=1000&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1606770749074-1a937564be98?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8ODh8fGRyeSUyMGZydWl0cyUyMGl0ZW1zfGVufDB8fDB8fHww",
     icon: "Nut",
     color: "from-stone-500 to-orange-900",
     subcategories: [],

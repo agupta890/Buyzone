@@ -140,7 +140,10 @@ const googleAuth = async (req, res) => {
       return res.status(401).json({ message: "Invalid or expired Google token" });
     }
 
-    if (tokenInfo.aud !== process.env.GOOGLE_CLIENT_ID) {
+    // Access tokens might have the client ID in 'aud' or 'azp'
+    const audience = tokenInfo.aud || tokenInfo.azp;
+    if (audience !== process.env.GOOGLE_CLIENT_ID) {
+      console.error(`Google token audience mismatch. Expected: ${process.env.GOOGLE_CLIENT_ID}, Got: ${audience}`);
       return res.status(401).json({ message: "Google token audience mismatch" });
     }
 

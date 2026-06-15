@@ -8,35 +8,33 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Tag } from "lucide-react"
 const API_URL = import.meta.env.VITE_API_URL;
 
 const CartItem = memo(({ item, increaseQty, decreaseQty, removeFromCart }) => (
-  <div className="flex items-center gap-4 py-4 border-b border-slate-100 last:border-0 group">
-    {/* Image */}
-    <Link to={`/product/${item.product._id}`} className="flex-shrink-0">
-      <div className="w-20 h-20 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center p-2 overflow-hidden">
-        <img
-          src={item.product.image}
-          alt={item.product.name}
-          className="max-h-full max-w-full object-contain mix-blend-multiply"
-          loading="lazy"
-        />
-      </div>
-    </Link>
-
-    {/* Info */}
-    <div className="flex-1 min-w-0">
-      <Link to={`/product/${item.product._id}`}>
-        <h3 className="text-sm font-bold text-slate-800 line-clamp-2 hover:text-amber-600 transition-colors">
-          {item.product.name}
-        </h3>
+  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b border-slate-100 last:border-0 group">
+    {/* Image & Info Row */}
+    <div className="flex items-center gap-4 flex-1 w-full">
+      <Link to={`/product/${item.product._id}`} className="flex-shrink-0">
+        <div className="w-20 h-20 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center p-2 overflow-hidden">
+          <img
+            src={item.product.image}
+            alt={item.product.name}
+            className="max-h-full max-w-full object-contain mix-blend-multiply"
+            loading="lazy"
+          />
+        </div>
       </Link>
-      <p className="text-xs text-slate-400 mt-0.5">{item.product.category || "Product"}</p>
-      <p className="text-base font-black text-slate-900 mt-1">₹{(item.product.price * item.quantity).toLocaleString()}</p>
-      {item.quantity > 1 && (
-        <p className="text-[10px] text-slate-400">₹{item.product.price.toLocaleString()} each</p>
-      )}
+
+      <div className="flex-1 min-w-0">
+        <Link to={`/product/${item.product._id}`}>
+          <h3 className="text-sm font-bold text-slate-800 line-clamp-2 hover:text-amber-600 transition-colors">
+            {item.product.name}
+          </h3>
+        </Link>
+        <p className="text-xs text-slate-400 mt-0.5">{item.product.category || "Product"}</p>
+        <p className="text-base font-black text-slate-900 mt-1">₹{(item.product.price * item.quantity).toLocaleString()}</p>
+      </div>
     </div>
 
-    {/* Controls */}
-    <div className="flex items-center gap-3 flex-shrink-0">
+    {/* Controls Row */}
+    <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto mt-2 sm:mt-0 pl-24 sm:pl-0">
       <div className="flex items-center gap-1 bg-slate-50 rounded-full border border-slate-200 p-1">
         <button
           onClick={() => decreaseQty(item.product._id)}
@@ -54,7 +52,7 @@ const CartItem = memo(({ item, increaseQty, decreaseQty, removeFromCart }) => (
       </div>
       <button
         onClick={() => removeFromCart(item.product._id)}
-        className="w-8 h-8 flex items-center justify-center rounded-full text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
+        className="w-8 h-8 flex items-center justify-center rounded-full text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all sm:opacity-0 group-hover:opacity-100"
       >
         <Trash2 size={15} />
       </button>

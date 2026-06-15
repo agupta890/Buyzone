@@ -68,7 +68,7 @@ export const ProductDetail = () => {
   if (!product) return null;
 
   return (
-    <div className="min-h-screen bg-[#FBFBFB] font-sans text-slate-900 pb-20 lg:pb-0">
+    <div className="min-h-screen bg-[#FBFBFB] font-sans text-slate-900 pb-36 lg:pb-0">
       
       {/* Back Navigation */}
       <div className="max-w-7xl mx-auto px-6 py-4">
@@ -212,7 +212,7 @@ export const ProductDetail = () => {
       </div>
 
       {/* Sticky Mobile Actions */}
-      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-xl border-t border-gray-100 p-5 flex gap-4 z-[1000] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+      <div className="lg:hidden fixed bottom-16 left-0 w-full bg-white/80 backdrop-blur-xl border-t border-gray-100 p-5 flex gap-4 z-[1000] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
         <button
           onClick={handleAddToCart}
           className={`flex-1 flex items-center justify-center gap-2 font-black px-6 py-4 rounded-2xl text-[11px] uppercase tracking-widest active:scale-95 transition-all ${
