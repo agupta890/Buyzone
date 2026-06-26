@@ -33,18 +33,39 @@ router.patch("/:id", protectAdmin, async (req, res) => {
   }
 
   try {
-    const updatedOrder = await Order.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    )
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    const previousStatus = order.status;
+
+    // Check if status is transitioning to Cancelled or Returned from a non-cancelled/returned status
+    if (["Cancelled", "Returned"].includes(status) && !["Cancelled", "Returned"].includes(previousStatus)) {
+      if (order.coinsUsed > 0 || order.coinsEarned > 0) {
+        const User = require("../models/userSchema");
+        const coinAdjust = order.coinsUsed - order.coinsEarned;
+        if (coinAdjust !== 0) {
+          await User.updateOne(
+            { _id: order.user },
+            { $inc: { cashbackCoins: coinAdjust } }
+          );
+          const updatedUser = await User.findById(order.user);
+          if (updatedUser && updatedUser.cashbackCoins < 0) {
+            updatedUser.cashbackCoins = 0;
+            await updatedUser.save();
+          }
+        }
+      }
+    }
+
+    order.status = status;
+    await order.save();
+
+    const updatedOrder = await Order.findById(id)
       .populate("user", "name email")
       .populate("items.product", "name image price returnDays")
       .populate("address_id");
-
-    if (!updatedOrder) {
-      return res.status(404).json({ message: "Order not found" });
-    }
 
     res.json({ order: updatedOrder });
   } catch (err) {

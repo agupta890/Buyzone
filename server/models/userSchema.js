@@ -37,6 +37,11 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"], // either user or admin
       default: "user",          // normal users are default
     },
+    cashbackCoins: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   { timestamps: true }
 );

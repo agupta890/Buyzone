@@ -1,5 +1,6 @@
-import { useContext, useState, memo, useMemo } from "react";
+import { useContext, useState, memo, useMemo, useEffect } from "react";
 import { CartContext } from "../context/Cart-context";
+import { AuthContext } from "../context/AuthContext";
 import { AddressPage } from "./AddressPage";
 import { useNavigate, Link } from "react-router-dom";
 import RecentlyViewed from "./RecentlyViewed";
@@ -65,12 +66,40 @@ const CartItem = memo(({ item, increaseQty, decreaseQty, removeFromCart }) => (
 export const Cart = () => {
   const { cart, loading, removeFromCart, increaseQty, decreaseQty, getTotal, clearCart } =
     useContext(CartContext);
+  const { auth, refreshUser } = useContext(AuthContext);
 
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const navigate = useNavigate();
 
+  const [cashbackOffer, setCashbackOffer] = useState(null);
+  const [useCoins, setUseCoins] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/cashback-offer`)
+      .then((r) => r.json())
+      .then((data) => setCashbackOffer(data))
+      .catch(() => {});
+  }, []);
+
   const totalAmount = useMemo(() => getTotal(), [getTotal]);
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+  const userCoins = auth?.user?.cashbackCoins || 0;
+  const coinDiscount = useCoins ? Math.min(userCoins, totalAmount) : 0;
+  const payableAmount = totalAmount - coinDiscount;
+
+  const coinsEarned = useMemo(() => {
+    if (!cashbackOffer || !cashbackOffer.isActive) return 0;
+    const amountToCheck = totalAmount;
+    if (amountToCheck >= cashbackOffer.maxPurchase) {
+      return Math.round(amountToCheck * (cashbackOffer.maxCashbackPercent / 100));
+    } else if (amountToCheck >= cashbackOffer.midPurchase) {
+      return Math.round(amountToCheck * (cashbackOffer.midCashbackPercent / 100));
+    } else if (amountToCheck >= cashbackOffer.minPurchase) {
+      return Math.round(amountToCheck * (cashbackOffer.minCashbackPercent / 100));
+    }
+    return 0;
+  }, [cashbackOffer, totalAmount]);
 
   if (loading && cart.length === 0) {
     return (
@@ -83,6 +112,39 @@ export const Cart = () => {
   const handleCheckout = async () => {
     if (!selectedAddressId) {
       toast.warn("Please select a delivery address first");
+      return;
+    }
+
+    if (payableAmount === 0) {
+      if (!window.confirm(`Use 🪙 ${totalAmount} Buyzone Coins to place this order?`)) return;
+      try {
+        const formattedItems = cart.map(item => ({
+          product: item.product._id,
+          quantity: item.quantity,
+          price: item.price || item.product.price || 0,
+        }));
+
+        const res = await fetch(`${API_URL}/api/orders`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: formattedItems,
+            total: 0,
+            address_id: selectedAddressId,
+            coinsUsed: totalAmount,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Order placement failed");
+
+        toast.success("Order placed successfully using Buyzone Coins!");
+        await refreshUser();
+        await clearCart();
+        navigate("/orders");
+      } catch (err) {
+        toast.error(err.message || "Checkout failed");
+      }
       return;
     }
 
@@ -101,7 +163,7 @@ export const Cart = () => {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: totalAmount }),
+        body: JSON.stringify({ amount: payableAmount }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Order creation failed");
@@ -123,12 +185,14 @@ export const Cart = () => {
               razorpay_signature: response.razorpay_signature,
               address_id: selectedAddressId,
               cart,
-              total: totalAmount,
+              total: payableAmount,
+              coinsUsed: coinDiscount,
             }),
           });
           const verifyData = await verifyRes.json();
           if (verifyRes.ok && verifyData.verified) {
             toast.success("Payment successful! Order placed.");
+            await refreshUser();
             await clearCart();
             navigate("/orders");
           } else {
@@ -218,15 +282,47 @@ export const Cart = () => {
                     <span>Subtotal ({totalItems} items)</span>
                     <span className="font-bold text-slate-900">₹{totalAmount.toLocaleString()}</span>
                   </div>
+                  {coinDiscount > 0 && (
+                    <div className="flex justify-between text-amber-600 font-extrabold">
+                      <span>Coin Discount</span>
+                      <span>-₹{coinDiscount.toLocaleString()}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-slate-600">
                     <span>Delivery</span>
                     <span className="font-bold text-emerald-600">FREE</span>
                   </div>
                   <div className="border-t border-slate-100 pt-3 flex justify-between">
-                    <span className="font-black text-slate-900">Total</span>
-                    <span className="font-black text-slate-900 text-lg">₹{totalAmount.toLocaleString()}</span>
+                    <span className="font-black text-slate-900">Total Payable</span>
+                    <span className="font-black text-slate-900 text-lg">₹{payableAmount.toLocaleString()}</span>
                   </div>
                 </div>
+
+                {/* Cashback Coins Checkbox & Summary */}
+                {auth?.user && userCoins > 0 && (
+                  <div className="mt-4 border-t border-slate-100 pt-4">
+                    <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={useCoins}
+                        onChange={(e) => setUseCoins(e.target.checked)}
+                        className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500/20"
+                      />
+                      <span className="text-xs font-bold text-slate-700 flex items-center gap-1">
+                        Use Buyzone Coins <span className="text-amber-500 font-black">(Available: 🪙 {userCoins})</span>
+                      </span>
+                    </label>
+                  </div>
+                )}
+
+                {/* Cashback Coins Earn Info */}
+                {coinsEarned > 0 && (
+                  <div className="mt-4 bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
+                    <p className="text-xs font-black text-emerald-800 flex items-center justify-center gap-1">
+                      🎉 You will earn 🪙 {coinsEarned} Coins from this order!
+                    </p>
+                  </div>
+                )}
 
                 {/* Coupon placeholder */}
                 <div className="mt-4 flex items-center gap-2 bg-slate-50 rounded-xl border border-slate-200 px-3 py-2">

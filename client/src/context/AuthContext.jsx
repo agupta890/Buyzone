@@ -50,8 +50,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // 🔹 Refresh user session (useful after coin adjustments)
+  const refreshUser = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/auth/me`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAuth({ user: data.user, loading: false });
+      }
+    } catch (err) {
+      console.error("Auth refresh failed:", err);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ auth, login, logout }}>
+    <AuthContext.Provider value={{ auth, login, logout, refreshUser }}>
       {auth.loading ? <LoadingScreen /> : children}
     </AuthContext.Provider>
   );

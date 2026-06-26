@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { Package, Truck, CheckCircle, Clock, XCircle, ChevronRight, MapPin, RotateCcw, AlertCircle, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
+import { AuthContext } from "../context/AuthContext";
 import { PLACEHOLDER_IMAGE, onImageError } from "../utils/imageFallback";
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -198,6 +199,7 @@ export const MyOrders = () => {
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   const [reorderingId, setReorderingId] = useState(null);
   const { addToCart } = useContext(CartContext);
+  const { refreshUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const toggleExpand = (orderId) => {
@@ -285,6 +287,10 @@ export const MyOrders = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Action failed");
+
+      if (refreshUser) {
+        await refreshUser();
+      }
 
       setOrders((prev) =>
         prev.map((o) => (o._id === modal.orderId ? { ...o, status: data.order.status } : o))
