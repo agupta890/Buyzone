@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { PLACEHOLDER_IMAGE, onImageError } from "../utils/imageFallback";
 
 const RecentlyViewed = () => {
   const [recentItems, setRecentItems] = useState([]);
@@ -30,7 +31,8 @@ const RecentlyViewed = () => {
             {/* Image Container */}
             <div className="w-full h-40 flex items-center justify-center bg-gray-50 p-6 relative">
               <img
-                src={item.image}
+                src={item.image || PLACEHOLDER_IMAGE}
+                onError={onImageError}
                 alt={item.name}
                 loading="lazy"
                 className="max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110"

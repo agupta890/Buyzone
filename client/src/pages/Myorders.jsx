@@ -2,6 +2,8 @@ import React, { useEffect, useState, useContext } from "react";
 import { Package, Truck, CheckCircle, Clock, XCircle, ChevronRight, MapPin, RotateCcw, AlertCircle, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
+import { AuthContext } from "../context/AuthContext";
+import { PLACEHOLDER_IMAGE, onImageError } from "../utils/imageFallback";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const OrderSkeleton = () => (
@@ -197,6 +199,7 @@ export const MyOrders = () => {
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   const [reorderingId, setReorderingId] = useState(null);
   const { addToCart } = useContext(CartContext);
+  const { refreshUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const toggleExpand = (orderId) => {
@@ -284,6 +287,10 @@ export const MyOrders = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Action failed");
+
+      if (refreshUser) {
+        await refreshUser();
+      }
 
       setOrders((prev) =>
         prev.map((o) => (o._id === modal.orderId ? { ...o, status: data.order.status } : o))
@@ -409,7 +416,7 @@ export const MyOrders = () => {
                   <div className="hidden md:grid grid-cols-12 gap-4 p-6">
                     <div className="col-span-4 flex gap-4">
                       <div className="w-20 h-20 bg-gray-50 rounded border border-gray-100 flex items-center justify-center p-2 flex-shrink-0">
-                        <img src={items[0]?.product?.image} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" />
+                        <img src={items[0]?.product?.image || PLACEHOLDER_IMAGE} onError={onImageError} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" />
                       </div>
                       <div className="flex flex-col">
                         <h4 className="text-sm font-bold text-gray-800 line-clamp-1">{items[0]?.product?.name}</h4>
@@ -434,7 +441,7 @@ export const MyOrders = () => {
                   <div className="md:hidden p-4 space-y-4">
                     <div className="flex gap-3">
                       <div className="w-16 h-16 bg-gray-50 rounded border border-gray-100 flex items-center justify-center p-2 flex-shrink-0">
-                        <img src={items[0]?.product?.image} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" />
+                        <img src={items[0]?.product?.image || PLACEHOLDER_IMAGE} onError={onImageError} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" />
                       </div>
                       <div className="flex-1">
                         <h4 className="text-xs font-bold text-gray-800 line-clamp-2">{items[0]?.product?.name}</h4>
@@ -503,7 +510,7 @@ export const MyOrders = () => {
                           {items.map((item, idx) => (
                             <div key={idx} className="flex items-center gap-3 bg-white rounded-lg p-3 border border-gray-100">
                               <div className="w-12 h-12 bg-gray-50 rounded border border-gray-100 flex items-center justify-center p-1 flex-shrink-0">
-                                <img src={item.product?.image} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" />
+                                <img src={item.product?.image || PLACEHOLDER_IMAGE} onError={onImageError} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-xs font-bold text-gray-800 line-clamp-1">{item.product?.name}</p>

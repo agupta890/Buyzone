@@ -19,6 +19,8 @@ const orderSchema = new mongoose.Schema(
     order_id: { type: String },
     signature: { type: String },
     address_id: { type: mongoose.Schema.Types.ObjectId, ref: "Address", required: true },
+    coinsUsed: { type: Number, default: 0, min: 0 },
+    coinsEarned: { type: Number, default: 0, min: 0 },
     status: {
       type: String,
       enum: ['Pending', 'Paid', 'Packing', 'Dispatched', 'Delivered', 'Cancelled', 'Return_Requested', 'Returned'],

@@ -88,6 +88,7 @@ export const HomePage = () => {
   return (
     <div className="bg-[#FBFBFB] min-h-screen font-sans text-[#1A1A1A] overflow-x-hidden">
       <WelcomePopup />
+
       
       {/* 1. Hero Section - Animated Entry */}
       <section className="relative group animate-fade-in">

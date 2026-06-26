@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import FlashSale from "./components/FlashSale";
+import CashbackBanner from "./components/CashbackBanner";
 
 // Lazy load page components
 const HomePage = lazy(() => import("./pages/HomePage").then(module => ({ default: module.HomePage })));
@@ -41,6 +42,7 @@ const App = () => {
     <>
       {!hideNavbar && <Navbar />}
       {!hideFlashSale && <FlashSale />}
+      <CashbackBanner />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<HomePage />} />

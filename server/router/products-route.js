@@ -27,7 +27,8 @@ router.get('/', async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const [products, total] = await Promise.all([
-      Product.find(query).sort(sortOrder).skip(skip).limit(parseInt(limit)).lean(),
+      // Exclude the heavy `images` gallery from listings — only the `image` cover is needed here
+      Product.find(query).select('-images').sort(sortOrder).skip(skip).limit(parseInt(limit)).lean(),
       Product.countDocuments(query),
     ]);
 
@@ -46,12 +47,18 @@ router.get('/', async (req, res) => {
 // POST new product
 router.post('/', async (req, res) => {
   try {
-    const { name, price, image, category, subcategory, stock, isBestsellers, description, returnDays } = req.body;
+    const { name, price, image, images, category, subcategory, stock, isBestsellers, description, returnDays } = req.body;
+
+    // Normalise the gallery: keep only non-empty entries; the cover (`image`) is the first one.
+    const gallery = (Array.isArray(images) ? images : []).filter(Boolean);
+    const cover = gallery[0] || image || "";
+    if (cover && !gallery.length) gallery.push(cover);
 
     const newProduct = new Product({
       name,
       price,
-      image,
+      image: cover,
+      images: gallery,
       category,
       subcategory,
       stock,
@@ -71,10 +78,16 @@ router.post('/', async (req, res) => {
 // PATCH update product (full edit)
 router.patch('/:id', async (req, res) => {
   try {
-    const allowed = ['name', 'price', 'image', 'category', 'subcategory', 'stock', 'description', 'isBestsellers', 'returnDays'];
+    const allowed = ['name', 'price', 'image', 'images', 'category', 'subcategory', 'stock', 'description', 'isBestsellers', 'returnDays'];
     const updates = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) updates[key] = req.body[key];
+    }
+
+    // Keep the gallery and cover in sync: filter empties and mirror images[0] into `image`.
+    if (updates.images !== undefined) {
+      updates.images = (Array.isArray(updates.images) ? updates.images : []).filter(Boolean);
+      updates.image = updates.images[0] || "";
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(

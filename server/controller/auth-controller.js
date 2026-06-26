@@ -59,7 +59,7 @@ const register = async (req, res) => {
 
     res.status(201).json({
       message: "User registered successfully",
-      user: { _id: user._id, name, email, role: "user" },
+      user: { _id: user._id, name, email, role: "user", cashbackCoins: 0 },
     });
   } catch (error) {
     console.error("Register error:", error);
@@ -104,6 +104,7 @@ const login = async (req, res) => {
         name: existingUser.name,
         email: existingUser.email,
         role: existingUser.role || "user", // 👈 Important: send role
+        cashbackCoins: existingUser.cashbackCoins || 0,
       },
     });
   } catch (error) {
@@ -202,6 +203,7 @@ const googleAuth = async (req, res) => {
         email: user.email,
         avatar: user.avatar,
         role: user.role || "user",
+        cashbackCoins: user.cashbackCoins || 0,
       },
     });
   } catch (error) {

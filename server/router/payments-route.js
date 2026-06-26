@@ -62,7 +62,32 @@ router.post('/verify',protectUser, async (req, res) => {
       return res.status(400).json({ verified: false, error: 'Invalid signature' });
     }
 
-        // Format cart items for DB
+    const coinsUsed = Number(req.body.coinsUsed) || 0;
+
+    // Verify user has enough coins if they used them
+    if (coinsUsed > 0) {
+      if (req.user.cashbackCoins < coinsUsed) {
+        return res.status(400).json({ verified: false, error: 'Insufficient cashback coins' });
+      }
+    }
+
+    // Load active offer to calculate coins earned
+    const CashbackOffer = require('../models/cashbackOfferSchema');
+    const offer = await CashbackOffer.findOne().sort({ updatedAt: -1 });
+    let coinsEarned = 0;
+
+    if (offer && offer.isActive) {
+      const orderTotal = total || 0;
+      if (orderTotal >= offer.maxPurchase) {
+        coinsEarned = Math.round(orderTotal * (offer.maxCashbackPercent / 100));
+      } else if (orderTotal >= offer.midPurchase) {
+        coinsEarned = Math.round(orderTotal * (offer.midCashbackPercent / 100));
+      } else if (orderTotal >= offer.minPurchase) {
+        coinsEarned = Math.round(orderTotal * (offer.minCashbackPercent / 100));
+      }
+    }
+
+    // Format cart items for DB
     const formattedCart = (cart || []).map(item => ({
       product: item.product._id || item.product,
       quantity: item.quantity || 1,
@@ -78,10 +103,21 @@ router.post('/verify',protectUser, async (req, res) => {
       order_id: razorpay_order_id,
       signature: razorpay_signature,
       address_id: address_id,
+      coinsUsed: coinsUsed,
+      coinsEarned: coinsEarned,
       status: 'Paid',
     });
 
     await newOrder.save();
+
+    // Deduct coins used & add coins earned to user account
+    if (coinsUsed > 0 || coinsEarned > 0) {
+      const User = require('../models/userSchema');
+      await User.updateOne(
+        { _id: req.user._id },
+        { $inc: { cashbackCoins: coinsEarned - coinsUsed } }
+      );
+    }
 
     // 🛒 Clear user's cart after successful order - using a more robust update
     try {

@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/Cart-context";
 import BuyButton from "./BuyButton";
 import { Star, ShieldCheck, Truck, RotateCcw, ChevronLeft, ShoppingCart, Sparkles, CheckCircle } from "lucide-react";
+import { PLACEHOLDER_IMAGE, onImageError } from "../utils/imageFallback";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const ProductDetail = () => {
@@ -12,6 +13,7 @@ export const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeImg, setActiveImg] = useState(0);
 
   const isInCart = product ? cart.some(i => i.product._id === product._id) : false;
 
@@ -29,7 +31,7 @@ export const ProductDetail = () => {
         if (!res.ok) throw new Error("Failed to fetch product details");
         const data = await res.json();
         setProduct(data);
-        console.log(data)
+        setActiveImg(0);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -67,6 +69,10 @@ export const ProductDetail = () => {
 
   if (!product) return null;
 
+  // Gallery falls back to the single `image` for products created before multi-image support.
+  const gallery = product.images?.length ? product.images : (product.image ? [product.image] : []);
+  const mainImg = gallery[activeImg] || gallery[0] || product.image;
+
   return (
     <div className="min-h-screen bg-[#FBFBFB] font-sans text-slate-900 pb-36 lg:pb-0">
       
@@ -81,18 +87,41 @@ export const ProductDetail = () => {
         
         {/* Left: Product Image Gallery */}
         <div className="relative">
-          <div className="aspect-square bg-white rounded-[3rem] shadow-2xl shadow-slate-200/50 flex items-center justify-center p-12 relative group overflow-hidden border border-gray-100">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="object-contain w-full h-full transition-transform duration-700 group-hover:scale-110"
-            />
-            {/* Discount Badge */}
-            <div className="absolute top-8 left-8 bg-amber-500 text-black text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-xl">
-              10% OFF
+          <div className="flex gap-4">
+            {/* Thumbnail rail (only when there's more than one image) */}
+            {gallery.length > 1 && (
+              <div className="flex flex-col gap-3 w-16 sm:w-20 flex-shrink-0">
+                {gallery.map((src, idx) => (
+                  <button
+                    key={idx}
+                    onMouseEnter={() => setActiveImg(idx)}
+                    onClick={() => setActiveImg(idx)}
+                    className={`aspect-square bg-white rounded-2xl border-2 p-2 flex items-center justify-center overflow-hidden transition-all ${
+                      idx === activeImg ? "border-amber-500 shadow-lg" : "border-gray-100 hover:border-amber-300"
+                    }`}
+                    aria-label={`View image ${idx + 1}`}
+                  >
+                    <img src={src || PLACEHOLDER_IMAGE} onError={onImageError} alt={`${product.name} ${idx + 1}`} className="object-contain w-full h-full" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Main image */}
+            <div className="flex-1 aspect-square bg-white rounded-[3rem] shadow-2xl shadow-slate-200/50 flex items-center justify-center p-12 relative group overflow-hidden border border-gray-100">
+              <img
+                src={mainImg || PLACEHOLDER_IMAGE}
+                onError={onImageError}
+                alt={product.name}
+                className="object-contain w-full h-full transition-transform duration-700 group-hover:scale-110"
+              />
+              {/* Discount Badge */}
+              <div className="absolute top-8 left-8 bg-amber-500 text-black text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-xl">
+                10% OFF
+              </div>
             </div>
           </div>
-          
+
           {/* Trust Highlights on Mobile */}
           <div className="grid grid-cols-3 gap-4 mt-8 lg:hidden">
              <div className="bg-white p-4 rounded-2xl text-center border border-gray-100">

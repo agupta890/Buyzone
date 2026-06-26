@@ -16,8 +16,8 @@ const Profile = () => {
         const res = await fetch(`${API_URL}/api/auth/me`, { credentials: "include" });
         const data = await res.json();
         if (res.ok) {
-          setUser(data);
-          setFormData({ name: data.name || "", email: data.email || "" });
+          setUser(data.user || data);
+          setFormData({ name: (data.user || data).name || "", email: (data.user || data).email || "" });
         } else {
           toast.error("Failed to fetch user details");
           navigate("/login");
@@ -52,7 +52,7 @@ const Profile = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        setUser(data);
+        setUser(data.user || data);
         toast.success("Profile updated");
       } else {
         toast.error(data.message || "Update failed");
@@ -96,6 +96,26 @@ const Profile = () => {
           >
             <Package size={15} /> My Orders
           </Link>
+        </div>
+
+        {/* Cashback Coins Section */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 relative overflow-hidden">
+          {/* Decorative background glow */}
+          <div className="absolute right-0 top-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest">Buyzone Coins</h3>
+              <p className="text-3xl font-black text-slate-900 flex items-baseline gap-1">
+                🪙 {user.cashbackCoins || 0}
+                <span className="text-xs font-semibold text-gray-400">coins</span>
+              </p>
+              <p className="text-xs text-gray-400 font-medium">1 Coin = ₹1. Use these coins on your next purchase to get instant discounts!</p>
+            </div>
+            <div className="bg-amber-500/10 text-amber-600 px-3 py-1.5 rounded-xl">
+              <span className="font-extrabold text-xs">Active Offer</span>
+            </div>
+          </div>
         </div>
 
         {/* Edit Form */}

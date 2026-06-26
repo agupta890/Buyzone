@@ -4,6 +4,7 @@ import { CartContext } from "../context/Cart-context";
 import { AuthContext } from "../context/AuthContext";
 import { useFlashSale } from "../context/FlashSaleContext";
 import { ShoppingCart, CheckCircle, Zap } from "lucide-react";
+import { PLACEHOLDER_IMAGE, onImageError } from "../utils/imageFallback";
 
 const ProductCard = React.forwardRef(({ product }, ref) => {
   const { addToCart, cart } = useContext(CartContext);
@@ -43,7 +44,8 @@ const ProductCard = React.forwardRef(({ product }, ref) => {
         {/* Image */}
         <div className="relative aspect-[4/5] w-full bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden">
           <img
-            src={product.image}
+            src={product.image || PLACEHOLDER_IMAGE}
+            onError={onImageError}
             alt={product.name}
             loading="lazy"
             className="max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105"

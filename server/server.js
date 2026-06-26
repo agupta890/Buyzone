@@ -52,6 +52,7 @@ const categoriesRoutes = require('./router/categories-route');
 const addressRoutes = require("./router/address-route");
 const sliderRoutes = require("./router/slider-route");
 const flashSaleRoutes = require("./router/flash-sale-route");
+const cashbackOfferRoutes = require("./router/cashback-offer-route");
 
 // ✅ Routes
 app.use('/api/auth', authRouter);
@@ -65,6 +66,7 @@ app.use("/api/categories", categoriesRoutes);
 app.use("/api/address", addressRoutes);
 app.use("/api/slider", sliderRoutes);
 app.use("/api/flash-sale", flashSaleRoutes);
+app.use("/api/cashback-offer", cashbackOfferRoutes);
 
 // ✅ Health Check Route
 app.get('/', (req, res) => {
